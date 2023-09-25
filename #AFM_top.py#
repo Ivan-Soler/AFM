@@ -1,0 +1,52 @@
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
+import re
+
+import Read
+import Maxima_find
+import os
+
+matplotlib.rcParams.update({'font.size': 20})
+plt.rcParams["figure.figsize"] = (7,5)
+
+
+axis=list((map(int,input("Enter the axis to be summed over in ascending order: "))))
+directory=input("Enter the directory of zero modes: ")
+
+#directory = os.fsencode("./")
+Maxima_file=open('maxima.dat','w')
+
+for file in os.listdir(directory):
+     file_name = os.fsdecode(file)
+     if file_name.startswith("SusyMode0"):
+
+        #Getting configuration
+        match = re.search(r'-\d*', file_name)
+        if match:
+             conf= match.group().replace("SusyMode0-","")
+        density,sizes=Read.susy_mode(directory+file_name,"","")
+
+        density=density.sum(axis=axis[0]).sum(axis=(axis[1]-1)).sum(axis=(axis[2]-2))
+        res=Maxima_find.simple_1d(density,len(density))
+        
+        print(len(density))
+        print("Maxima density:\t" + str(np.size(res)))
+        print(conf+"\t"+str(np.size(res)),file=Maxima_file)
+          
+        i=np.arange(0,len(density))
+        plt.xlabel("time")
+        plt.ylabel("Q(t)")
+        plt.plot(i,density)
+        plt.savefig(file_name+".png",dpi=150, bbox_inches='tight')
+        plt.close()
+
+
+        
+        continue
+    
+     else:
+         continue
+
+Maxima_file.close()

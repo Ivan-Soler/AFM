@@ -1,0 +1,159 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import axes3d, Axes3D
+from scipy import interpolate
+from scipy.interpolate import RegularGridInterpolator
+from scipy.interpolate import interpn
+import Projecting
+import Plotting
+import Read
+import Maxima_find
+import Fitting
+import Fit_1d
+import subprocess
+from subprocess import call
+import importlib
+import analyzer
+import re
+plt.rcParams.update({'font.size': 16})
+plt.rcParams['text.usetex'] = True
+
+# Reads the eigenvalue of the supersymmetric operator of each mode
+def Real_eigenvalue(file):
+    Measure_file = open(file, "r")
+    pattern=":OverlapFilterModeR:"
+    eigenvectors=[[]]
+    count=[[]]
+    eigenvectors.pop(0)
+    count={}
+    dictionary={}
+    for line in Measure_file:
+        if re.search(pattern,line):
+            line_split=line.split(":")
+            if (float(line_split[8])<1):
+                eigenvectors.append([line_split[1],line_split[4],line_split[8]])
+                if line_split[1] in dictionary:
+                    dictionary[line_split[1]].append(line_split[8])
+                    count[line_split[1]]+=1
+                else:
+                    dictionary.update({line_split[1]:[line_split[8]]})
+                    count.update({line_split[1]:1})
+    return dictionary
+
+#Param and definitions
+sizes=[8,8,8,64]
+max_modes=8
+colors=3
+spin_length=4
+conf_start=661
+conf_end=30
+conf_step=10
+conf_tot=int((conf_end-conf_start)/conf_step)
+folder="./"
+
+
+threshold_start=1
+threshold_end=10
+threshold_step=1
+RPO_threshold=0.15
+
+GM=np.zeros((conf_tot))
+RPO=np.zeros((conf_tot))
+GM_tot=np.zeros((threshold_end))
+RPO_tot=np.zeros((threshold_end))  
+
+IPR=np.zeros((2,threshold_end,conf_tot,max_modes))
+
+index_overlap[k]=np.zeros((threshold_end))
+index_susy[k]=np.zeros((threshold_end)) 
+
+dictionary_s1=Real_eigenvalue(".sector_0/Measure.seq")
+dictionary_s0=Real_eigenvalue(".sector_1/Measure.seq")
+
+#index configurations
+k=0
+for threshold_int in range(threshold_start, threshold_end, threshold_step):
+    threshold=threshold_int/100
+    j=0
+    for conf in range(conf_start,conf_end,conf_step):
+        #Read GF
+        Topology ="../gf/profile4dt4c"+str(conf)+"to.dat"
+        density_top,sizes=Read.topology_1d(Topology)
+
+        density_susy=np.zeros(sizes[3])
+        density_s0=np.zeros((max_modes,sizes[3]))
+        density_s1=np.zeros((max_modes,sizes[3]))
+
+        #Read supersymmetric modes up to a threshold of the eigenvalue
+        read=False
+        for i in range(0,max_modes):
+            ev=float(dictionary_s1[str(conf)][i])
+            if (abs(ev)<threshold):
+                read=True
+                Mode = folder+"sector_1/SusyMode"+str(i)+"-"+str(conf)
+                density_s1[i],sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
+                IPR[1,k,j,i]=analyzer.IPR(density_s1[i])
+                density_susy+=density_s1[i]
+
+        for i in range(0,max_modes):
+            ev=float(dictionary_s0[str(conf)][i])
+            if (abs(ev)<threshold):
+                read=True
+                Mode = folder+"sector_0/SusyMode"+str(i)+"-"+str(conf)
+                density_s0[i],sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
+                IPR[0,k,j,i]=analyzer.IPR(density_s0[i])
+                density_susy+=-density_s0[i]
+        if read:
+            GM[threshold_int]=analyzer.Geom_mean_1d(density_susy,density_top)
+            RPO[threshold_int]=analyzer.RPO(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
+            
+        Plotting.plot_density_1d(density_susy,Mode,"red")
+        Plotting.plot_density_1d(density_top,Mode,"blue")
+        plt.savefig("./plots/afm_gf_4t_"+str(conf)+"c"+,dpi=150, bbox_inches='tight')
+        j+=1
+        
+    conf_meas=0
+    GM_mean=0
+    RPO_mean=0
+    for element in GM:
+        if element!=0:
+            conf_meas+=1
+        GM_mean+=element
+    GM_mean=GM_mean/conf_meas
+    
+    conf_meas=0
+    for element in RPO:
+        if element!=0:
+            conf_meas+=1
+        RPO_mean+=element
+    RPO_mean=RPO_mean/conf_meas
+    
+    GM_tot[k]=GM_mean
+    RPO_tot[k]=RPO_mean
+    
+    index_overlap[k], index_susy[k]=analyzer.Index(conf_tot, threshold)
+    
+    k+=1
+    
+    
+#Plotting the GM and RPO
+param=np.arange(0,threshold_end,1)
+plt.plot(param/100,GM_tot)
+plt.xlabel(r'$\lambda_{max}$')
+plt.ylabel(r'$\Xi$')
+plt.savefig("./GM.pdf",dpi=150, bbox_inches='tight')
+
+plt.plot(param/100,RPO_tot)
+plt.xlabel(r'$\lambda_{max}$')
+plt.ylabel(r'RPO')
+plt.savefig("./RPO.pdf",dpi=150, bbox_inches='tight')
+
+plt.plot(param/100,index_overlap)
+plt.xlabel(r'$\lambda_{max}$')
+plt.ylabel(r'Index_ov-Q')
+plt.savefig("./Index_ov.pdf",dpi=150, bbox_inches='tight')
+
+plt.plot(param/100,index_susy)
+plt.xlabel(r'$\lambda_{max}$')
+plt.ylabel(r'Index_susy-Q')
+plt.savefig("./Index_susy.pdf",dpi=150, bbox_inches='tight')
