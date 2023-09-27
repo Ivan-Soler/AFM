@@ -14,14 +14,14 @@ colors=3
 spin_length=4
 
 conf_start=10
-conf_end=1010
+conf_end=500
 conf_step=10
 conf=np.arange(conf_start,conf_end,conf_step)
 
 lambda_min=0.01
 lambda_max=0.20
-steps=1
-lambdas=np.arange(lambda_min,lambda_max,steps)
+steps=20
+lambdas=np.linspace(lambda_min,lambda_max,num=steps)
 
 RPO_threshold=0.15
 

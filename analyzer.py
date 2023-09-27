@@ -19,14 +19,13 @@ def Real_eigenvalue(file):
     for line in Measure_file:
         if re.search(pattern,line):
             line_split=line.split(":")
-            if (float(line_split[8])<1):
-                eigenvectors.append([line_split[1],line_split[4],line_split[8]])
-                if line_split[1] in dictionary:
-                    dictionary[line_split[1]].append(line_split[8])
-                    count[line_split[1]]+=1
-                else:
-                    dictionary.update({line_split[1]:[line_split[8]]})
-                    count.update({line_split[1]:1})
+            eigenvectors.append([line_split[1],line_split[4],line_split[8]])
+            if line_split[1] in dictionary:
+                dictionary[line_split[1]].append(line_split[8])
+                count[line_split[1]]+=1
+            else:
+                dictionary.update({line_split[1]:[line_split[8]]})
+                count.update({line_split[1]:1})
     return dictionary
 
 def GM_matrix(modes1, modes2):
@@ -102,6 +101,9 @@ def End_spectrum(folder):
 
 def Count_index(folder,measurement,threshold,configurations):
     count={}
+    for conf in configurations:
+        count[str(conf)]=0
+
     with open(folder) as file:
         for line in file:
             match=re.search(measurement,line)
@@ -109,11 +111,8 @@ def Count_index(folder,measurement,threshold,configurations):
                 string=line.split(":")
                 for conf in configurations:
                     if (abs(float(string[8]))<threshold) and string[1]==str(conf):
-                        if string[1] in count:
-                            count[string[1]]+=1
-                        else:
-                            count[string[1]]=1
-                    break
+                        count[string[1]]+=1
+                        continue
     return(count)
 
 def Count_index_impr(folder,measurement,threshold,modes_used):
@@ -150,31 +149,37 @@ def Count_index_gf(folder,configurations):
 
 def Topology_dic(folder,threshold,configurations):
 
-    #Overlap
-    count_s0_ov=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeC:",threshold,configurations)
-    count_s1_ov=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeC:",threshold,configurations)
     #Real
     count_s0_susy=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeR:",threshold,configurations)
     count_s1_susy=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeR:",threshold,configurations)
-    #GF
-    count_gauge=Count_index_gf(folder,configurations)
-    #Create the dictionary with the susy 
+
+    #Create the dictionary with the configurations that were readed. Probably we have to change this such that one 
+    #uses the GF and puts a cut of what is an instanton. For now we use the susy with a large threashold
     conf_read={}
-    for key in count_gauge: #to create an element in each dictionary with the counting in case they are empty for the given threshold
-        if key not in count_s0_ov: count_s0_ov[key]=0
-        if key not in count_s1_ov: count_s1_ov[key]=0
-        if key not in count_s0_susy: count_s0_susy[key]=0
-        if key not in count_s1_susy: count_s1_susy[key]=0
+    for key in count_s0_susy:
+        conf_read[key]=True
+    for key in count_s1_susy: 
+        conf_read[key]=True
+
+    #GF
+    count_gauge=Count_index_gf(folder,conf_read)
+
+    #Now we have to redo the count for the susy, this we can change in the future when we use GF to set the conf_read
+    count_s0_susy={}
+    count_s1_susy={}
+    count_s0_susy=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeR:",threshold,conf_read)
+    count_s1_susy=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeR:",threshold,conf_read)
+
+    #Overlap
+    count_s0_ov=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeC:",threshold,conf_read)
+    count_s1_ov=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeC:",threshold,conf_read)
+
+    # Need to fill all the read configurations
 
     #for key in count_gauge: print((count_s1_ov[key] + count_s0_ov[key]))
-    ov_top_dif={key: (count_s1_ov[key] - count_s0_ov[key])/4. - count_gauge[key] for key in count_gauge}
-    susy_top_dif={key: (count_s1_susy[key] - count_s0_susy[key])/2. - count_gauge[key] for key in count_gauge}
-    
-    for key in count_gauge:
-        if count_s0_susy[key]!=0 and count_s1_susy[key]!=0 :
-            conf_read[key]=True
-        else :
-            conf_read[key]=False
+    ov_top_dif={key: (count_s1_ov[key] - count_s0_ov[key])/4. - count_gauge[key] for key in conf_read}
+    susy_top_dif={key: (count_s1_susy[key] - count_s0_susy[key])/2. - count_gauge[key] for key in conf_read}
+
     return(ov_top_dif,susy_top_dif,conf_read)
     
 def Topology_dic_impr(folder,threshold,modes_used_s0,modes_used_s1):

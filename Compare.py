@@ -9,7 +9,7 @@ plt.rcParams.update({'font.size': 16})
 #plt.rcParams['text.usetex'] = True
                 
     
-def Construct_susy(susy_read_s0,susy_read_s1,conf): #It assumes eigenvalues are ordered
+def Construct_susy(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0): #It assumes eigenvalues are ordered
     
     #Read supersymmetric modes up to a threshold of the eigenvalue
     density_susy=np.zeros(sizes[3])
@@ -23,7 +23,7 @@ def Construct_susy(susy_read_s0,susy_read_s1,conf): #It assumes eigenvalues are 
     for mode in range(0,susy_read_s0):
         read=True
         Mode = folder+"sector_0/SusyMode_bin_"+str(mode)+"-"+str(conf)
-        density_s1,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
+        density_s0,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
         density_susy-=density_s0
         
     #If there is no eigenvalue below the threshold we get the lowest one    
@@ -88,18 +88,18 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
     param=np.zeros((steps))
     
     #Parsing the eigenvalues and finding the end of the spectrum
-    dictionary_s1=Real_eigenvalue(folder+"./sector_1/Measure.seq")
-    dictionary_s0=Real_eigenvalue(folder+"./sector_0/Measure.seq")
+    dictionary_s1=analyzer.Real_eigenvalue(folder+"./sector_1/Measure.seq")
+    dictionary_s0=analyzer.Real_eigenvalue(folder+"./sector_0/Measure.seq")
 
     ov_top_dif,susy_top_dif,conf_read=analyzer.Topology_dic(folder+"../gf_afm_4p0t/",0.175,configurations) #To know the good configurations, susy tot is a dictionary with the information of the configurations being used
-    
+    #print(conf_read)
     ov_max=0
     susy_max=0 #To know in which step of lambda one runs out of values
     k=0
-    for thresholds in lambdas:
+    for threshold in lambdas:
         #Check how many modes for each configuration we need to read 
-        susy_read_s0=analyzer.Count_index(folder,"sector_0/Measure.seq",threshold,conf_read)
-        susy_read_s1=analyzer.Count_index(folder,"sector_0/Measure.seq",threshold,conf_read)
+        susy_read_s0=analyzer.Count_index(folder+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        susy_read_s1=analyzer.Count_index(folder+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
         GM={}
         RPO={}
         j=0
@@ -110,11 +110,11 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
             density_top,sizes=Read.topology_1d(Topology)
             
             #Construct susy mode
-            density_susy=Construct_susy(susy_read_s0[conf],susy_read_s1[conf],conf)
+            density_susy=Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0)
             
             #Compute the distance between the susy and the topological density
-            GM[conf]=analyzer.Geom_mean_1d(density_susy,density_top)
-            RPO[conf]=analyzer.RPO(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
+            GM[conf]=Geom_mean_1d(density_susy,density_top)
+            RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
             
 
         #Store the means        
@@ -275,7 +275,7 @@ def IPR(density):
     return(len(density)*IPR)
 
 
-def RPO(densityA,densityB,thresholdA):
+def Relative_point(densityA,densityB,thresholdA):
     volA=0
     volB=0
     vol_union=0
