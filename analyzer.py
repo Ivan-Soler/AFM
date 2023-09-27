@@ -152,7 +152,7 @@ def Count_index_gf(folder,configurations):
         density_top,sizes=Read.topology_1d(Topology)
         for element in density_top:
             if element>0.1 or element<-0.1:
-                conf_read.append(conf)
+                conf_read.append(str(conf))
                 break
     return(count_gauge,conf_read)
 
@@ -169,8 +169,11 @@ def Topology_dic(folder,threshold,configurations):
     count_s1_ov=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeC:",threshold,conf_read)
 
     #for key in count_gauge: print((count_s1_ov[key] + count_s0_ov[key]))
-    ov_top_dif={key: (count_s1_ov[key] - count_s0_ov[key])/4. - count_gauge[key] for key in conf_read}
-    susy_top_dif={key: (count_s1_susy[key] - count_s0_susy[key])/2. - count_gauge[key] for key in conf_read}
+    ov_top_dif={}
+    susy_top_dif={}
+    for conf in conf_read:
+        ov_top_dif[conf]=(count_s1_ov[conf] - count_s0_ov[conf])/4. - count_gauge[conf]
+        susy_top_dif[conf]=(count_s1_susy[conf] - count_s0_susy[conf])/2. - count_gauge [conf]
 
     return(ov_top_dif,susy_top_dif,conf_read)
     
