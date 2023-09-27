@@ -207,3 +207,33 @@ def Topology_dic_impr(folder,threshold,modes_used_s0,modes_used_s1):
     susy_top_dif={key: (count_s1_susy[key] - count_s0_susy[key])/2. - count_gauge[key] for key in count_gauge}
     
     return(ov_top_dif,susy_top_dif,conf_tot)
+
+def susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt):
+    
+    dictionary_s1=analyzer.Real_eigenvalue(folder+"./sector_1/Measure.seq")
+    dictionary_s0=analyzer.Real_eigenvalue(folder+"./sector_0/Measure.seq")
+    
+    top_gauge,conf_read=analyzer.Count_index_gf(folder,configurations)
+    susy_read_s0=analyzer.Count_index(folder+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+    susy_read_s1=analyzer.Count_index(folder+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+    for conf in conf_read:
+        #Read GF
+        Topolgy_1=folder+"../gf/profile4dt1c"+str(conf)+"to.dat"
+        Topology_4=folder+"../gf/profile4dt4c"+str(conf)+"to.dat"
+        density_top_1,sizes=Read.topology_1d(Topology_1)
+        density_top_4,sizes=Read.topology_1d(Topology_4)
+
+        #Construct susy mode
+        density_susy=Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+
+        #Plot the three densities
+        plt.plot(density_top_1, label="top. density $\tau=4$")
+        plt.plot(density_top_4, label="top. density $\tau=1$")
+        plt.plot(density_susy, label="AFM")
+        plt.legend(loc="upper right")
+        plt.savefig(Mode+".png",dpi=150, bbox_inches='tight')
+        
+        np.savetxt(folder+"./susy_mode.txt",density_susy)
+        
+    return()
+
