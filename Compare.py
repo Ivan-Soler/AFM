@@ -11,22 +11,24 @@ plt.rcParams.update({'font.size': 16})
 #plt.rcParams['text.usetex'] = True
                 
     
-def Construct_susy(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0): #It assumes eigenvalues are ordered
+def Construct_susy(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes): #It assumes eigenvalues are ordered
     
     #Read supersymmetric modes up to a threshold of the eigenvalue
     density_susy=np.zeros(sizes[3])
     read=False
     for mode in range(0,susy_read_s1):
-        read=True
-        Mode = folder+"sector_1/SusyMode_bin_"+str(mode)+"-"+str(conf)
-        density_s1,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
-        density_susy+=density_s1
+        if mode<max_modes:
+            read=True
+            Mode = folder+"sector_1/SusyMode_bin_"+str(mode)+"-"+str(conf)
+            density_s1,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
+            density_susy+=density_s1
         
     for mode in range(0,susy_read_s0):
-        read=True
-        Mode = folder+"sector_0/SusyMode_bin_"+str(mode)+"-"+str(conf)
-        density_s0,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
-        density_susy-=density_s0
+        if mode<max_modes:
+            read=True
+            Mode = folder+"sector_0/SusyMode_bin_"+str(mode)+"-"+str(conf)
+            density_s0,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
+            density_susy-=density_s0
         
     #If there is no eigenvalue below the threshold we get the lowest one    
     if not read:
@@ -114,7 +116,7 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
             density_top,sizes=Read.topology_1d(Topology)
             
             #Construct susy mode
-            density_susy=Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0)
+            density_susy=Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             
             #Compute the distance between the susy and the topological density
             GM[conf]=Geom_mean_1d(density_susy,density_top)
