@@ -41,7 +41,7 @@ def Construct_susy(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_lengt
             read=True
             Mode = folder+"sector_0/SusyMode_bin_"+str(0)+"-"+str(conf)
             density_s0,sizes=Read.bin_mode_1d(Mode,sizes,colors,spin_length)
-            density_susy+=-density_s0
+            density_susy-=density_s0
     return(density_susy)   
 
 def Construct_susy_improve(modes_s0, modes_s1,top):
@@ -89,11 +89,13 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
     RPO_tot=np.zeros((steps))      
     param=np.zeros((steps))
     
-    #Parsing the eigenvalues and finding the end of the spectrum
+    #Parsing the eigenvalues
     dictionary_s1=analyzer.Real_eigenvalue(folder+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder+"./sector_0/Measure.seq")
 
-    ov_top_dif,susy_top_dif,conf_read=analyzer.Topology_dic(folder+"../gf_afm_4p0t/",0.175,configurations) #To know the good configurations, susy tot is a dictionary with the information of the configurations being used
+    #Checking wich configurations have non-trivial topological content
+    top_gauge,conf_read=analyzer.Count_index_gf(folder,configurations)
+    
     print(conf_read)
     ov_max=0
     susy_max=0 #To know in which step of lambda one runs out of values
@@ -132,9 +134,8 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
         GM_tot[k]=GM_mean
         RPO_tot[k]=RPO_mean
         print(k) #to see the progress
-        if not count_meas==conf_read:
+        if not count_meas==len(conf_read):
             print("GM measures left out")
-            exit()
         print(count_meas)
         print(len(conf_read))
         k+=1
