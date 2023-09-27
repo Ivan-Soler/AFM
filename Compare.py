@@ -130,10 +130,15 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
         GM_tot[k]=GM_mean
         RPO_tot[k]=RPO_mean
         print(k) #to see the progress
+        if not count_meas==conf_read:
+            print("GM measures left out")
+            exit()
+        print(count_meas)
+        print(len(conf_read))
         k+=1
         
         #To check when one runs out of modes
-        end_overlap, end_susy=analyzer.End_spectrum(folder) #Computes the last value of the spectrum
+        end_overlap, end_susy=analyzer.End_spectrum(folder,conf_read) #Computes the last value of the spectrum
         i=0
         for threshold in lambdas:
             if not ov_max and threshold > end_overlap: #Computes on which step
@@ -143,7 +148,7 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
             i+=1
         
     #Plotting and saving the GM and RPO
-    np.savetxt(folder+"./end_spectrum.txt", np.vstack((end_overlap,end_susy)))
+    np.savetxt(folder+"./end_spectrum.txt", np.vstack((ov_max,susy_max)))
     np.savetxt(folder+"./GM.txt",np.vstack((GM_tot,lambdas)))
     np.savetxt(folder+"./RPO.txt", np.vstack((RPO_tot,lambdas)))
 
