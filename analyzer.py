@@ -136,6 +136,7 @@ def Round_half_integers(number):
 
 def Count_index_gf(folder,configurations):
     count_gauge={}
+    conf_read=[]
     with open(folder+"../gf/Measure.seq") as file:
         for line in file:
             match=re.search(":TopologicalCharge:t:4",line)
@@ -145,36 +146,27 @@ def Count_index_gf(folder,configurations):
                     if string[1]==str(conf):
                         count_gauge[string[1]]=round(float(string[7]))
                         break
-    return(count_gauge)
+                        
+    for conf in configurations:
+        Topology =folder+"../gf/profile4dt4c"+str(conf)+"to.dat"
+        density_top,sizes=Read.topology_1d(Topology)
+        for element in density_top:
+            if element>0.1 or element<-0.1:
+                conf_read.append(conf)
+                break
+    return(count_gauge,conf_read)
 
 def Topology_dic(folder,threshold,configurations):
-
-    #Real
-    count_s0_susy=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeR:",threshold,configurations)
-    count_s1_susy=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeR:",threshold,configurations)
-
-    #Create the dictionary with the configurations that were readed. Probably we have to change this such that one 
-    #uses the GF and puts a cut of what is an instanton. For now we use the susy with a large threashold
-    conf_read={}
-    for key in count_s0_susy:
-        conf_read[key]=True
-    for key in count_s1_susy: 
-        conf_read[key]=True
-
-    #GF
-    count_gauge=Count_index_gf(folder,conf_read)
-
-    #Now we have to redo the count for the susy, this we can change in the future when we use GF to set the conf_read
-    count_s0_susy={}
-    count_s1_susy={}
+    
+    #GF + configurations with non_trivial topological content
+    count_gauge,conf_read=Count_index_gf(folder,configurations)
+    
     count_s0_susy=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeR:",threshold,conf_read)
     count_s1_susy=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeR:",threshold,conf_read)
 
     #Overlap
     count_s0_ov=Count_index(folder+"sector_0/Measure.seq", ":OverlapFilterModeC:",threshold,conf_read)
     count_s1_ov=Count_index(folder+"sector_1/Measure.seq", ":OverlapFilterModeC:",threshold,conf_read)
-
-    # Need to fill all the read configurations
 
     #for key in count_gauge: print((count_s1_ov[key] + count_s0_ov[key]))
     ov_top_dif={key: (count_s1_ov[key] - count_s0_ov[key])/4. - count_gauge[key] for key in conf_read}

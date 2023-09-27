@@ -132,7 +132,6 @@ def topology(file):
 
 def topology_1d(file):
     density,sizes=topology(file)
-    print(sizes)
     density_1d=density.sum(axis=(0,1,2))
     return(density_1d,sizes)
 
