@@ -14,7 +14,7 @@ colors=3
 spin_length=4
 
 conf_start=10
-conf_end=500
+conf_end=1000
 conf_step=10
 conf=np.arange(conf_start,conf_end,conf_step)
 

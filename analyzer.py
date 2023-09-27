@@ -35,7 +35,7 @@ def GM_matrix(modes1, modes2):
             GM[i,j]=analyzer.Geom_mean_1d(modes1(i),modes2(j))
     return(GM)
 
-def End_spectrum(folder):
+def End_spectrum(folder,configurations):
     #Overlap
     end_overlap=100
     highest_overlap={}
@@ -74,11 +74,13 @@ def End_spectrum(folder):
             match=re.search(":OverlapFilterModeR:",line)
             if match:
                 string=line.split(":")
-                if not string[1] in highest_susy:
-                    highest_susy[string[1]]=abs(float(string[8]))
-                else:
-                    if (abs(float(string[8]))>highest_susy[string[1]]):
-                        highest_susy[string[1]]=abs(float(string[8]))
+                for conf in configurations:
+                    if string[1]==str(conf):
+                        if not string[1] in highest_susy:
+                            highest_susy[string[1]]=abs(float(string[8]))
+                        else:
+                            if (abs(float(string[8]))>highest_susy[string[1]]):
+                                highest_susy[string[1]]=abs(float(string[8]))
                     
     #susy
     with open(folder+"sector_1/Measure.seq") as file:
@@ -86,11 +88,13 @@ def End_spectrum(folder):
             match=re.search(":OverlapFilterModeR:",line)
             if match:
                 string=line.split(":")
-                if not string[1] in highest_susy:
-                    highest_susy[string[1]]=abs(float(string[8]))
-                else:
-                    if (abs(float(string[8]))>highest_susy[string[1]]):
-                        highest_susy[string[1]]=abs(float(string[8]))
+                for conf in configurations:
+                    if string[1]==str(conf):
+                        if not string[1] in highest_susy:
+                            highest_susy[string[1]]=abs(float(string[8]))
+                        else:
+                            if (abs(float(string[8]))>highest_susy[string[1]]):
+                                highest_susy[string[1]]=abs(float(string[8]))
                     
     for key in highest_susy:
         if highest_susy[key]<end_susy:
