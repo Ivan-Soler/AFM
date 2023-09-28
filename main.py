@@ -26,8 +26,13 @@ lambdas=np.linspace(lambda_min,lambda_max,num=steps)
 RPO_threshold=0.15
 
 #Compare.Index_dic(folder,lambdas, conf)
-#Compare.GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,conf,lambdas,RPO_threshold)
+#Compare.GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,conf,lambdas,RPO_threshold,False)
+
+#ov_max, susy_max=np.loadtxt(folder+"end_spectrum.txt")
+#lambda_opt=susy_max[0]
+#analyzer.susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt,conf)
 
 ov_max, susy_max=np.loadtxt(folder+"end_spectrum.txt")
-lambda_opt=susy_max[0]
-analyzer.susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt,conf)
+lambda_opt=np.zeros((1))
+lambda_opt[0]=susy_max[0]
+Compare.GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,conf,lambda_opt,RPO_threshold,True)

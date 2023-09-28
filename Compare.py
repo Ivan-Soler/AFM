@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 import Read
 import importlib
@@ -82,7 +83,7 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
                 modes_s0_used[i]=False
     return(susy, modes_s0_used, modes_s1_used)   
 
-def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,RPO_threshold):
+def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,RPO_threshold,save):
     
     #Param and definitions
     conf_tot=len(configurations)
@@ -112,7 +113,7 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
         
         for conf in conf_read:
             #Read GF
-            Topology =folder+"../gf/profile4dt4c"+str(conf)+"to.dat"
+            Topology =folder+"../gf/profile4dt2c"+str(conf)+"to.dat"
             density_top,sizes=Read.topology_1d(Topology)
             
             #Construct susy mode
@@ -122,6 +123,10 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
             GM[conf]=Geom_mean_1d(density_susy,density_top)
             RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
             
+        if save:   
+            with open(folder+"./GM_hist.txt", 'wb') as f:
+                pickle.dump(GM, f)
+                sys.exit()
 
         #Store the means        
         GM_mean=0
