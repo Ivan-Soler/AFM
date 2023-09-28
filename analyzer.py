@@ -230,10 +230,10 @@ def susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt):
         plt.plot(density_top_1, label="top. density $\tau=4$")
         plt.plot(density_top_4, label="top. density $\tau=1$")
         plt.plot(density_susy, label="AFM")
-        plt.legend(loc="upper right")
+        plt.legend(loc="lower left", nc=2)
         plt.savefig(Mode+".png",dpi=150, bbox_inches='tight')
         
-        np.savetxt(folder+"./susy_mode.txt",density_susy)
+        np.savetxt(folder+"./susy_mode"+conf+".txt",density_susy)
         
     return()
 
