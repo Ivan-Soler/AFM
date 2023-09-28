@@ -30,4 +30,4 @@ RPO_threshold=0.15
 
 ov_max, susy_max=np.loadtxt(folder+"end_spectrum.txt")
 lambda_opt=susy_max[0]
-analyzer.susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt)
+analyzer.susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt,conf)
