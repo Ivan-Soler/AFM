@@ -199,32 +199,31 @@ def Index_dic(folder,lambdas,configurations):
         pickle.dump(susy, f)
     return()
 
-def GF_vs_GF(folder,conf_start, conf_end, conf_step,t_start,t_end,t_step,RPO_threshold):
+def GF_vs_GF(folder,configurations, t_start,t_end,t_step,RPO_threshold):
     
     steps=int((t_end-t_start)/t_step)
-    tot_conf=int((conf_end-conf_start)/conf_step)
+    tot_conf=len(configurations)
     GM_tot=np.zeros((steps+1))
     RPO_tot=np.zeros((steps+1))
     
     k=0
-    ov_top_dif,susy_top_dif,conf_tot,susy_tot=analyzer.Topology_dic(folder+"../gf_afm_4p0t/",0.175)
+    top_gauge,conf_read=analyzer.Count_index_gf(folder,configurations)
     for i in range(0, steps+1):
         t=t_start+t_step*i
         if int(t)==t: t=int(t)
         GM={}
         RPO={}
         tot_conf=0
-        for conf in range(conf_start, conf_end, conf_step):
-            if susy_tot[str(conf)]: 
-                Topology_smooth=folder+"profile4dt4c"+str(conf)+"to.dat"
-                density_smooth,sizes=Read.topology_1d(Topology_smooth)
+        for conf in configurations:
+            Topology_smooth=folder+"profile4dt2c"+str(conf)+"to.dat"
+            density_smooth,sizes=Read.topology_1d(Topology_smooth)
 
-                Topology_t=folder+"profile4dt"+str(t)+"c"+str(conf)+"to.dat"
-                density_t,sizes=Read.topology_1d(Topology_t)
+            Topology_t=folder+"profile4dt"+str(t)+"c"+str(conf)+"to.dat"
+            density_t,sizes=Read.topology_1d(Topology_t)
 
-                GM[conf]=analyzer.Geom_mean_1d(density_t,density_smooth)
-                RPO[conf]=analyzer.RPO(np.absolute(density_t),np.absolute(density_smooth),RPO_threshold)           
-                tot_conf+=1
+            GM[conf]=Geom_mean_1d(density_t,density_smooth)
+            RPO[conf]=Relative_point(np.absolute(density_t),np.absolute(density_smooth),RPO_threshold)           
+            tot_conf+=1
         GM_mean=0
         RPO_mean=0
         for key in GM:
