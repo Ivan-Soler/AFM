@@ -83,7 +83,7 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
                 modes_s0_used[i]=False
     return(susy, modes_s0_used, modes_s1_used)   
 
-def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,RPO_threshold,save):
+def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configurations,lambdas,RPO_threshold,tao_compare,save):
     
     #Param and definitions
     conf_tot=len(configurations)
@@ -93,11 +93,11 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
     param=np.zeros((steps))
     
     #Parsing the eigenvalues
-    dictionary_s1=analyzer.Real_eigenvalue(folder+"./sector_1/Measure.seq")
-    dictionary_s0=analyzer.Real_eigenvalue(folder+"./sector_0/Measure.seq")
+    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
+    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
 
     #Checking wich configurations have non-trivial topological content
-    top_gauge,conf_read=analyzer.Count_index_gf(folder,configurations)
+    top_gauge,conf_read=analyzer.Count_index_gf(folder_in,configurations)
     
     print(conf_read)
     ov_max=0
@@ -105,26 +105,26 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
     k=0
     for threshold in lambdas:
         #Check how many modes for each configuration we need to read 
-        susy_read_s0=analyzer.Count_index(folder+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
-        susy_read_s1=analyzer.Count_index(folder+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
         GM={}
         RPO={}
         j=0
         
         for conf in conf_read:
             #Read GF
-            Topology =folder+"../gf/profile4dt2c"+str(conf)+"to.dat"
+            Topology =folder_in+"../gf/profile4dt"+str(tao_compare)+"c"+str(conf)+"to.dat"
             density_top,sizes=Read.topology_1d(Topology)
             
             #Construct susy mode
-            density_susy=Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+            density_susy=Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             
             #Compute the distance between the susy and the topological density
             GM[conf]=Geom_mean_1d(density_susy,density_top)
             RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
             
         if save:   
-            with open(folder+"./GM_hist.txt", 'wb') as f:
+            with open(folder_out+"./GM_hist.txt", 'wb') as f:
                 pickle.dump(GM, f)
                 sys.exit()
 
@@ -148,7 +148,7 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
         k+=1
         
         #To check when one runs out of modes
-        end_overlap, end_susy=analyzer.End_spectrum(folder,conf_read) #Computes the last value of the spectrum
+        end_overlap, end_susy=analyzer.End_spectrum(folder_in,conf_read) #Computes the last value of the spectrum
         i=0
         for threshold in lambdas:
             if not ov_max and threshold > end_overlap: #Computes on which step
@@ -157,10 +157,21 @@ def GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,configurations,lambdas,
                 susy_max=[threshold,i]
             i+=1
         
-    #Plotting and saving the GM and RPO
-    np.savetxt(folder+"./end_spectrum.txt", np.vstack((ov_max,susy_max)))
-    np.savetxt(folder+"./GM.txt",np.vstack((GM_tot,lambdas)))
-    np.savetxt(folder+"./RPO.txt", np.vstack((RPO_tot,lambdas)))
+    #Saving the GM and RPO
+    np.savetxt(folder_in+"./end_spectrum.txt", np.vstack((ov_max,susy_max)))
+    np.savetxt(folder_out+"./GM.txt",np.vstack((GM_tot,lambdas)))
+    np.savetxt(folder_out+"./RPO.txt", np.vstack((RPO_tot,lambdas)))
+    
+    #finding the optimal lambda
+    max_xi=np.zeros((2))
+    k=0
+    for threshold in lambdas:
+        if threshold<=susy_max[0] and GM_tot[k]>max_xi[0]:
+            max_xi[0]=GM_tot[k]
+            max_xi[1]=k
+        k+=1
+    np.savetxt(folder_out+"./lambda_opt.txt",max_xi)
+    return()         
 
 
 def Index_dic(folder,lambdas,configurations):
@@ -204,7 +215,7 @@ def Index_dic(folder,lambdas,configurations):
         pickle.dump(susy, f)
     return()
 
-def GF_vs_GF(folder,configurations, t_start,t_end,t_step,RPO_threshold):
+def GF_vs_GF(folder_in,folder_out,configurations, t_start,t_end,t_step,RPO_threshold,tao_compare):
     
     steps=int((t_end-t_start)/t_step)
     tot_conf=len(configurations)
@@ -212,7 +223,7 @@ def GF_vs_GF(folder,configurations, t_start,t_end,t_step,RPO_threshold):
     RPO_tot=np.zeros((steps+1))
     
     k=0
-    top_gauge,conf_read=analyzer.Count_index_gf(folder,configurations)
+    top_gauge,conf_read=analyzer.Count_index_gf(folder_in,configurations)
     for i in range(0, steps+1):
         t=t_start+t_step*i
         if int(t)==t: t=int(t)
@@ -220,10 +231,10 @@ def GF_vs_GF(folder,configurations, t_start,t_end,t_step,RPO_threshold):
         RPO={}
         tot_conf=0
         for conf in configurations:
-            Topology_smooth=folder+"profile4dt2c"+str(conf)+"to.dat"
+            Topology_smooth=folder_in+"profile4dt"+str(tao_compare)+"c"+str(conf)+"to.dat"
             density_smooth,sizes=Read.topology_1d(Topology_smooth)
 
-            Topology_t=folder+"profile4dt"+str(t)+"c"+str(conf)+"to.dat"
+            Topology_t=folder_in+"profile4dt"+str(t)+"c"+str(conf)+"to.dat"
             density_t,sizes=Read.topology_1d(Topology_t)
 
             GM[conf]=Geom_mean_1d(density_t,density_smooth)
@@ -239,8 +250,8 @@ def GF_vs_GF(folder,configurations, t_start,t_end,t_step,RPO_threshold):
         k+=1
         print(tot_conf)
     param=np.arange(t_start, t_end+t_step, t_step)
-    np.savetxt(folder+"./GM.txt",np.vstack((GM_tot,param)))
-    np.savetxt(folder+"./RPO.txt", np.vstack((RPO_tot,param)))  
+    np.savetxt(folder_out+"./GM.txt",np.vstack((GM_tot,param)))
+    np.savetxt(folder_out+"./RPO.txt", np.vstack((RPO_tot,param)))  
     
     return(GM)
 

@@ -208,35 +208,38 @@ def Topology_dic_impr(folder,threshold,modes_used_s0,modes_used_s1):
     
     return(ov_top_dif,susy_top_dif,conf_tot)
 
-def susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt,configurations):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,configurations):
     
-    dictionary_s1=Real_eigenvalue(folder+"./sector_1/Measure.seq")
-    dictionary_s0=Real_eigenvalue(folder+"./sector_0/Measure.seq")
+    dictionary_s1=Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
+    dictionary_s0=Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
     
-    top_gauge,conf_read=Count_index_gf(folder,configurations)
-    susy_read_s0=Count_index(folder+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
-    susy_read_s1=Count_index(folder+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+    top_gauge,conf_read=Count_index_gf(folder_in,configurations)
+    susy_read_s0=Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+    susy_read_s1=Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
     for conf in conf_read:
         #Read GF
-        Topology_1=folder+"../gf/profile4dt0.5c"+str(conf)+"to.dat"
-        Topology_2=folder+"../gf/profile4dt2c"+str(conf)+"to.dat"
-        Topology_3=folder+"../gf/profile4dt4c"+str(conf)+"to.dat"
+        Topology_1=folder_in+"../gf/profile4dt0.5c"+str(conf)+"to.dat"
+        Topology_2=folder_in+"../gf/profile4dt2c"+str(conf)+"to.dat"
+        Topology_3=folder_in+"../gf/profile4dt4c"+str(conf)+"to.dat"
         density_top_1,sizes=Read.topology_1d(Topology_1)
         density_top_2,sizes=Read.topology_1d(Topology_2)
         density_top_3,sizes=Read.topology_1d(Topology_3)
+        normalization=np.sum(np.abs(density_top_3))
 
         #Construct susy mode
-        density_susy=Compare.Construct_susy(folder,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+        density_susy=Compare.Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],
+                                        conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+        density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
-        plt.plot(density_top_1, label="top. density $\tau=0.5$")
-        plt.plot(density_top_1, label="top. density $\tau=2$")
-        plt.plot(density_top_1, label="top. density $\tau=4$")
+        plt.plot(density_top_1, label=r'top. density $\tau=0.5$')
+        plt.plot(density_top_2, label=r'top. density $\tau=2$')
+        plt.plot(density_top_3, label=r'top. density $\tau=4$')
         plt.plot(density_susy, label="AFM")
         plt.legend(loc="lower left", ncol=2)
-        plt.savefig(folder+"./susy_mode_"+conf+"c.png",dpi=150, bbox_inches='tight')
+        plt.savefig(folder_out+"./susy_mode_"+conf+"c.png",dpi=150, bbox_inches='tight')
         plt.close()      
-        np.savetxt(folder+"./susy_mode_"+conf+"c.txt",density_susy)
+        np.savetxt(folder_out+"./susy_mode_"+conf+"c.txt",density_susy)
         
     return()
 
