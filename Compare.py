@@ -121,25 +121,25 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
             
             #Compute the distance between the susy and the topological density
             GM[conf]=Geom_mean_1d(density_susy,density_top)
-            RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
+            #RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
             
         if save:   
-            with open(folder_out+"./GM_hist.txt", 'wb') as f:
+            with open(folder_out+"GM_hist.txt", 'wb') as f:
                 pickle.dump(GM, f)
                 sys.exit()
 
         #Store the means        
         GM_mean=0
-        RPO_mean=0
+        #RPO_mean=0
         count_meas=0
         for key in GM:
             GM_mean+=GM[key]
-            RPO_mean+=RPO[key]
+            #RPO_mean+=RPO[key]
             count_meas+=1
-        RPO_mean=RPO_mean/count_meas  
+        #RPO_mean=RPO_mean/count_meas  
         GM_mean=GM_mean/count_meas
         GM_tot[k]=GM_mean
-        RPO_tot[k]=RPO_mean
+        #RPO_tot[k]=RPO_mean
         print(k) #to see the progress
         if not count_meas==len(conf_read):
             print("GM measures left out")
@@ -158,9 +158,9 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
             i+=1
         
     #Saving the GM and RPO
-    np.savetxt(folder_in+"./end_spectrum.txt", np.vstack((ov_max,susy_max)))
-    np.savetxt(folder_out+"./GM.txt",np.vstack((GM_tot,lambdas)))
-    np.savetxt(folder_out+"./RPO.txt", np.vstack((RPO_tot,lambdas)))
+    np.savetxt(folder_out+"end_spectrum.txt", np.vstack((ov_max,susy_max)))
+    np.savetxt(folder_out+"GM.txt",np.vstack((GM_tot,lambdas)))
+    #np.savetxt(folder_out+"RPO.txt", np.vstack((RPO_tot,lambdas)))
     
     #finding the optimal lambda
     max_xi=np.zeros((2))
@@ -170,7 +170,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
             max_xi[0]=GM_tot[k]
             max_xi[1]=k
         k+=1
-    np.savetxt(folder_out+"./lambda_opt.txt",max_xi)
+    np.savetxt(folder_out+"lambda_opt.txt",max_xi)
     return()         
 
 
@@ -205,11 +205,11 @@ def Index_dic(folder,lambdas,configurations):
     
     #Saving the results
     np.savetxt(folder+"./end_spectrum.txt", np.vstack((ov_max,susy_max)))
-    np.savetxt(folder+"./Index_ov.txt", np.vstack((ov_dif_count/conf_tot,param)))
-    np.savetxt(folder+"./Top_ov.txt", np.vstack((ov_dif_mean,param)))
-    np.savetxt(folder+"./Index_susy.txt",  np.vstack((susy_dif_count/conf_tot,param)))
-    np.savetxt(folder+"./Top_susy.txt", np.vstack((susy_dif_mean,param)))
-    np.savetxt(folder+"./Top_susy.txt", np.vstack((susy_dif_mean,param)))
+    #np.savetxt(folder+"./Index_ov.txt", np.vstack((ov_dif_count/conf_tot,param)))
+    #np.savetxt(folder+"./Top_ov.txt", np.vstack((ov_dif_mean,param)))
+    #np.savetxt(folder+"./Index_susy.txt",  np.vstack((susy_dif_count/conf_tot,param)))
+    #np.savetxt(folder+"./Top_susy.txt", np.vstack((susy_dif_mean,param)))
+    #np.savetxt(folder+"./Top_susy.txt", np.vstack((susy_dif_mean,param)))
     
     with open('used_conf.pkl', 'wb') as f:
         pickle.dump(susy, f)

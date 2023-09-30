@@ -7,7 +7,9 @@ plt.rcParams.update({'font.size': 16})
 #plt.rcParams['text.usetex'] = True
 
 #Param and definitions
-folder=str(sys.argv[1])
+folder_in=str(sys.argv[1])
+tau_compare=str(sys.argv[2])
+folder_out=str(sys.argv[3])
 sizes=[4,4,4,32]
 max_modes=8
 colors=3
@@ -25,14 +27,13 @@ lambdas=np.linspace(lambda_min,lambda_max,num=steps)
 
 RPO_threshold=0.15
 
-#Compare.Index_dic(folder,lambdas, conf)
-#Compare.GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,conf,lambdas,RPO_threshold,False)
+#Compare.Index_dic(folder_in,lambdas, conf)
+Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf,lambdas,RPO_threshold,tau_compare,False)
 
 #ov_max, susy_max=np.loadtxt(folder+"end_spectrum.txt")
 #lambda_opt=susy_max[0]
 #analyzer.susy_plot(folder,sizes,colors,spin_length,max_modes,lambda_opt,conf)
 
-ov_max, susy_max=np.loadtxt(folder+"end_spectrum.txt")
-lambda_opt=np.zeros((1))
-lambda_opt[0]=susy_max[0]
-Compare.GM_RPO_cut(folder,sizes,max_modes,colors,spin_length,conf,lambda_opt,RPO_threshold,True)
+lambda_opt=np.loadtxt(folder_out+"lambda_opt.txt")
+Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf,np.array([lambda_opt[0]]),RPO_threshold,tau_compare,True)
+
