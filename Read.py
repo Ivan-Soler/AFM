@@ -1,6 +1,7 @@
 import numpy as np
 import struct
-
+import array
+import os 
 
 def ascii_mode(directory):
     sizes=[[]]*4
@@ -9,6 +10,7 @@ def ascii_mode(directory):
     j=0
     k=0
     l=0
+    
     with open(directory,"r") as file:
         file.readline()
         file.readline()
@@ -49,43 +51,26 @@ def ascii_mode(directory):
     norm=density.sum()                       
     return(density,sizes)
 
-def bin_mode(namefile,sizes,colors,spin):
-
-    precision=8
-    count=0
-    i=0
-    j=0
-    k=0
-    l=0
-   
-    with open(namefile, 'rb') as file:
-        range_color=colors
-        range_spin=spin
-        
-        elements=sizes[0]*sizes[1]*sizes[2]*sizes[3]   
-        zeromode=np.zeros((range_color,range_spin,sizes[0],sizes[1],sizes[2],sizes[3]),dtype=np.complex_)
-        for l in range(0, sizes[3]):
-            for k in range(0, sizes[2]):
-                for j in range(0, sizes[1]):
-                    for i in range(0,sizes[0]):
-                        for spin in range(0,range_spin):
-                            for color in range(0,range_color):
-                                count+=1
-                                el1=struct.unpack('>d', file.read(precision))[0]
-                                el2=struct.unpack('>d', file.read(precision))[0]
-                                zeromode[color,spin,i,j,k,l]=complex(el1,el2)
+def bin_mode(file,sizes,range_color,range_spin):
+    np.memmap(file, dtype=np.double).byteswap().tofile(file+"endian")
+    temp_file=file+"endian"
+    mode = array.array('d')
+    with open(file, 'rb') as fin:
+        n = sizes[0]*sizes[1]*sizes[2]*sizes[3]*range_color*range_spin*2
+        mode.fromfile(fin, n)
+    
     density=np.zeros([sizes[0],sizes[1],sizes[2],sizes[3]])
-    norm=0
-    for i in range(0, sizes[0]):
-        for j in range(0, sizes[1]):
-            for k in range(0, sizes[2]):
-                for l in range(0,sizes[3]):
-                    for color in range(0,range_color):
-                        for spin in range(0,range_spin):
-                            density[i,j,k,l]+=np.copy(zeromode[color,spin,i,j,k,l].imag*zeromode[color,spin,i,j,k,l].imag + zeromode[color,spin,i,j,k,l].real*zeromode[color,spin,i,j,k,l].real)
-    norm=density.sum()
-    #print(norm)
-    return(density,sizes)
+    index=0
+    for l in range(0, sizes[3]):
+        for k in range(0, sizes[2]):
+            for j in range(0, sizes[1]):
+                 for i in range(0,sizes[0]):
+                    for spin in range(0,range_spin):
+                        for color in range(0,range_color):
+                            density[i,j,k,l]+=mode[index]*mode[index]+mode[index+1]*mode[index+1]
+                            index+=2    
+    os.remove(temp_file)
+    return density,sizes
 
 def ascii_mode_1d(namefile):
     density,sizes=ascii_mode(namefile)
