@@ -124,7 +124,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
             #RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
             
         if save:   
-            with open(folder_out+"GM_hist.txt", 'wb') as f:
+            with open(folder_out+"GM_hist_"+str(k)+".txt", 'wb') as f:
                 pickle.dump(GM, f)
                 sys.exit()
 
@@ -228,7 +228,7 @@ def GF_vs_GF(folder_in,folder_out,configurations, t_start,t_end,t_step,RPO_thres
         GM={}
         RPO={}
         tot_conf=0
-        for conf in configurations:
+        for conf in conf_read:
             Topology_smooth=folder_in+"profile4dt"+str(tao_compare)+"c"+str(conf)+"to.dat"
             density_smooth,sizes=Read.topology_1d(Topology_smooth)
 
