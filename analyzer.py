@@ -37,7 +37,7 @@ def GM_matrix(modes1, modes2):
 
 def End_spectrum(folder,configurations):
     #Overlap
-    end_overlap=100
+    """end_overlap=100
     highest_overlap={}
     with open(folder+"sector_0/Measure.seq") as file:
         for line in file:
@@ -64,7 +64,7 @@ def End_spectrum(folder,configurations):
                     
     for key in highest_overlap:
         if highest_overlap[key]<end_overlap:
-            end_overlap=highest_overlap[key]
+            end_overlap=highest_overlap[key]"""
             
     #susy
     end_susy=100
@@ -100,7 +100,7 @@ def End_spectrum(folder,configurations):
         if highest_susy[key]<end_susy:
             end_susy=highest_susy[key]
   
-    return(end_overlap,end_susy)
+    return(end_susy)
  
 
 def Count_index(folder,measurement,threshold,configurations):
