@@ -126,7 +126,6 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
         if save:   
             with open(folder_out+"GM_hist_"+str(k)+".txt", 'wb') as f:
                 pickle.dump(GM, f)
-                sys.exit()
 
         #Store the means        
         GM_mean=0
