@@ -30,7 +30,7 @@ configurations=np.arange(conf_start,conf_end,conf_step)
 folder_gf="/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/gf/"
 
 top_gauge,conf_read=analyzer.Count_index_gf(folder_gf,configurations)
-Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tau_compare,Save=True)
+Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tau_compare,save=True)
 
 tau_compare=4
 folder_in="/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/compare_"+str(tau_compare)+"p0t/"
