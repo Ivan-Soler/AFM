@@ -83,10 +83,9 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
                 modes_s0_used[i]=False
     return(susy, modes_s0_used, modes_s1_used)   
 
-def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configurations,lambdas,RPO_threshold,tao_compare,save):
+def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare,save):
     
     #Param and definitions
-    conf_tot=len(configurations)
     steps=len(lambdas)
     GM_tot=np.zeros((steps))
     RPO_tot=np.zeros((steps))      
@@ -95,9 +94,6 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,configura
     #Parsing the eigenvalues
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
-
-    #Checking wich configurations have non-trivial topological content
-    top_gauge,conf_read=analyzer.Count_index_gf(folder_in,configurations)
     
     print(conf_read)
     ov_max=0
@@ -212,15 +208,14 @@ def Index_dic(folder,lambdas,configurations):
         pickle.dump(susy, f)
     return()
 
-def GF_vs_GF(folder_in,folder_out,configurations, t_start,t_end,t_step,RPO_threshold,tao_compare):
+def GF_vs_GF(folder_in,folder_out,conf_read, t_start,t_end,t_step,RPO_threshold,tao_compare):
     
     steps=int((t_end-t_start)/t_step)
-    tot_conf=len(configurations)
+    tot_conf=len(conf_read)
     GM_tot=np.zeros((steps+1))
     RPO_tot=np.zeros((steps+1))
     
     k=0
-    top_gauge,conf_read=analyzer.Count_index_gf(folder_in,configurations)
     for i in range(0, steps+1):
         t=t_start+t_step*i
         if int(t)==t: t=int(t)
@@ -245,12 +240,12 @@ def GF_vs_GF(folder_in,folder_out,configurations, t_start,t_end,t_step,RPO_thres
         GM_tot[k]=GM_mean/tot_conf
         RPO_tot[k]=RPO_mean/tot_conf
         k+=1
-        print(tot_conf)
+        #print(tot_conf)
     param=np.arange(t_start, t_end+t_step, t_step)
-    np.savetxt(folder_out+"./GM.txt",np.vstack((GM_tot,param)))
-    np.savetxt(folder_out+"./RPO.txt", np.vstack((RPO_tot,param)))  
+    np.savetxt(folder_out+"./GM_GF.txt",np.vstack((GM_tot,param)))
+    np.savetxt(folder_out+"./RPO_GF.txt", np.vstack((RPO_tot,param)))  
     
-    return(GM)
+    return(param,GM_tot)
 
 
 def Xi(densityA,densityB):
