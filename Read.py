@@ -55,7 +55,7 @@ def bin_mode(file,sizes,range_color,range_spin):
     np.memmap(file, dtype=np.double).byteswap().tofile(file+"endian")
     temp_file=file+"endian"
     mode = array.array('d')
-    with open(file, 'rb') as fin:
+    with open(temp_file, 'rb') as fin:
         n = sizes[0]*sizes[1]*sizes[2]*sizes[3]*range_color*range_spin*2
         mode.fromfile(fin, n)
     
@@ -69,7 +69,7 @@ def bin_mode(file,sizes,range_color,range_spin):
                         for color in range(0,range_color):
                             density[i,j,k,l]+=mode[index]*mode[index]+mode[index+1]*mode[index+1]
                             index+=2    
-    os.remove(temp_file)
+    #os.remove(temp_file)
     return density,sizes
 
 def ascii_mode_1d(namefile):
