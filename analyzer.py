@@ -141,7 +141,7 @@ def Round_half_integers(number):
 def Count_index_gf(folder,configurations):
     count_gauge={}
     conf_read=[]
-    with open(folder+"../gf/Measure.seq") as file:
+    with open(folder+"Measure.seq") as file:
         for line in file:
             match=re.search(":TopologicalCharge:t:4",line)
             if match:
@@ -152,7 +152,7 @@ def Count_index_gf(folder,configurations):
                         break
                         
     for conf in configurations:
-        Topology =folder+"../gf/profile4dt4c"+str(conf)+"to.dat"
+        Topology =folder+"profile4dt4c"+str(conf)+"to.dat"
         density_top,sizes=Read.topology_1d(Topology)
         for element in density_top:
             if element>0.1 or element<-0.1:
