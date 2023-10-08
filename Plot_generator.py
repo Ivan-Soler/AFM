@@ -8,10 +8,10 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": True, "font.size": 16})
+plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=False):
     
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
@@ -29,8 +29,13 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt
         normalization=np.sum(np.abs(density_top_3))
 
         #Construct susy mode
-        density_susy=Compare.Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],
-                                        conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+        if Load:
+            density_susy=np.loadtxt(folder+measure+"susy_mode_"+str(conf)+"c.txt")
+        else:
+            density_susy=Compare.Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],
+                                                conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+            np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
+
         density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
@@ -45,7 +50,7 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt
         
     return()
 
-def MC_history(folder_in,folder_out,measures,lambdas,observable_name):
+def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False):
     
     for measure in (measures):
         index_lambda=0
@@ -70,12 +75,13 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name):
             #Save the errors
             with open(folder_out+measure+"./"+observable_name+"_error_"+str(index_lambda)+".txt", 'w') as f:
                 f.write(str(error))
-            plt.scatter(x,y, marker="x")
-            plt.hlines(observable_mean, xmin=0, xmax=100, linestyle="--")
-            plt.xlabel(r'Configuration')
-            plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
-            plt.xticks(np.arange(0, 120,  step=20))
-            plt.savefig(folder_out+measure+""+observable_name+"_history_"+str(index_lambda)+".pdf",dpi=150, bbox_inches='tight')
+            if Plot:
+                plt.scatter(x,y, marker="x")
+                plt.hlines(observable_mean, xmin=0, xmax=100, linestyle="--")
+                plt.xlabel(r'Configuration')
+                plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+                plt.xticks(np.arange(0, 120,  step=20))
+                plt.savefig(folder_out+measure+""+observable_name+"_history_"+str(index_lambda)+".pdf",dpi=150, bbox_inches='tight')
             
             #Save the optimal one
             f=open(folder_in+measure+"lambda_opt.txt",'r')
