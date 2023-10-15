@@ -91,6 +91,9 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False)
             if index_opt==index_lambda:
                 plt.savefig(folder_out+measure+""+observable_name+"_history_opt.pdf",dpi=150, bbox_inches='tight')
             plt.close()
+            hist_opt=open(folder_out+measure+observable_name+"_history_opt.txt")
+            with open(folder_out+measure+observable_name+"_history_opt.txt", 'w'z) as f:
+                pickle.dump(GM, f)
             index_lambda+=1
             
     return()
