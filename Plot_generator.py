@@ -8,7 +8,7 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": False, "font.size": 16})
+plt.rcParams.update({"text.usetex": True, "font.size": 16})
 
 
 def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=False):
@@ -89,11 +89,12 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False)
             lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
             f.close()
             if index_opt==index_lambda:
+                f_hist=open(folder_out+measure+observable_name+"_history_opt.txt", 'w')
+                for element in observable:
+                    print(str(element)+"\t"+str(observable[element]),file=f_hist)
                 plt.savefig(folder_out+measure+""+observable_name+"_history_opt.pdf",dpi=150, bbox_inches='tight')
+                f_hist.close()
             plt.close()
-            hist_opt=open(folder_out+measure+observable_name+"_history_opt.txt")
-            with open(folder_out+measure+observable_name+"_history_opt.txt", 'w'z) as f:
-                pickle.dump(GM, f)
             index_lambda+=1
             
     return()
