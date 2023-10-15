@@ -124,7 +124,7 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
 
     plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
     plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
-    #plt.legend(loc="upper right", ncol=1)
+    plt.legend(loc="upper right", ncol=1)
     plt.ylim([0,1.1])
     plt.xlim([0.0,0.15])
 

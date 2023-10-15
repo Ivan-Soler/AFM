@@ -41,12 +41,17 @@ time_measures=[4,3,2,1.5,1.125,0.75,0.5,0.25,0]
 
 
 observable="GM"
-Plot_generator.MC_history(folder_in,folder_out,measures,lambdas,observable)
-Plot_generator.Cut_dependence(folder_in,folder_out,measures,observable)
-Plot_generator.GF_vs_AFM(folder_in, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
-                         RPO_trehsold,tau_compare,measures,time_measures,observable)
-f=open(folder_out+"lambda_opt.txt",'r')
-lamba_string=f.read().split('\n')
-lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
-f.close()
+Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
+#Plot_generator.Cut_dependence(folder_in,folder_out,measures,observable)
+
+t_start=0
+t_end=4
+t_step=0.25
+RPO_threshold=0.15
+#Plot_generator.GF_vs_AFM(folder_in, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
+#                         RPO_threshold,tau_compare,measures,time_measures,observable)
+#f=open(folder_out+"lambda_opt.txt",'r')
+#lamba_string=f.read().split('\n')
+#lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
+#f.close()
 #Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+measures[8],folder_out+measures[8],sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=True)
