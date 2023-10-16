@@ -156,14 +156,16 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
     #np.savetxt(folder_out+"RPO.txt", np.vstack((RPO_tot,lambdas)))
     
     #finding the optimal lambda
-    max_xi=np.zeros((2))
+    max_xi=0
+    lambda_opt=np.zeros((2))
     k=0
     for threshold in lambdas:
-        if threshold<=susy_max[0] and GM_tot[k]>max_xi[0]:
-            max_xi[0]=GM_tot[k]
-            max_xi[1]=k
+        if threshold<=susy_max[0] and GM_tot[k]>max_xi:
+            max_xi=GM_tot[k]
+            lambda_opt[0]=threshold
+            lambda_opt[1]=k
         k+=1
-    np.savetxt(folder_out+"lambda_opt.txt",max_xi)
+    np.savetxt(folder_out+"lambda_opt.txt",lambda_opt)
     return()         
 
 
