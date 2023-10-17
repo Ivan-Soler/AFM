@@ -56,8 +56,21 @@ tau_compare=str(sys.argv[2]) # 1.5
 folder_out=str(sys.argv[3]) #./compare_1p5t/gf_afm_1p5t/ 
 
 
-f=open(folder_out+"lambda_opt.txt",'r')
-lamba_string=f.read().split('\n')
-lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
-f.close()
-Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+str(sys.argv[1]),folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=True)
+#f=open(folder_out+"lambda_opt.txt",'r')
+#lamba_string=f.read().split('\n')
+#lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
+#f.close()
+#susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+#susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+#Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+str(sys.argv[1]),folder_out,sizes,colors,spin_length,max_modes,conf_read,
+#                         susy_read_s0,susy_read_s1,Load=False,Plot=True)
+
+tony_folder="../cases/"
+tony_data=np.loadtxt(tony_folder+"tony_instantons.txt")
+susy_read_s1={}
+susy_read_s0={}
+for element in tony_data:
+    susy_read_s1[element[2]]=element[0]
+    susy_read_s0[element[2]]=element[1]
+Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+str(sys.argv[1]),folder_out,sizes,colors,spin_length,max_modes,conf_read,
+                         susy_read_s0,susy_read_s1,Load=False,Plot=True)

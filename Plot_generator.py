@@ -11,13 +11,10 @@ import pickle
 plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=False):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=False):
     
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
-    
-    susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
-    susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
         
     with open(folder_out+"modes_used_s0.txt", 'w') as f:
         print(lambda_opt,file=f)
