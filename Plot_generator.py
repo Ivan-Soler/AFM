@@ -8,7 +8,7 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": True, "font.size": 16})
+plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
 def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=False):
@@ -18,6 +18,14 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt
     
     susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
     susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",lambda_opt,conf_read)
+        
+    with open(folder_out+"modes_used_s0.txt", 'w') as f:
+        print(lambda_opt,file=f)
+        print(susy_read_s0, file=f)
+    with open(folder_out+"modes_used_s1.txt", 'w') as f:
+        print(lambda_opt,file=f)
+        print(susy_read_s1, file=f)
+
     for conf in conf_read:
         #Read GF
         Topology_1=folder_in+"../gf/profile4dt0.5c"+str(conf)+"to.dat"
@@ -39,9 +47,9 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,lambda_opt
         density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
-        plt.plot(density_top_1, label=r'top. density $\tau=0.5$')
-        plt.plot(density_top_2, label=r'top. density $\tau=2$')
-        plt.plot(density_top_3, label=r'top. density $\tau=4$')
+        plt.plot(density_top_1, label='top. density t=0.5')
+        plt.plot(density_top_2, label='top. density t=2')
+        plt.plot(density_top_3, label='top. density t=4')
         plt.plot(density_susy, label="AFM")
         plt.legend(loc="lower left", ncol=2)
         plt.savefig(folder_out+"./susy_mode_"+conf+"c.png",dpi=150, bbox_inches='tight')
@@ -78,8 +86,11 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False)
             if Plot:
                 plt.scatter(x,y, marker="x")
                 plt.hlines(observable_mean, xmin=0, xmax=100, linestyle="--")
-                plt.xlabel(r'Configuration')
-                plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+               #plt.xlabel(r'Configuration')
+               # plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+                plt.xlabel('Configuration')
+                plt.ylabel('Xi')
+
                 plt.xticks(np.arange(0, 120,  step=20))
                 plt.savefig(folder_out+measure+""+observable_name+"_history_"+str(index_lambda)+".pdf",dpi=150, bbox_inches='tight')
             
@@ -122,8 +133,10 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
         plt.fill_between(data[1], data[0]-error, data[0]+error, alpha=0.1, color=color)
         plt.scatter(susy_max[0],data[0,int(susy_max[1])], marker="v", color=color)
 
-    plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
-    plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+    #plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
+    #plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+    plt.xlabel('lambda')
+    plt.ylabel('Xi')
     plt.legend(loc="upper right", ncol=1)
     plt.ylim([0,1.1])
     plt.xlim([0.0,0.15])

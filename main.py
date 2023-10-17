@@ -5,12 +5,12 @@ import Compare
 import sys
 import Plot_generator
 plt.rcParams.update({'font.size': 16})
-plt.rcParams['text.usetex'] = True
+plt.rcParams['text.usetex'] = False
 
 #Param and definitions
-folder_in=str(sys.argv[1])
-tau_compare=str(sys.argv[2])
-folder_out=str(sys.argv[3])
+folder_in=str(sys.argv[1]) #./gf_afm_1p5t/ 
+tau_compare=str(sys.argv[2]) # 1.5
+folder_out=str(sys.argv[3]) #./compare_1p5t/gf_afm_1p5t/         
 
 sizes=[4,4,4,32]
 max_modes=8
@@ -41,7 +41,7 @@ time_measures=[4,3,2,1.5,1.125,0.75,0.5,0.25,0]
 
 
 observable="GM"
-Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
+#Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
 #Plot_generator.Cut_dependence(folder_in,folder_out,measures,observable)
 
 t_start=0
@@ -50,8 +50,14 @@ t_step=0.25
 RPO_threshold=0.15
 #Plot_generator.GF_vs_AFM(folder_in, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
 #                         RPO_threshold,tau_compare,measures,time_measures,observable)
-#f=open(folder_out+"lambda_opt.txt",'r')
-#lamba_string=f.read().split('\n')
-#lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
-#f.close()
-#Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+measures[8],folder_out+measures[8],sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=True)
+
+folder_in=str(sys.argv[1]) #./gf_afm_1p5t/                                                                                                                                                                 
+tau_compare=str(sys.argv[2]) # 1.5                                                                                                                                                                         
+folder_out=str(sys.argv[3]) #./compare_1p5t/gf_afm_1p5t/ 
+
+
+f=open(folder_out+"lambda_opt.txt",'r')
+lamba_string=f.read().split('\n')
+lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
+f.close()
+Plot_generator.susy_plot("/beegfs/mi37fud/4x4x4x32_su2/b2p44_new/"+str(sys.argv[1]),folder_out,sizes,colors,spin_length,max_modes,lambda_opt,conf_read,Load=False,Plot=True)
