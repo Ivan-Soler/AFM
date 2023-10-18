@@ -11,17 +11,18 @@ import pickle
 plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=False):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=False,Polyakov=False):
     
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
-        
-    with open(folder_out+"modes_used_s0.txt", 'w') as f:
-        print(lambda_opt,file=f)
-        print(susy_read_s0, file=f)
-    with open(folder_out+"modes_used_s1.txt", 'w') as f:
-        print(lambda_opt,file=f)
-        print(susy_read_s1, file=f)
+    
+    if not Polyakov:
+        with open(folder_out+"modes_used_s0.txt", 'w') as f:
+            print(lambda_opt,file=f)
+            print(susy_read_s0, file=f)
+        with open(folder_out+"modes_used_s1.txt", 'w') as f:
+            print(lambda_opt,file=f)
+            print(susy_read_s1, file=f)
 
     for conf in conf_read:
         #Read GF
@@ -41,7 +42,7 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
                                                 conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
 
-        density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
+        #density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
         plt.plot(density_top_1, label='top. density t=0.5')
