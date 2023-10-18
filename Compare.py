@@ -81,7 +81,40 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
             else:
                 susy+=modes_s0
                 modes_s0_used[i]=False
-    return(susy, modes_s0_used, modes_s1_used)   
+    return(susy, modes_s0_used, modes_s1_used)  
+
+def GM_RPO(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,save,susy_read_s0,susy_read_s1):
+     for conf in conf_read:
+        #Read GF
+        Topology =folder_in+"../gf/profile4dt"+str(tao_compare)+"c"+str(conf)+"to.dat"
+        density_top,sizes=Read.topology_1d(Topology)
+
+        #Construct susy mode
+        density_susy=Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+
+        #Compute the distance between the susy and the topological density
+        GM[conf]=Geom_mean_1d(density_susy,density_top)
+        #RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)
+
+    if save:   
+        with open(folder_out+"GM_hist_pol.txt", 'wb') as f:
+            pickle.dump(GM, f)
+            
+    #Store the means        
+    GM_mean=0
+    #RPO_mean=0
+    count_meas=0
+    for key in GM:
+        GM_mean+=GM[key]
+        count_meas+=1
+    GM_mean=GM_mean/count_meas
+    if not count_meas==len(conf_read):
+        print("GM measures left out")
+        
+    #Saving the GM and RPO
+    np.savetxt(folder_out+"GM.txt",np.vstack((GM_tot,lambdas)))
+    return()         
+
 
 def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare,save):
     
