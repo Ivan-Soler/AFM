@@ -8,10 +8,10 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": False, "font.size": 16})
+plt.rcParams.update({"text.usetex": False, "font.size": 8})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=False,Polyakov=False):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=True,Polyakov=False):
     
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
@@ -44,7 +44,7 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         if Load:
             density_susy=np.loadtxt(folder+measure+"susy_mode_"+str(conf)+"c.txt")
         else:
-            density_susy=Compare.Construct_susy(folder_in,susy_read_s0[conf],susy_read_s1[conf],
+            density_susy=Compare.Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],
                                                 conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
 
@@ -56,9 +56,9 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         plt.plot(density_top_3, label='top. density t=4')
         plt.plot(density_susy, label="AFM")
         plt.legend(loc="lower left", ncol=2)
-        plt.savefig(folder_out+"./susy_mode_"+conf+"c.png",dpi=150, bbox_inches='tight')
+        plt.savefig(folder_out+"./susy_mode_"+str(conf)+"c.png",dpi=150, bbox_inches='tight')
         plt.close()      
-        np.savetxt(folder_out+"./susy_mode_"+conf+"c.txt",density_susy)
+        np.savetxt(folder_out+"./susy_mode_"+str(conf)+"c.txt",density_susy)
         
     return()
 
