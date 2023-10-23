@@ -17,11 +17,17 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
     
     if not Polyakov:
+        for conf in conf_read:
+            if (str(conf) not in dictionary_s1) and (str(conf) not in dictionary_s0):
+                ev1=float(dictionary_s1[str(conf)][0])
+                ev2=float(dictionary_s0[str(conf)][0])
+                if ev1<ev2:
+                    dictionary_s1[str(conf)]=1
+                else:
+                    dictionary_s0[str(conf)]=1
         with open(folder_out+"modes_used_s0.txt", 'w') as f:
-            print(lambda_opt,file=f)
             print(susy_read_s0, file=f)
         with open(folder_out+"modes_used_s1.txt", 'w') as f:
-            print(lambda_opt,file=f)
             print(susy_read_s1, file=f)
 
     for conf in conf_read:
@@ -56,14 +62,16 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         
     return()
 
-def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False):
+def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False,Polyakov=False):
     
     for measure in (measures):
         index_lambda=0
         print(measure)
         for element in lambdas:
-            with open(folder_in+measure+"./"+observable_name+"_hist_"+str(index_lambda)+".txt", 'rb') as f:
-                observable = pickle.load(f)
+            observable={}
+            data=np.loadtxt(folder_in+measure+"./"+observable_name+"_hist_"+str(index_lambda)+".txt",delimiter=" ", dtype=float)
+            for element in data:
+                observable[str(element[0])] = element[1]
             #Compute mean, error and variance
             x=[]
             y=[]
@@ -74,13 +82,14 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False)
             observable_mean/=len(observable)
             for key in observable:
                 variance+=(observable[key]-observable_mean)**2
-                x.append(int(key)/10)
+                x.append(float(key)/10)
                 y.append(observable[key])
             error=np.sqrt(variance)/len(observable)
             
             #Save the errors
             with open(folder_out+measure+"./"+observable_name+"_error_"+str(index_lambda)+".txt", 'w') as f:
                 f.write(str(error))
+                print(str(index_lambda))
             if Plot:
                 plt.scatter(x,y, marker="x")
                 plt.hlines(observable_mean, xmin=0, xmax=100, linestyle="--")
@@ -91,19 +100,20 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False)
 
                 plt.xticks(np.arange(0, 120,  step=20))
                 plt.savefig(folder_out+measure+""+observable_name+"_history_"+str(index_lambda)+".pdf",dpi=150, bbox_inches='tight')
-            
+                plt.close()
             #Save the optimal one
-            f=open(folder_in+measure+"lambda_opt.txt",'r')
-            lamba_string=f.read().split('\n')
-            lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
-            f.close()
-            if index_opt==index_lambda:
-                f_hist=open(folder_out+measure+observable_name+"_history_opt.txt", 'w')
-                for element in observable:
-                    print(str(element)+"\t"+str(observable[element]),file=f_hist)
-                plt.savefig(folder_out+measure+""+observable_name+"_history_opt.pdf",dpi=150, bbox_inches='tight')
-                f_hist.close()
-            plt.close()
+            if not Polyakov:
+                f=open(folder_in+measure+"lambda_opt.txt",'r')
+                lamba_string=f.read().split('\n')
+                lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
+                f.close()
+                if index_opt==index_lambda:
+                    f_hist=open(folder_out+measure+observable_name+"_history_opt.txt", 'w')
+                    for element in observable:
+                        print(str(element)+"\t"+str(observable[element]),file=f_hist)
+                        plt.savefig(folder_out+measure+""+observable_name+"_history_opt.pdf",dpi=150, bbox_inches='tight')
+                    f_hist.close()
+                    plt.close()
             index_lambda+=1
             
     return()
@@ -122,7 +132,7 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
         #Read the error
         error=[]
         for t in range(0,len(data[0])):
-            with open(folder_in+measure+"GM_error_"+str(t)+".txt", 'r') as f:
+            with open(folder_in+measure+observable+"_error_"+str(t)+".txt", 'r') as f:
                 error.append(float(f.readline()))
             f.close()
 
@@ -165,7 +175,7 @@ def find_max(folder,measure,observable):
     return(maximum)
 
 def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, t_step, 
-              RPO_trehsold,tau_compare,measures,time_measures,observable):
+              RPO_trehsold,tau_compare,measures,time_measures,observable,Polyakov=False):
 
     GM_GF=Compare.GF_vs_GF(folder_gf, folder_out, configurations, t_start, t_end, t_step, RPO_trehsold, tau_compare)
 
@@ -175,16 +185,19 @@ def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, 
     for measure in (measures):
         data=np.loadtxt(folder_in+measure+observable+".txt")
         #Reading lambda optimal
-        f=open(folder_in+measure+"lambda_opt.txt",'r')
-        lamba_string=f.read().split('\n')
-        lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
-        f.close()
+        if Polyakov:
+            lambda_opt,index_opt=[0,0]
+            maximum[flow_time]=data[0]
+        else:
+            f=open(folder_in+measure+"lambda_opt.txt",'r')
+            lamba_string=f.read().split('\n')
+            lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
+            f.close()
+            maximum[flow_time]=data[0,index_opt]
         #Readinf error
-        f=open(folder_in+measure+"GM_error_"+str(index_opt)+".txt",'r')
+        f=open(folder_in+measure+observable+"_error_"+str(index_opt)+".txt",'r')
         error[flow_time]=float(f.read())
         f.close()
-
-        maximum[flow_time]=data[0,index_opt]
         flow_time+=1
 
     
@@ -195,5 +208,5 @@ def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, 
     plt.fill_between(time_measures, maximum-error, maximum+error,color="orange",alpha=0.2)
     plt.legend(loc="lower right")
     plt.savefig(folder_out+"./GF_AFM.pdf",dpi=150, bbox_inches='tight')
-    
+    plt.close()
     return()
