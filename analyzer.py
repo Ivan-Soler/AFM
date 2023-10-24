@@ -113,10 +113,9 @@ def Count_index(folder,measurement,threshold,configurations):
             match=re.search(measurement,line)
             if match:
                 string=line.split(":")
-                for conf in configurations:
-                    if (abs(float(string[8]))<threshold) and string[1]==str(conf):
-                        count[string[1]]+=1
-                        continue
+                if (abs(float(string[8]))<threshold) and (string[1] in count):
+                    count[string[1]]+=1
+
     return(count)
 
 def Count_index_impr(folder,measurement,threshold,modes_used):

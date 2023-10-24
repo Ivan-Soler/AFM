@@ -17,19 +17,25 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
     
     if not Polyakov:
+        print(conf_read)
         for conf in conf_read:
-            if (str(conf) not in dictionary_s1) and (str(conf) not in dictionary_s0):
+            if ( susy_read_s1[str(conf)]==0) and ( susy_read_s0[str(conf)]==0):
+                print(conf)
                 ev1=float(dictionary_s1[str(conf)][0])
                 ev2=float(dictionary_s0[str(conf)][0])
                 if ev1<ev2:
-                    dictionary_s1[str(conf)]=1
+                    print("s1")
+                    susy_read_s1[str(conf)]=1
+                    susy_read_s0[str(conf)]=0
                 else:
-                    dictionary_s0[str(conf)]=1
-        with open(folder_out+"modes_used_s0.txt", 'w') as f:
-            print(susy_read_s0, file=f)
-        with open(folder_out+"modes_used_s1.txt", 'w') as f:
-            print(susy_read_s1, file=f)
-
+                    print("s2")
+                    susy_read_s0[str(conf)]=1
+                    susy_read_s1[str(conf)]=0
+        with open(folder_out+"modes_used.txt", 'w') as f:
+            for conf in conf_read:
+                print(conf, susy_read_s1[str(conf)],susy_read_s0[str(conf)], file=f)
+        print(susy_read_s1)
+        print(susy_read_s0)
     for conf in conf_read:
         #Read GF
         Topology_1=folder_in+"../gf/profile4dt0.5c"+str(conf)+"to.dat"
