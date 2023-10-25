@@ -83,6 +83,26 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
                 modes_s0_used[i]=False
     return(susy, modes_s0_used, modes_s1_used)  
 
+def GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True):
+    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
+    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
+    
+    GM=[]
+    for conf in conf_read:
+        for i in range(0,max_modes):
+            Mode_i = folder_in+"sector_1/SusyMode_bin_"+str(i)+"-"+str(conf)
+            density_s1, sizes=Read.bin_mode_1d(Mode_i,sizes,colors,spin_length)
+            for j in range(0,max_modes):
+                Mode_j = folder_in+"sector_0/SusyMode_bin_"+str(j)+"-"+str(conf)
+                density_s0, sizes=Read.bin_mode_1d(Mode_j,sizes,colors,spin_length)
+                GM.append([int(conf), i, j, Geom_mean_1d(density_s1,density_s0)])
+    
+    with open(folder_out+"GM_doublers.txt", 'w') as f:
+        for element in GM:
+            print(element, file=f)
+    
+    return()
+
 def GM_RPO(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True):
 
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")

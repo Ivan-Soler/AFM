@@ -216,3 +216,16 @@ def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, 
     plt.savefig(folder_out+"./GF_AFM.pdf",dpi=150, bbox_inches='tight')
     plt.close()
     return()
+
+def histogram(folder,file_name):
+    
+    GM_hist=[]
+    with open(folder+file_name) as f:
+        for line in f:
+            GM_hist.append(float(line.split()[3].replace("[","").replace("]","").replace(",","")))
+    print(GM_hist)
+    plt.hist(GM_hist, bins='auto')
+    plt.savefig(folder+"GM_hist.pdf",dpi=150, bbox_inches='tight')
+    
+    return()
+    
