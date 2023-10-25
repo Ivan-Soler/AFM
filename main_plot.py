@@ -36,18 +36,18 @@ measures=np.loadtxt(folder_out+"measures.txt", dtype=str)[0]
 time_measures=np.array(np.loadtxt(folder_out+"measures.txt", dtype=str)[1],dtype=float)
 print(measures)
 observable="GM"
-Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
-Plot_generator.Cut_dependence(folder_out,folder_out,measures,observable)
+#Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
+#Plot_generator.Cut_dependence(folder_out,folder_out,measures,observable)
 
 #Plot with the GF
 t_start=0
 t_end=4
 t_step=0.25
-Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
-                         RPO_threshold,tau_compare,measures,time_measures,observable)
+#Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
+#                         RPO_threshold,tau_compare,measures,time_measures,observable)
 
-#Susy_plots
-#for measure in measures:
+for measure in measures:
+    Plot_generator.histogram(folder_out+measure,"GM_doublers.txt", conf_read, max_modes)
     #f=open(folder_out+measure+"lambda_opt.txt",'r') #mesure[0] to take the threshold at 0p5t
     #lamba_string=f.read().split('\n')
     #lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
