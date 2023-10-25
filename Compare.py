@@ -109,15 +109,15 @@ def GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf
     
     GM=[]
     for conf in conf_read:
-        for i in range(0,max_modes):
+        for i in range(0,susy_read_s1):
             Mode_i = folder_in+"sector_1/SusyMode_bin_"+str(i)+"-"+str(conf)
             density_s1, sizes=Read.bin_mode_1d(Mode_i,sizes,colors,spin_length)
-            for j in range(0,max_modes):
+            for j in range(0,susy_read_s0):
                 Mode_j = folder_in+"sector_0/SusyMode_bin_"+str(j)+"-"+str(conf)
                 density_s0, sizes=Read.bin_mode_1d(Mode_j,sizes,colors,spin_length)
                 GM.append([int(conf), i, j, Geom_mean_1d(density_s1,density_s0)])
-    
-    with open(folder_out+"GM_doublers.txt", 'w') as f:
+    print(folder_out)
+    with open(folder_out+"GM_doublers_cut.txt", 'w') as f:
         for element in GM:
             print(element, file=f)
     
