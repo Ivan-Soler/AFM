@@ -52,8 +52,9 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         else:
             density_susy=Compare.Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],
                                                 conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+            density_susy=density_susy/2
             np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
-
+            
         #density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
@@ -65,7 +66,7 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         plt.savefig(folder_out+"./susy_mode_"+str(conf)+"c.png",dpi=150, bbox_inches='tight')
         plt.close()      
         np.savetxt(folder_out+"./susy_mode_"+str(conf)+"c.txt",density_susy)
-        
+    print(folder_out)
     return()
 
 def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False,Polyakov=False):
