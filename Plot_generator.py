@@ -218,15 +218,38 @@ def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, 
     plt.close()
     return()
 
-def histogram(folder,file_name):
+def histogram(folder,file_name,conf_read,max_modes):
     
-    GM_hist=[]
+    GM_hist={}
     with open(folder+file_name) as f:
         for line in f:
-            GM_hist.append(float(line.split()[3].replace("[","").replace("]","").replace(",","")))
-    print(GM_hist)
-    plt.hist(GM_hist, bins='auto')
-    plt.savefig(folder+"GM_hist.pdf",dpi=150, bbox_inches='tight')
+            conf=int(line.split(",")[0].replace("[","").replace("]",""))
+            i=int(line.split(",")[1].replace("[","").replace("]",""))
+            j=int(line.split(",")[2].replace("[","").replace("]",""))
+            GM_hist[str(conf)+","+str(i)+","+str(j)]=float(line.split(",")[3].replace("[","").replace("]",""))
+
+    max_xi_dic={}
+    for conf in conf_read:
+        for i in range(0,max_modes):
+            max_xi_dic[str(conf)+","+str(i)]=0
+            for j in range(0,max_modes):
+                if max_xi_dic[str(conf)+","+str(i)]<GM_hist[str(conf)+","+str(i)+","+str(j)]:
+                    max_xi_dic[str(conf)+","+str(i)]=GM_hist[str(conf)+","+str(i)+","+str(j)]
+    print(max_xi_dic)
+    max_xi_list=[]
+    for key in max_xi_dic:
+        max_xi_list.append(max_xi_dic[key])
+
+    max_xi_np=np.array(max_xi_list)
     
+    x_min=0
+    x_max=10
+    #bins=10
+    #x_coord=np.range(x_min,x_max,bins)
+    plt.hist(max_xi_np, bins=10, density=True)
+    plt.xlabel(r'$\Xi$')
+    print(folder, file_name)
+    plt.savefig(folder+"GM_hist.pdf",dpi=150, bbox_inches='tight')
+    plt.close()
     return()
     

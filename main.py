@@ -32,3 +32,4 @@ folder_gf="/home/mi37fud/b2p44_new/gf/"
 top_gauge,conf_read=analyzer.Count_index_gf(folder_gf,conf)
 
 Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare)
+Compare.GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare)
