@@ -52,10 +52,7 @@ Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, 
     #lamba_string=f.read().split('\n')
     #lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
     #f.close()
-    #susy_read_s0=analyzer.Count_index(folder_modes+measure+"/sector_0/Measure.seq",
-    #                                  ":OverlapFilterModeR:",lambda_opt,conf_read)
-    #susy_read_s1=analyzer.Count_index(folder_modes+measure+"/sector_1/Measure.seq",
-    #                                  ":OverlapFilterModeR:",lambda_opt,conf_read)
+    #susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_modes,measure,lambda_opt,conf_read)
     #print(folder_out+measure)
     #Plot_generator.susy_plot(folder_modes+measure,folder_out+measure,sizes,colors,
     #                         spin_length,max_modes,conf_read,susy_read_s0,susy_read_s1)

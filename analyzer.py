@@ -101,7 +101,6 @@ def End_spectrum(folder,configurations):
             end_susy=highest_susy[key]
   
     return(end_susy)
- 
 
 def Count_index(folder,measurement,threshold,configurations):
     count={}
@@ -118,6 +117,26 @@ def Count_index(folder,measurement,threshold,configurations):
 
     return(count)
 
+def Count_index_all(folder_modes,measure,threshold,conf_read):
+    
+    dictionary_s1=Real_eigenvalue(folder_modes+"./sector_1/Measure.seq")
+    dictionary_s0=Real_eigenvalue(folder_modes+"./sector_0/Measure.seq")
+                    
+    susy_read_s0=Count_index(folder_modes+measure+"/sector_0/Measure.seq",
+                                      ":OverlapFilterModeR:",threshold,conf_read)
+    susy_read_s1=Count_index(folder_modes+measure+"/sector_1/Measure.seq",
+                                      ":OverlapFilterModeR:",threshold,conf_read)
+    for conf in conf_read:
+        if susy_read_s0[str(conf)]==0 and susy_read_s0[str(conf)]==0:
+            ev1=float(dictionary_s1[str(conf)][0])
+            ev2=float(dictionary_s0[str(conf)][0])
+            if ev1<ev2:
+                susy_read_s1[str(conf)]=1
+            else:
+                susy_read_s0[str(conf)]=1
+    
+    return(susy_read_s0,susy_read_s1)
+    
 def Count_index_impr(folder,measurement,threshold,modes_used):
     count={}
     with open(folder) as file:
