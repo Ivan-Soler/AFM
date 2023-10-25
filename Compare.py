@@ -179,8 +179,9 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
     k=0
     for threshold in lambdas:
         #Check how many modes for each configuration we need to read 
-        susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
-        susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        #susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        #susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read)
         GM={}
         RPO={}
         j=0
