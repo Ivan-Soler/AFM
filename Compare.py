@@ -109,10 +109,10 @@ def GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf
     
     GM=[]
     for conf in conf_read:
-        for i in range(0,susy_read_s1):
+        for i in range(0,susy_read_s1[str(conf)]):
             Mode_i = folder_in+"sector_1/SusyMode_bin_"+str(i)+"-"+str(conf)
             density_s1, sizes=Read.bin_mode_1d(Mode_i,sizes,colors,spin_length)
-            for j in range(0,susy_read_s0):
+            for j in range(0,susy_read_s0[str(conf)]):
                 Mode_j = folder_in+"sector_0/SusyMode_bin_"+str(j)+"-"+str(conf)
                 density_s0, sizes=Read.bin_mode_1d(Mode_j,sizes,colors,spin_length)
                 GM.append([int(conf), i, j, Geom_mean_1d(density_s1,density_s0)])
@@ -181,7 +181,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
         #Check how many modes for each configuration we need to read 
         #susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
         #susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
-        susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read)
+        susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read,max_modes)
         GM={}
         RPO={}
         j=0

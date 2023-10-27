@@ -8,7 +8,7 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": False, "font.size": 8})
+plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
 def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=True,Polyakov=False):
@@ -218,10 +218,11 @@ def GF_vs_AFM(folder_in, folder_gf, folder_out, configurations, t_start, t_end, 
     plt.close()
     return()
 
-def histogram(folder,file_name,conf_read,max_modes):
+def histogram(folder,file_name,conf_read,max_modes, susy_read_s0, susy_read_s1):
     
     GM_hist={}
-    with open(folder+file_name) as f:
+    print(folder+file_name)
+    with open(folder+file_name+".txt") as f:
         for line in f:
             conf=int(line.split(",")[0].replace("[","").replace("]",""))
             i=int(line.split(",")[1].replace("[","").replace("]",""))
@@ -230,9 +231,9 @@ def histogram(folder,file_name,conf_read,max_modes):
 
     max_xi_dic={}
     for conf in conf_read:
-        for i in range(0,max_modes):
+        for i in range(0,susy_read_s1[str(conf)]):
             max_xi_dic[str(conf)+","+str(i)]=0
-            for j in range(0,max_modes):
+            for j in range(0,susy_read_s0[str(conf)]):
                 if max_xi_dic[str(conf)+","+str(i)]<GM_hist[str(conf)+","+str(i)+","+str(j)]:
                     max_xi_dic[str(conf)+","+str(i)]=GM_hist[str(conf)+","+str(i)+","+str(j)]
     print(max_xi_dic)
@@ -246,10 +247,11 @@ def histogram(folder,file_name,conf_read,max_modes):
     x_max=10
     #bins=10
     #x_coord=np.range(x_min,x_max,bins)
-    plt.hist(max_xi_np, bins=10, density=True)
+    plt.hist(max_xi_np, bins=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1], density=False)
     plt.xlabel(r'$\Xi$')
+    plt.ylabel(r'Frequency')
     print(folder, file_name)
-    plt.savefig(folder+"GM_hist.pdf",dpi=150, bbox_inches='tight')
+    plt.savefig(folder+file_name+".pdf",dpi=150, bbox_inches='tight')
     plt.close()
     return()
     

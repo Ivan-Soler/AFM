@@ -102,7 +102,7 @@ def End_spectrum(folder,configurations):
   
     return(end_susy)
 
-def Count_index(folder,measurement,threshold,configurations):
+def Count_index(folder,measurement,threshold,configurations,max_modes):
     count={}
     for conf in configurations:
         count[str(conf)]=0
@@ -113,19 +113,20 @@ def Count_index(folder,measurement,threshold,configurations):
             if match:
                 string=line.split(":")
                 if (abs(float(string[8]))<threshold) and (string[1] in count):
-                    count[string[1]]+=1
+                    if count[string[1]]<max_modes:
+                        count[string[1]]+=1
 
     return(count)
 
-def Count_index_all(folder_modes,measure,threshold,conf_read):
+def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes):
     
-    dictionary_s1=Real_eigenvalue(folder_modes+"./sector_1/Measure.seq")
-    dictionary_s0=Real_eigenvalue(folder_modes+"./sector_0/Measure.seq")
+    dictionary_s1=Real_eigenvalue(folder_modes+"/sector_1/Measure.seq")
+    dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq")
                     
     susy_read_s0=Count_index(folder_modes+measure+"/sector_0/Measure.seq",
-                                      ":OverlapFilterModeR:",threshold,conf_read)
+                                      ":OverlapFilterModeR:",threshold,conf_read,max_modes)
     susy_read_s1=Count_index(folder_modes+measure+"/sector_1/Measure.seq",
-                                      ":OverlapFilterModeR:",threshold,conf_read)
+                                      ":OverlapFilterModeR:",threshold,conf_read,max_modes)
     for conf in conf_read:
         if susy_read_s0[str(conf)]==0 and susy_read_s0[str(conf)]==0:
             ev1=float(dictionary_s1[str(conf)][0])
