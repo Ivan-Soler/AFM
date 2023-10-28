@@ -47,6 +47,50 @@ def Construct_susy(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_lengt
             density_susy-=density_s0
     return(density_susy)   
 
+def Construct_susy_overlap(folder,susy_read_s0,susy_read_s1,conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes):
+     #Read supersymmetric modes up to a threshold of the eigenvalue
+    susy_mode_s1=np.zeros((spin_length, colors, sizes[0],sizes[1],sizes[2],sizes[3]),dtype=np.complex_)
+    susy_mode_s0=np.zeros((spin_length, colors, sizes[0],sizes[1],sizes[2],sizes[3]),dtype=np.complex_)
+    read=False
+    
+    for mode in range(0,susy_read_s1):
+        if mode<max_modes:
+            read=True
+            Mode_f = folder+"sector_1/OverlapMode"+str(conf)+str(mode)
+            Mode,density,sizes=Read.ascii_mode(Mode_f)
+            susy_mode_s1+=Mode_f    
+            
+    for mode in range(0,susy_read_s0):
+        if mode<max_modes:
+            read=True
+            Mode_f = folder+"sector_0/OverlapMode"+str(conf)+str(mode)
+            Mode,density,sizes=Read.ascii_mode(Mode_f)
+            susy_mode_s0+=Mode_f 
+            
+    if not read:
+        ev1=float(dictionary_s1[str(conf)][0])
+        ev2=float(dictionary_s0[str(conf)][0])
+        if ev1<ev2:
+            read=True
+            Mode_f1 = folder+"sector_1/OverlapMode"+str(conf)+str(0)
+            Mode_f2 = folder+"sector_1/OverlapMode"+str(conf)+str(1)
+            Mode1,desity,sizes=Read.ascii_mode(Mode_f1)
+            Mode2,desity,sizes=Read.ascii_mode(Mode_f2)
+            susy_mode_s1+=Mode1+Mode2
+        else:
+            read=True
+            Mode_f1 = folder+"sector_0/OverlapMode"+str(conf)+str(0)
+            Mode_f2 = folder+"sector_0/OverlapMode"+str(conf)+str(1)
+            Mode1,desity,sizes=Read.ascii_mode(Mode_f1)
+            Mode2,desity,sizes=Read.ascii_mode(Mode_f2)
+            susy_mode_s0+=Mode1+Mode2
+
+    density_s1=Read.mode_to_density(susy_mode_s1,color,spin,sizes)    
+    density_s0=Read.mode_to_density(susy_mode_s0,color,spin,sizes)
+    
+    density_susy=density_s1-density_s0
+    return(density_susy)
+            
 def Construct_susy_improve(modes_s0, modes_s1,top):
     GM_00=Compare.GM_matrix(modes_s0,modes_s0)
     GM_01=Compare.GM_matrix(modes_s0,modes_s1)
@@ -161,7 +205,7 @@ def GM_RPO(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao
     return()         
 
 
-def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare):
+def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare,pattern):
     
     #Param and definitions
     steps=len(lambdas)
@@ -170,8 +214,8 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
     param=np.zeros((steps))
     
     #Parsing the eigenvalues
-    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
-    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
+    dictionary_s1=analyzer.Eigenvalue(folder_in+"./sector_1/Measure.seq",pattern)
+    dictionary_s0=analyzer.Eigenvalue(folder_in+"./sector_0/Measure.seq",pattern)
     
     print(conf_read)
     ov_max=0
@@ -181,7 +225,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
         #Check how many modes for each configuration we need to read 
         #susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
         #susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
-        susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read,max_modes)
+        susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read,max_modes,pattern)
         GM={}
         RPO={}
         j=0
@@ -191,8 +235,10 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
             density_top,sizes=Read.topology_1d(Topology)
             
             #Construct susy mode
-            density_susy=Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
-            
+            if "OverlapFilterModeC" in pattern:
+                density_susy=Construct_susy_overlap(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+            else:
+                density_susy=Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             #Compute the distance between the susy and the topological density
             GM[conf]=Geom_mean_1d(density_susy,density_top)
             #RPO[conf]=Relative_point(np.absolute(density_susy),np.absolute(density_top),RPO_threshold)

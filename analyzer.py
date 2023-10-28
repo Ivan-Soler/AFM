@@ -8,9 +8,8 @@ import Compare
 plt.rcParams.update({'font.size': 12})        
 
 # Reads the eigenvalue of the supersymmetric operator of each mode
-def Real_eigenvalue(file):
+def Real_eigenvalue(file,pattern):
     Measure_file = open(file, "r")
-    pattern=":OverlapFilterModeR:"
     eigenvectors=[[]]
     count=[[]]
     eigenvectors.pop(0)
@@ -124,9 +123,9 @@ def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes):
     dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq")
                     
     susy_read_s0=Count_index(folder_modes+measure+"/sector_0/Measure.seq",
-                                      ":OverlapFilterModeR:",threshold,conf_read,max_modes)
+                                      pattern,threshold,conf_read,max_modes)
     susy_read_s1=Count_index(folder_modes+measure+"/sector_1/Measure.seq",
-                                      ":OverlapFilterModeR:",threshold,conf_read,max_modes)
+                                      pattern,threshold,conf_read,max_modes)
     for conf in conf_read:
         if susy_read_s0[str(conf)]==0 and susy_read_s0[str(conf)]==0:
             ev1=float(dictionary_s1[str(conf)][0])
