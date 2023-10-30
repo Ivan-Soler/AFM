@@ -50,7 +50,7 @@ def ascii_mode(directory):
     #norm=density.sum()                       
     return(zeromode,density,sizes)
 
-def mode_to_density(zeromode,color,spin,sizes):
+def mode_to_density(zeromode,range_color,range_spin,sizes):
     density=np.zeros([sizes[0],sizes[1],sizes[2],sizes[3]])
     for i in range(0, sizes[0]):
         for j in range(0, sizes[1]):
@@ -58,8 +58,8 @@ def mode_to_density(zeromode,color,spin,sizes):
                 for l in range(0,sizes[3]):
                     for spin in range(0,range_spin):
                         for color in range(0,range_color):
-                            density[i,j,k,l]+=np.copy(zeromode[color,spin,i,j,k,l].imag*zeromode[color,spin,i,j,k,l].imag + 
-                                                      zeromode[color,spin,i,j,k,l].real*zeromode[color,spin,i,j,k,l].real)          
+                            density[i,j,k,l]+=np.copy(zeromode[spin,color,i,j,k,l].imag*zeromode[spin,color,i,j,k,l].imag + 
+                                                      zeromode[spin,color,i,j,k,l].real*zeromode[spin,color,i,j,k,l].real)          
     density_1d=density.sum(axis=(0,1,2))
     return(density_1d)
 

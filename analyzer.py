@@ -36,7 +36,7 @@ def GM_matrix(modes1, modes2):
 
 def End_spectrum(folder,configurations):
     #Overlap
-    """end_overlap=100
+    end_overlap=100
     highest_overlap={}
     with open(folder+"sector_0/Measure.seq") as file:
         for line in file:
@@ -63,7 +63,7 @@ def End_spectrum(folder,configurations):
                     
     for key in highest_overlap:
         if highest_overlap[key]<end_overlap:
-            end_overlap=highest_overlap[key]"""
+            end_overlap=highest_overlap[key]
             
     #susy
     end_susy=100
@@ -99,7 +99,7 @@ def End_spectrum(folder,configurations):
         if highest_susy[key]<end_susy:
             end_susy=highest_susy[key]
   
-    return(end_susy)
+    return(end_susy,end_overlap)
 
 def Count_index(folder,measurement,threshold,configurations,max_modes):
     count={}
@@ -117,10 +117,10 @@ def Count_index(folder,measurement,threshold,configurations,max_modes):
 
     return(count)
 
-def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes):
+def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes,pattern):
     
-    dictionary_s1=Real_eigenvalue(folder_modes+"/sector_1/Measure.seq")
-    dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq")
+    dictionary_s1=Real_eigenvalue(folder_modes+"/sector_1/Measure.seq",pattern)
+    dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq",pattern)
                     
     susy_read_s0=Count_index(folder_modes+measure+"/sector_0/Measure.seq",
                                       pattern,threshold,conf_read,max_modes)
