@@ -18,14 +18,14 @@ max_modes=8
 colors=3
 spin_length=4
 
-lambda_min=0.001
-lambda_max=0.1
-steps=3
+lambda_min=0.01
+lambda_max=0.010
+steps=2
 lambdas=np.linspace(lambda_min,lambda_max,num=steps)
 RPO_threshold=0.15
 
 conf_start=10
-conf_end=1000
+conf_end=20
 conf_step=10
 conf=np.arange(conf_start,conf_end,conf_step)
 folder_gf="/home/mi37fud/b2p44_new/gf/"
@@ -39,5 +39,5 @@ lamba_string=f.read().split('\n')
 lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
 
 susy_read_s0, susy_read_s1=analyzer.Count_index_all(folder_in,"",lambda_opt,conf_read,max_modes,operator)
-#Compare.GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True)
-#Compare.GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True)
+Compare.GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True)
+Compare.GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True)

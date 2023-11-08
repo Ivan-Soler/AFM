@@ -11,10 +11,10 @@ import pickle
 plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1, Load=False,Plot=True,Polyakov=False):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1,pattern,  Load=False,Plot=True,Polyakov=False):
     
-    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
-    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
+    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq",pattern)
+    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq",pattern)
     
     if not Polyakov:
         print(conf_read)

@@ -269,6 +269,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
         #To check when one runs out of modes
         end_susy,end_overlap=analyzer.End_spectrum(folder_in,conf_read) #Computes the last value of the spectrum
         i=0
+        susy_max=[lambdas[len(lambdas)-1], len(lambdas)]
         for threshold in lambdas:
             if "OverlapFilterModeR" in pattern:
                 if not susy_max and threshold > end_susy:

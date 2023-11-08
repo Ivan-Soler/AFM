@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import Plotting
 import Read
 import analyzer
 import sys
@@ -13,12 +12,14 @@ colors = 3
 spin_length=4
 
 if Bin:
+    sizes=[8,8,8,64]
     density_mode,sizes=Read.bin_mode(Mode,sizes,colors,spin_length)
 else:
     density_mode,sizes=Read.ascii_mode(Mode)  
 
 density_mode=Chirality*density_mode.sum(axis=Sum_over)
 
-Plotting.plot_density_1d(Mode,density_mode)
+t=np.linspace(0,sizes[3],sizes[3])
+plt.plot(t,density_mode)
 
 plt.savefig(Mode+".png",dpi=150, bbox_inches='tight')
