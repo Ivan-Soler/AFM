@@ -23,5 +23,5 @@ t=np.linspace(0,sizes[3],sizes[3])
 plt.plot(t,density_mode)
 Mode.replace("SusyMode_bin_","")
 Mode.split("-")
-file_name=("SusyMode_"+Mode[1]+"_"+Mode[0]
+file_name="SusyMode_"+Mode[1]+"_"+Mode[0]
 plt.savefig(Mode+".png",dpi=150, bbox_inches='tight')

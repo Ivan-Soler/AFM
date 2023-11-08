@@ -127,9 +127,9 @@ def Construct_susy_improve(modes_s0, modes_s1,top):
                 modes_s0_used[i]=False
     return(susy, modes_s0_used, modes_s1_used)  
 
-def GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True):
-    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
-    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
+def GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,pattern,save=True):
+    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq",pattern)
+    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq",pattern)
     
     GM=[]
     for conf in conf_read:
@@ -147,9 +147,9 @@ def GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_rea
     
     return()
 
-def GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,save=True):
-    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq")
-    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq")
+def GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,pattern,save=True):
+    dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq",pattern)
+    dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq",pattern)
     
     GM=[]
     for conf in conf_read:
@@ -222,9 +222,7 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
     susy_max=0 #To know in which step of lambda one runs out of values
     k=0
     for threshold in lambdas:
-        #Check how many modes for each configuration we need to read 
-        #susy_read_s0=analyzer.Count_index(folder_in+"sector_0/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
-        #susy_read_s1=analyzer.Count_index(folder_in+"sector_1/Measure.seq",":OverlapFilterModeR:",threshold,conf_read)
+        #Check how many modes for each configuration we need to read )
         susy_read_s0, susy_read_s1 = analyzer.Count_index_all(folder_in,"",threshold,conf_read,max_modes,pattern)
         GM={}
         RPO={}
@@ -253,12 +251,9 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
         count_meas=0
         for key in GM:
             GM_mean+=GM[key]
-            #RPO_mean+=RPO[key]
-            count_meas+=1
-        #RPO_mean=RPO_mean/count_meas  
+            count_meas+=1  
         GM_mean=GM_mean/count_meas
         GM_tot[k]=GM_mean
-        #RPO_tot[k]=RPO_mean
         print(k) #to see the progress
         if not count_meas==len(conf_read):
             print("GM measures left out")
@@ -282,7 +277,6 @@ def GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read
     #Saving the GM and RPO
     np.savetxt(folder_out+"end_spectrum.txt", np.array(susy_max))
     np.savetxt(folder_out+"GM.txt",np.vstack((GM_tot,lambdas)))
-    #np.savetxt(folder_out+"RPO.txt", np.vstack((RPO_tot,lambdas)))
     
     #finding the optimal lambda
     max_xi=0
