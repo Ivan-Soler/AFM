@@ -44,6 +44,16 @@ def simple_1d(density,sizes):
         maxima=np.delete(maxima, 0)
     return(maxima)
 
+def improve_1d(density,sizes):
+    maxima=np.zeros((1, ), dtype=int)
+    for i in range(0,sizes):
+            #First the nearest neighbours
+            if ((density[i] < density [(i+1)%sizes]) or (density[i] < density [(i-1)%sizes]) or (density[i] < density [(i+2)%sizes]) or (density[i] < density [(i-2)%sizes])):
+                continue
+            maxima=np.column_stack((maxima, [i]))
+    if (len(maxima)>0):
+        maxima=np.delete(maxima, 0)
+    return(maxima)
 
 def improve_2d(density,sizes):
     maxima=np.zeros((2, ), dtype=int)
@@ -133,7 +143,7 @@ def nnneighbours(density,sizes):
                     if ((density[i,j,k,l] < density [i,j,(k+1)%sizes[2],(l+1)%sizes[3]]) or (density[i,j,k,l] < density [i,j,(k-1)%sizes[2],(l-1)%sizes[3]])) or (density[i,j,k,l] < density [i,j,(k+1)%sizes[2],(l-1)%sizes[3]]) or (density[i,j,k,l] < density [i,j,(k-1)%sizes[2],(l+1)%sizes[3]]):
                         continue
                     maxima=np.column_stack((maxima, [i,j,k,l]))
-    maxima=np.delete(maxima, 0, 1)
+    #maxima=np.delete(maxima, 0, 1)
     return(maxima)
 
 def repeated(res,sizes):
