@@ -39,15 +39,15 @@ def ascii_mode(directory):
                                 zeromode[color,spin,i,j,k,l]=complex(float(split[0]),float(split[1]))
     density=np.zeros([sizes[0],sizes[1],sizes[2],sizes[3]])
 
-    #for i in range(0, sizes[0]):
-    #    for j in range(0, sizes[1]):
-    #        for k in range(0, sizes[2]):
-    #            for l in range(0,sizes[3]):
-    #                for spin in range(0,range_spin):
-    #                    for color in range(0,range_color):                    
-    #                        density[i,j,k,l]+=np.copy(zeromode[color,spin,i,j,k,l].imag*zeromode[color,spin,i,j,k,l].imag + 
-    #                                                  zeromode[color,spin,i,j,k,l].real*zeromode[color,spin,i,j,k,l].real)
-    #norm=density.sum()                       
+    for i in range(0, sizes[0]):
+        for j in range(0, sizes[1]):
+            for k in range(0, sizes[2]):
+                for l in range(0,sizes[3]):
+                    for spin in range(0,range_spin):
+                        for color in range(0,range_color):                    
+                            density[i,j,k,l]+=np.copy(zeromode[color,spin,i,j,k,l].imag*zeromode[color,spin,i,j,k,l].imag + 
+                                                      zeromode[color,spin,i,j,k,l].real*zeromode[color,spin,i,j,k,l].real)
+    norm=density.sum()                       
     return(zeromode,density,sizes)
 
 def mode_to_density(zeromode,range_color,range_spin,sizes):
@@ -91,13 +91,9 @@ def mode_real_density(zeromode,range_color,range_spin,sizes,chirality):
     return(density_1d)
 
 def bin_mode(file,sizes,range_color,range_spin):
-    mode=np.memmap(file, dtype=np.complex).byteswap()
-    #temp_file=file+"endian"
-    #mode = array.array('d')
-    #with open(temp_file, 'rb') as fin:
-    #    n = sizes[0]*sizes[1]*sizes[2]*sizes[3]*range_color*range_spin*2
-    #    mode.fromfile(fin, n)
-    
+
+    mode=np.memmap(file, dtype=np.double).byteswap()
+
     density=np.zeros([sizes[0],sizes[1],sizes[2],sizes[3]])
     index=0
     for l in range(0, sizes[3]):

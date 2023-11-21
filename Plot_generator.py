@@ -11,31 +11,11 @@ import pickle
 plt.rcParams.update({"text.usetex": False, "font.size": 16})
 
 
-def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1,pattern,  Load=False,Plot=True,Polyakov=False):
+def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1,pattern, cut, Load=False,Plot=True,Polyakov=False):
     
     dictionary_s1=analyzer.Real_eigenvalue(folder_in+"./sector_1/Measure.seq",pattern)
     dictionary_s0=analyzer.Real_eigenvalue(folder_in+"./sector_0/Measure.seq",pattern)
-    
-    if not Polyakov:
-        print(conf_read)
-        for conf in conf_read:
-            if ( susy_read_s1[str(conf)]==0) and ( susy_read_s0[str(conf)]==0):
-                print(conf)
-                ev1=float(dictionary_s1[str(conf)][0])
-                ev2=float(dictionary_s0[str(conf)][0])
-                if ev1<ev2:
-                    print("s1")
-                    susy_read_s1[str(conf)]=1
-                    susy_read_s0[str(conf)]=0
-                else:
-                    print("s2")
-                    susy_read_s0[str(conf)]=1
-                    susy_read_s1[str(conf)]=0
-        with open(folder_out+"modes_used.txt", 'w') as f:
-            for conf in conf_read:
-                print(conf, susy_read_s1[str(conf)],susy_read_s0[str(conf)], file=f)
-        print(susy_read_s1)
-        print(susy_read_s0)
+
     for conf in conf_read:
         #Read GF
         Topology_1=folder_in+"../gf/profile4dt0.5c"+str(conf)+"to.dat"
@@ -48,14 +28,15 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
 
         #Construct susy mode
         if Load:
-            density_susy=np.loadtxt(folder+measure+"susy_mode_"+str(conf)+"c.txt")
+            density_susy=np.loadtxt(folder+measure+"susy_mode_"+str(conf)+"c_"+cut_+"cut.txt")
         else:
-            density_susy=Compare.Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],
-                                                conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
-            density_susy=density_susy/2
+            if "OverlapFilterModeC" in pattern:
+                density_susy=Compare.Construct_susy_overlap(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+            else:
+                density_susy=Compare.Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+
             np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
             
-        #density_susy=density_susy*(normalization/np.sum(np.abs(density_susy)))
 
         #Plot the three densities
         plt.plot(density_top_1, label='top. density t=0.5')
@@ -63,9 +44,9 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
         plt.plot(density_top_3, label='top. density t=4')
         plt.plot(density_susy, label="AFM")
         plt.legend(loc="lower left", ncol=2)
-        plt.savefig(folder_out+"./susy_mode_"+str(conf)+"c.png",dpi=150, bbox_inches='tight')
+        plt.savefig(folder_out+"./susy_mode_"+str(conf)+"c_"+cut+"cut.png",dpi=150, bbox_inches='tight')
         plt.close()      
-        np.savetxt(folder_out+"./susy_mode_"+str(conf)+"c.txt",density_susy)
+        np.savetxt(folder_out+"./susy_mode_"+str(conf)+"c_"+cut+"cut.txt",density_susy)
     print(folder_out)
     return()
 
@@ -128,13 +109,22 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False,
 def Cut_dependence(folder_in,folder_out,measures,observable):
     ax = plt.gca()
     for measure in (measures):
-        time=re.sub("gf_afm", "", measure)
-        time=re.sub("t","", time)
+        string=measure.split("_")
+        time=re.sub("t","",string[2])
         time=re.sub("p",".", time)
         time=re.sub("/","", time)
-        time=re.sub("_","", time)
+        if len(string)>3:
+            kappa=re.sub("/","",string[3])
+            kappa="0."+re.sub("k","",kappa)
+            label_afm=r'$\tau$'+"="+time +r', $\kappa$'+"="+kappa
+            if string[3]=="_ov":
+                label_afm=r'$\tau$'+"="+time + "_ov"
+        else:
+            label_afm=r'$\tau$'+"="+time    
         data=np.loadtxt(folder_in+measure+observable+".txt")
         susy_max=np.loadtxt(folder_in+measure+"end_spectrum.txt")
+        #if method=="cut":
+        susy_min=np.loadtxt(folder_in+measure+"start_spectrum.txt")
 
         #Read the error
         error=[]
@@ -144,17 +134,17 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
             f.close()
 
         color = next(ax._get_lines.prop_cycler)['color']
-        plt.errorbar(data[1],data[0], yerr=error, label=r'$\tau$'+"="+time, color=color)
-        plt.fill_between(data[1], data[0]-error, data[0]+error, alpha=0.1, color=color)
-        plt.scatter(susy_max[0],data[0,int(susy_max[1])], marker="v", color=color)
+        plt.errorbar(data[1,0:(int(susy_max[1])+1)],data[0,0:(int(susy_max[1])+1)], yerr=error[0:(int(susy_max[1])+1)], label=label_afm, color=color)
+        plt.fill_between(data[1,0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]-error[0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]+error[0:(int(susy_max[1])+1)], alpha=0.1, color=color)
+        plt.scatter(susy_min[0],data[0,(int(susy_min[1]))], marker="v", color=color)
 
     #plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
     #plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
     plt.xlabel('lambda')
     plt.ylabel('Xi')
     plt.legend(loc="upper right", ncol=1)
-    plt.ylim([0,1.1])
-    plt.xlim([0.0,0.15])
+    #plt.ylim([0,1.1])
+    #plt.xlim([0.0,0.15])
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 1, box.height])

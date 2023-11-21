@@ -10,21 +10,14 @@ plt.rcParams.update({'font.size': 12})
 # Reads the eigenvalue of the supersymmetric operator of each mode
 def Real_eigenvalue(file,pattern):
     Measure_file = open(file, "r")
-    eigenvectors=[[]]
-    count=[[]]
-    eigenvectors.pop(0)
-    count={}
     dictionary={}
     for line in Measure_file:
         if re.search(pattern,line):
             line_split=line.split(":")
-            eigenvectors.append([line_split[1],line_split[4],line_split[8]])
             if line_split[1] in dictionary:
-                dictionary[line_split[1]].append(line_split[8])
-                count[line_split[1]]+=1
+                dictionary[line_split[1]].append(float(line_split[8]))
             else:
-                dictionary.update({line_split[1]:[line_split[8]]})
-                count.update({line_split[1]:1})
+                dictionary.update({line_split[1]:[float(line_split[8])]})
     return dictionary
 
 def GM_matrix(modes1, modes2):
@@ -34,40 +27,47 @@ def GM_matrix(modes1, modes2):
             GM[i,j]=analyzer.Geom_mean_1d(modes1(i),modes2(j))
     return(GM)
 
+
 def End_spectrum(folder,configurations):
+    #Reads the last eigenvalue of each configuration and returns the smallest one
     #Overlap
     end_overlap=100
-    highest_overlap={}
+    highest_overlap_s0={}
     with open(folder+"sector_0/Measure.seq") as file:
         for line in file:
             match=re.search(":OverlapFilterModeC:",line)
             if match:
                 string=line.split(":")
-                if not string[1] in highest_overlap:
-                    highest_overlap[string[1]]=abs(float(string[8]))
+                if not string[1] in highest_overlap_s0:
+                    highest_overlap_s0[string[1]]=abs(float(string[8]))
                 else:
-                    if (abs(float(string[8]))>highest_overlap[string[1]]):
-                        highest_overlap[string[1]]=abs(float(string[8]))
+                    if (abs(float(string[8]))>highest_overlap_s0[string[1]]):
+                        highest_overlap_s0[string[1]]=abs(float(string[8]))
                     
     #Overlap
+    highest_overlap_s1={}
     with open(folder+"sector_1/Measure.seq") as file:
         for line in file:
             match=re.search(":OverlapFilterModeC:",line)
             if match:
                 string=line.split(":")
-                if not string[1] in highest_overlap:
-                    highest_overlap[string[1]]=abs(float(string[8]))
+                if not string[1] in highest_overlap_s1:
+                    highest_overlap_s1[string[1]]=abs(float(string[8]))
                 else:
-                    if (abs(float(string[8]))>highest_overlap[string[1]]):
-                        highest_overlap[string[1]]=abs(float(string[8]))
-                    
-    for key in highest_overlap:
-        if highest_overlap[key]<end_overlap:
-            end_overlap=highest_overlap[key]
+                    if (abs(float(string[8]))>highest_overlap_s1[string[1]]):
+                        highest_overlap_s1[string[1]]=abs(float(string[8]))
+      
+    for key in highest_overlap_s0:
+        if highest_overlap_s0[key]<end_overlap:
+            end_overlap=highest_overlap_s0[key]
+
+    for key in highest_overlap_s1:
+        if highest_overlap_s1[key]<end_overlap:
+            end_overlap=highest_overlap_s1[key]
             
     #susy
     end_susy=100
-    highest_susy={}
+    highest_susy_s0={}
     with open(folder+"sector_0/Measure.seq") as file:
         for line in file:
             match=re.search(":OverlapFilterModeR:",line)
@@ -75,13 +75,14 @@ def End_spectrum(folder,configurations):
                 string=line.split(":")
                 for conf in configurations:
                     if string[1]==str(conf):
-                        if not string[1] in highest_susy:
-                            highest_susy[string[1]]=abs(float(string[8]))
+                        if not string[1] in highest_susy_s0:
+                            highest_susy_s0[string[1]]=abs(float(string[8]))
                         else:
-                            if (abs(float(string[8]))>highest_susy[string[1]]):
-                                highest_susy[string[1]]=abs(float(string[8]))
+                            if (abs(float(string[8]))>highest_susy_s0[string[1]]):
+                                highest_susy_s0[string[1]]=abs(float(string[8]))
                     
     #susy
+    highest_susy_s1={}
     with open(folder+"sector_1/Measure.seq") as file:
         for line in file:
             match=re.search(":OverlapFilterModeR:",line)
@@ -89,15 +90,19 @@ def End_spectrum(folder,configurations):
                 string=line.split(":")
                 for conf in configurations:
                     if string[1]==str(conf):
-                        if not string[1] in highest_susy:
-                            highest_susy[string[1]]=abs(float(string[8]))
+                        if not string[1] in highest_susy_s1:
+                            highest_susy_s1[string[1]]=abs(float(string[8]))
                         else:
-                            if (abs(float(string[8]))>highest_susy[string[1]]):
-                                highest_susy[string[1]]=abs(float(string[8]))
+                            if (abs(float(string[8]))>highest_susy_s1[string[1]]):
+                                highest_susy_s1[string[1]]=abs(float(string[8]))
                     
-    for key in highest_susy:
-        if highest_susy[key]<end_susy:
-            end_susy=highest_susy[key]
+    for key in highest_susy_s1:
+        if highest_susy_s1[key]<end_susy:
+            end_susy=highest_susy_s1[key]
+
+    for key in highest_susy_s0:
+        if highest_susy_s0[key]<end_susy:
+            end_susy=highest_susy_s0[key]
   
     return(end_susy,end_overlap)
 
@@ -117,7 +122,7 @@ def Count_index(folder,measurement,threshold,configurations,max_modes):
 
     return(count)
 
-def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes,pattern):
+def Count_index_cut(folder_modes,measure,threshold,conf_read,max_modes,pattern):
     
     dictionary_s1=Real_eigenvalue(folder_modes+"/sector_1/Measure.seq",pattern)
     dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq",pattern)
@@ -126,8 +131,11 @@ def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes,pattern):
                                       pattern,threshold,conf_read,max_modes)
     susy_read_s1=Count_index(folder_modes+measure+"/sector_1/Measure.seq",
                                       pattern,threshold,conf_read,max_modes)
+    start_spectrum=True
+
     for conf in conf_read:
-        if susy_read_s0[str(conf)]==0 and susy_read_s0[str(conf)]==0:
+        if susy_read_s0[str(conf)]==0 and susy_read_s1[str(conf)]==0:
+            start_spectrum=False
             ev1=float(dictionary_s1[str(conf)][0])
             ev2=float(dictionary_s0[str(conf)][0])
             if ev1<ev2:
@@ -135,6 +143,40 @@ def Count_index_all(folder_modes,measure,threshold,conf_read,max_modes,pattern):
             else:
                 susy_read_s0[str(conf)]=1
     
+    return(susy_read_s0,susy_read_s1,start_spectrum)
+
+def Count_index_gap(folder_modes,measure,gap,conf_read,max_modes,pattern):
+    
+    dictionary_s1=Real_eigenvalue(folder_modes+"/sector_1/Measure.seq",pattern)
+    dictionary_s0=Real_eigenvalue(folder_modes+"/sector_0/Measure.seq",pattern)
+
+    susy_read_s0={}
+    susy_read_s1={}
+    for conf in conf_read:
+        i=len(dictionary_s1[conf])-1
+        gap_find=False
+        susy_read_s1[conf]=i
+        while i>0 and not gap_find:
+            if (dictionary_s1[conf][i]-dictionary_s1[conf][i-1])>gap:
+                susy_read_s1[conf]=i
+                gap_find=True
+            i-=1
+        if not gap_find:
+            susy_read_s1[conf]=1
+
+        i=len(dictionary_s0[conf])-1
+        print(i)
+        susy_read_s0[conf]=i
+        gap_find=False
+        while i>=0 and not gap_find:
+            if (dictionary_s0[conf][i]-dictionary_s0[conf][i-1])>gap:
+                susy_read_s0[conf]=i
+                gap_find=True
+            i-=1
+        if not gap_find:
+            susy_read_s0[conf]=1
+    print(susy_read_s0,susy_read_s1)
+
     return(susy_read_s0,susy_read_s1)
     
 def Count_index_impr(folder,measurement,threshold,modes_used):

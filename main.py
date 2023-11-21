@@ -7,36 +7,49 @@ import Plot_generator
 plt.rcParams.update({'font.size': 8})
 plt.rcParams['text.usetex'] = False
 
-#Param and definitions
-folder_in=str(sys.argv[1]) #./gf_afm_1p5t/ 
-tao_compare=str(sys.argv[2]) # 1.5
-folder_out=str(sys.argv[3]) #./compare_1p5t/gf_afm_1p5t/   
-operator=str(sys.argv[4]) #OverlapFilterModeC
-
-sizes=[4,4,4,32]
-max_modes=8
+#Definitions parameters
 colors=3
 spin_length=4
-
-lambda_min=0.01
-lambda_max=0.010
-steps=2
-lambdas=np.linspace(lambda_min,lambda_max,num=steps)
 RPO_threshold=0.15
-
-conf_start=10
-conf_end=20
-conf_step=10
-conf=np.arange(conf_start,conf_end,conf_step)
 folder_gf="./gf/"
 
+#Param read from screen
+folder_in=str(sys.argv[1]) #./gf_afm_1p5t/ 
+tao_compare=str(sys.argv[2]) # 1.5
+folder_out=str(sys.argv[3])+str(sys.argv[1]) #./compare_1p5t/gf_afm_1p5t/   
+operator=str(sys.argv[4]) #OverlapFilterModeC
+
+#Param read from file
+f=open(str(sys.argv[3])+"main_parameters.txt", 'r')
+sizes_str=f.readline().replace("\n","").split(" ")
+sizes=[int(element) for element in sizes_str]
+max_modes=int(f.readline())
+method=f.readline().replace("\n","")
+lambda_min=float(f.readline())
+lambda_max=float(f.readline())
+steps=int(f.readline())
+lambdas=np.linspace(lambda_min,lambda_max,num=steps)
+
+conf_start=int(f.readline())
+conf_end=int(f.readline())
+conf_step=int(f.readline())
+conf=np.arange(conf_start,conf_end,conf_step)
+f.close()
+
 top_gauge,conf_read=analyzer.Count_index_gf(folder_gf,conf)
-Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare,operator)
+Compare.GM_RPO_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,lambdas,RPO_threshold,tao_compare,operator,method)
 
 f=open(folder_out+"lambda_opt.txt",'r')
 lamba_string=f.read().split('\n')
 lambda_opt,index_opt=float(lamba_string[0]), int(float(lamba_string[1]))
 
-susy_read_s0, susy_read_s1=analyzer.Count_index_all(folder_in,"",lambda_opt,conf_read,max_modes,operator)
+if method=="cut":
+    susy_read_s0,susy_read_s1,start_spectrum = analyzer.Count_index_cut(folder_in,"",lambda_opt,conf_read,max_modes,operator)
+if method=="gap":
+    susy_read_s0,susy_read_s1,start_spectrum = analyzer.Count_index_gap(folder_in,"",lambda_opt,conf_read,max_modes,operator)
+print(str(sys.argv[1]),"Doubler contribution")
 Compare.GM_doublers(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,operator,save=True)
+print(str(sys.argv[1]),"Doubler contribution at cut")
+print(susy_read_s0)
+print(susy_read_s1)
 Compare.GM_doublers_cut(folder_in,folder_out,sizes,max_modes,colors,spin_length,conf_read,tao_compare,susy_read_s0,susy_read_s1,operator,save=True)
