@@ -180,3 +180,39 @@ def topology_1d(file):
     density,sizes=topology(file)
     density_1d=density.sum(axis=(0,1,2))
     return(density_1d,sizes)
+
+def shift_t(density,sizes,shift):
+    temp=density
+    for i in range(0,sizes[0]):
+        for j in range(0,sizes[1]):
+            for k in range(0,sizes[2]):
+                for l in range(0,sizes[3]):
+                    temp[i,j,k,l]=density[(i+shift)%sizes[0],j,k,l]
+    return temp
+
+def shift_x(density,sizes,shift):
+    temp=density
+    for i in range(0,sizes[0]):
+        for j in range(0,sizes[1]):
+            for k in range(0,sizes[2]):
+                for l in range(0,sizes[3]):
+                    temp[i,j,k,l]=density[i,(j+shift)%sizes[1],k,l]
+    return temp
+
+def shift_y(density,sizes,shift):
+    temp=density
+    for i in range(0,sizes[0]):
+        for j in range(0,sizes[1]):
+            for k in range(0,sizes[2]):
+                for l in range(0,sizes[3]):
+                    temp[i,j,k,l]=density[i,j,(k+shift)%sizes[2],l]
+    return temp
+
+def shift_z(density,sizes,shift):
+    temp=density
+    for i in range(0,sizes[0]):
+        for j in range(0,sizes[1]):
+            for k in range(0,sizes[2]):
+                for l in range(0,sizes[3]):
+                    temp[i,j,k,l]=density[i,j,k,(l+shift)%sizes[3]]
+    return temp
