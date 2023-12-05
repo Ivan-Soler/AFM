@@ -5,7 +5,7 @@ import Compare
 import sys
 import Plot_generator
 plt.rcParams.update({'font.size': 16})
-plt.rcParams['text.usetex'] = False
+plt.rcParams['text.usetex'] = True
 
 #Definitions parameters
 colors=3
@@ -57,14 +57,14 @@ Plot_generator.Cut_dependence(folder_out,folder_out,measures,observable)
 print(folder_out)
 #Plot with the GF
 t_start=0
-t_end=1.5
+t_end=float(tau_compare)
 t_step=0.25
 print("GF vs AFM")
 print(folder_out)
 Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
                          RPO_threshold,tau_compare,measures,time_measures,observable)
 
-for measure in measures:
+'''for measure in measures:
     print(measure)
     #susy_read_s0, susy_read_s1 = analyzer.Count_index_cut("./"+measure,"",1000,conf_read,max_modes,operator) #Just to have the maximum number of modes
     print("histogram doublers all modes")
@@ -94,5 +94,5 @@ for measure in measures:
             susy_read_s0,susy_read_s1 = analyzer.Count_index_gap("./"+measure,"",lambda_opt,conf_read,max_modes,operator)
             Plot_generator.susy_plot(folder_modes+measure,folder_out+measure,sizes,colors,
                                      spin_length,max_modes,conf_read,susy_read_s0,susy_read_s1,operator,str(cut_i))
-        cut_i+=1
+        cut_i+=1'''
     

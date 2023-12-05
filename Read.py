@@ -114,7 +114,23 @@ def scalar_product(mode1, mode2,sizes,range_color,range_spin):
             for k in range(0, sizes[2]):
                 for l in range(0,sizes[3]):
                     for color in range(0,range_color):
-                        scalar+=mode1[color,0, i,j,k,l].conjugate()*mode2[color,2, i,j,k,l] + mode1[color,1, i,j,k,l].conjugate()*mode2[color,3, i,j,k,l]
+                        for spin in  range(0,range_spin):
+                            scalar+=mode1[color,spin, i,j,k,l].conjugate()*mode2[color,spin, i,j,k,l] + mode1[color,spin, i,j,k,l].conjugate()*mode2[color,spin, i,j,k,l]
+    return np.sqrt(scalar),sizes
+
+def scalar_g5_product(mode1, mode2,sizes,range_color,range_spin):
+    scalar=0
+    for i in range(0, sizes[0]):
+        for j in range(0, sizes[1]):
+            for k in range(0, sizes[2]):
+                for l in range(0,sizes[3]):
+                    for color in range(0,range_color):
+                        for spin in range(0,range_spin):
+                            if spin==0 or spin==1:
+                                g5=1
+                            if spin==2 or spin==3:
+                                g5=-1
+                            scalar+=g5*mode1[color,spin, i,j,k,l].conjugate()*mode2[color,spin, i,j,k,l] + g5*mode1[color,spin, i,j,k,l].conjugate()*mode2[color,spin, i,j,k,l]
     return np.sqrt(scalar),sizes
 
 def ascii_mode_1d(namefile):
@@ -164,4 +180,3 @@ def topology_1d(file):
     density,sizes=topology(file)
     density_1d=density.sum(axis=(0,1,2))
     return(density_1d,sizes)
-
