@@ -80,7 +80,7 @@ def End_spectrum(folder,configurations):
                         else:
                             if (abs(float(string[8]))>highest_susy_s0[string[1]]):
                                 highest_susy_s0[string[1]]=abs(float(string[8]))
-                    
+                                
     #susy
     highest_susy_s1={}
     with open(folder+"sector_1/Measure.seq") as file:
@@ -99,12 +99,14 @@ def End_spectrum(folder,configurations):
     for key in highest_susy_s1:
         if highest_susy_s1[key]<end_susy:
             end_susy=highest_susy_s1[key]
+            conf_m=key
 
     for key in highest_susy_s0:
         if highest_susy_s0[key]<end_susy:
             end_susy=highest_susy_s0[key]
+            conf_m=key
   
-    return(end_susy,end_overlap)
+    return(end_susy,end_overlap,conf_m)
 
 def Count_index(folder,measurement,threshold,configurations,max_modes):
     count={}
@@ -131,11 +133,12 @@ def Count_index_cut(folder_modes,measure,threshold,conf_read,max_modes,pattern):
                                       pattern,threshold,conf_read,max_modes)
     susy_read_s1=Count_index(folder_modes+measure+"/sector_1/Measure.seq",
                                       pattern,threshold,conf_read,max_modes)
-    start_spectrum=True
-
+    start_spectrum=False
+    conf_min=0
     for conf in conf_read:
         if susy_read_s0[str(conf)]==0 and susy_read_s1[str(conf)]==0:
             start_spectrum=False
+            conf_min=conf
             break
             #ev1=float(dictionary_s1[str(conf)][0])
             #ev2=float(dictionary_s0[str(conf)][0])
@@ -143,8 +146,9 @@ def Count_index_cut(folder_modes,measure,threshold,conf_read,max_modes,pattern):
             #    susy_read_s1[str(conf)]=1
             #else:
             #    susy_read_s0[str(conf)]=1
+
     
-    return(susy_read_s0,susy_read_s1,start_spectrum)
+    return(susy_read_s0,susy_read_s1,start_spectrum,conf_min)
 
 def Count_index_gap(folder_modes,measure,gap,conf_read,max_modes,pattern):
     

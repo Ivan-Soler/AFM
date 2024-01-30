@@ -8,7 +8,8 @@ import re
 import os
 import sys
 import pickle
-plt.rcParams.update({"text.usetex": False, "font.size": 16})
+plt.rcParams.update({"text.usetex": True, "font.size": 16})
+
 
 
 def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,susy_read_s0, susy_read_s1,pattern, cut, Load=False,Plot=True,Polyakov=False):
@@ -81,11 +82,11 @@ def MC_history(folder_in,folder_out,measures,lambdas,observable_name,Plot=False,
             if Plot:
                 plt.scatter(x,y, marker="x")
                 plt.hlines(observable_mean, xmin=0, xmax=100, linestyle="--")
-               #plt.xlabel(r'Configuration')
-               # plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
-                plt.xlabel('Configuration')
-                plt.ylabel('Xi')
-
+                plt.xlabel(r'Configuration')
+                plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+                #plt.xlabel('Configuration')
+                #plt.ylabel('Xi')
+                plt.ylim(0.0,1.1)
                 plt.xticks(np.arange(0, 120,  step=20))
                 plt.savefig(folder_out+measure+""+observable_name+"_history_"+str(index_lambda)+".pdf",dpi=150, bbox_inches='tight')
                 plt.close()
@@ -138,13 +139,14 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
         plt.fill_between(data[1,0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]-error[0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]+error[0:(int(susy_max[1])+1)], alpha=0.1, color=color)
         #plt.scatter(susy_min[0],data[0,(int(susy_min[1])-1)], marker="v", color=color)
 
-    #plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
-    #plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
-    plt.xlabel('lambda')
-    plt.ylabel('Xi')
+    plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
+    plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')
+    #plt.xlabel('lambda')
+    #plt.ylabel('Xi')
     plt.legend(loc="upper right", ncol=1)
-    #plt.ylim([0,1.1])
-    #plt.xlim([0.0,0.15])
+    plt.ylim([0,1.1])
+    plt.xlim([0.003,0.0175])
+    plt.xticks([0.004, 0.008,0.012,0.016])
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 1, box.height])
