@@ -51,18 +51,18 @@ f.close()
 observable="GM"
 print("Monte carlo history of Xi")
 print(folder_out)
-Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
+#Plot_generator.MC_history(folder_out,folder_out,measures,lambdas,observable,Plot=True)
 print("Xi dependence with cut")
-Plot_generator.Cut_dependence(folder_out,folder_out,measures,observable)
+#Plot_generator.Cut_dependence(folder_out,folder_out,measures,observable)
 print(folder_out)
 #Plot with the GF
 t_start=0
-t_end=1.5
+t_end=4
 t_step=0.25
 print("GF vs AFM")
 print(folder_out)
-Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
-                         RPO_threshold,tau_compare,measures,time_measures,observable)
+#Plot_generator.GF_vs_AFM(folder_out, folder_gf, folder_out, conf_read, t_start, t_end, t_step,
+#                         RPO_threshold,tau_compare,measures,time_measures,observable)
 
 for measure in measures:
     print(measure)
@@ -84,15 +84,15 @@ for measure in measures:
     print("susy modes at cut")
     Plot_generator.susy_plot(folder_modes+measure,folder_out+measure,sizes,colors,
                              spin_length,max_modes,conf_read,susy_read_s0,susy_read_s1,operator,"optimal")
-    cut_i=0
-    for cut in lambdas:
-        print("susy modes at ", str(cut))
-        lambda_opt,index_opt=float(cut), cut_i
-        if method=="cut":
-            susy_read_s0,susy_read_s1,start_spectrum = analyzer.Count_index_cut("./"+measure,"",lambda_opt,conf_read,max_modes,operator)
-        if method=="gap":
-            susy_read_s0,susy_read_s1 = analyzer.Count_index_gap("./"+measure,"",lambda_opt,conf_read,max_modes,operator)
-            Plot_generator.susy_plot(folder_modes+measure,folder_out+measure,sizes,colors,
-                                     spin_length,max_modes,conf_read,susy_read_s0,susy_read_s1,operator,str(cut_i))
-        cut_i+=1
+    #cut_i=0
+    #for cut in lambdas:
+    #    print("susy modes at ", str(cut))
+    #    lambda_opt,index_opt=float(cut), cut_i
+    #    if method=="cut":
+    #        susy_read_s0,susy_read_s1,start_spectrum = analyzer.Count_index_cut("./"+measure,"",lambda_opt,conf_read,max_modes,operator)
+    #    if method=="gap":
+    #        susy_read_s0,susy_read_s1 = analyzer.Count_index_gap("./"+measure,"",lambda_opt,conf_read,max_modes,operator)
+    #        Plot_generator.susy_plot(folder_modes+measure,folder_out+measure,sizes,colors,
+    #                                 spin_length,max_modes,conf_read,susy_read_s0,susy_read_s1,operator,str(cut_i))
+    #    cut_i+=1
     

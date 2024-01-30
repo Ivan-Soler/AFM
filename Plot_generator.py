@@ -31,9 +31,9 @@ def susy_plot(folder_in,folder_out,sizes,colors,spin_length,max_modes,conf_read,
             density_susy=np.loadtxt(folder+measure+"susy_mode_"+str(conf)+"c_"+cut_+"cut.txt")
         else:
             if "OverlapFilterModeC" in pattern:
-                density_susy=Compare.Construct_susy_overlap(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+                density_susy=Compare.Construct_susy_overlap_density(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
             else:
-                density_susy=Compare.Construct_susy(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
+                density_susy=Compare.Construct_susy_density(folder_in,susy_read_s0[str(conf)],susy_read_s1[str(conf)],conf,sizes,colors,spin_length,dictionary_s1,dictionary_s0,max_modes)
 
             np.savetxt(folder_in+"susy_mode_"+str(conf)+"c.txt", density_susy)
             
@@ -136,7 +136,7 @@ def Cut_dependence(folder_in,folder_out,measures,observable):
         color = next(ax._get_lines.prop_cycler)['color']
         plt.errorbar(data[1,0:(int(susy_max[1])+1)],data[0,0:(int(susy_max[1])+1)], yerr=error[0:(int(susy_max[1])+1)], label=label_afm, color=color)
         plt.fill_between(data[1,0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]-error[0:(int(susy_max[1])+1)], data[0,0:(int(susy_max[1])+1)]+error[0:(int(susy_max[1])+1)], alpha=0.1, color=color)
-        plt.scatter(susy_min[0],data[0,(int(susy_min[1]))], marker="v", color=color)
+        #plt.scatter(susy_min[0],data[0,(int(susy_min[1])-1)], marker="v", color=color)
 
     #plt.xlabel(r'$$ \mbox{\huge $\lambda$}_{cut} $$')
     #plt.ylabel(r'$$ \mbox{\huge $ \Xi$}$$')

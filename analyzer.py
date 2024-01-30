@@ -136,12 +136,13 @@ def Count_index_cut(folder_modes,measure,threshold,conf_read,max_modes,pattern):
     for conf in conf_read:
         if susy_read_s0[str(conf)]==0 and susy_read_s1[str(conf)]==0:
             start_spectrum=False
-            ev1=float(dictionary_s1[str(conf)][0])
-            ev2=float(dictionary_s0[str(conf)][0])
-            if ev1<ev2:
-                susy_read_s1[str(conf)]=1
-            else:
-                susy_read_s0[str(conf)]=1
+            break
+            #ev1=float(dictionary_s1[str(conf)][0])
+            #ev2=float(dictionary_s0[str(conf)][0])
+            #if ev1<ev2:
+            #    susy_read_s1[str(conf)]=1
+            #else:
+            #    susy_read_s0[str(conf)]=1
     
     return(susy_read_s0,susy_read_s1,start_spectrum)
 
