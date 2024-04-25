@@ -1,6 +1,7 @@
 import numpy as np
 import struct 
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 def parse_in_file(file_name):
     f = open(file_name, "r")
@@ -129,7 +130,8 @@ def local_q(density,sizes,i,j,R):
             q+=density[(i+ii-int(R/2))%sizes[0],(j+jj-int(R/2))%sizes[1]]
     return(q)
 
-def find_max_2d(density,sizes,cut_min,cut_max,size_local):
+
+def find_max_2d(density,sizes,eps_frac,eps_inst,size_local,neigh):
     #Search for the maxima and minima of the density and categorize them in fractional or |Q|=1 instantons
     inst=[]
     frac=[]
@@ -143,15 +145,30 @@ def find_max_2d(density,sizes,cut_min,cut_max,size_local):
                 continue
             if ((abs(density[i,j]) < abs(density[i,(j+1)%sizes[1]])) or (abs(density[i,j]) < abs(density[i,(j-1)%sizes[1]]))):
                 continue
-            q=local_q(density,sizes,i,j,size_local)
-            if abs(q)>cut_min:
-                #print(q)
+            #So far fit only works for positive densities
+            if density[i,j]<-0.02:
+                #print(density[i,j])
+                #continue
+                x_max,y_max,rho,norm,q=fit_inst(-density,[i,j],neigh,sizes)  
+            elif density[i,j]>0.02:
+                #print(density[i,j],i,j)
+                x_max,y_max,rho,norm,q=fit_inst(density,[i,j],neigh,sizes)  
+            else:
+                continue
+            print(norm)
+            delta_inst=np.sqrt(np.sqrt(6/(np.pi*np.pi*q)))/rho
+            print(delta_inst)
+            delta_frac=np.sqrt(np.sqrt(3/(np.pi*np.pi*q)))/rho
+            print(delta_frac)
+            if abs(delta_inst)>1-eps_inst and abs(delta_inst)<1+eps_inst:
                 total.append([i,j,q])
-                if q>cut_max:
+                if q>0:
                     inst.append([i,j,q])
-                elif -q>cut_max:
+                else:
                     a_inst.append([i,j,q])
-                elif q>0:
+            if abs(delta_frac)>1-eps_frac and abs(delta_frac)<1+eps_frac:
+                total.append([i,j,q])
+                if q>0:
                     frac.append([i,j,q])
                 else:
                     a_frac.append([i,j,q])
@@ -189,23 +206,27 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
 
     return()
 
-def inst(position,maxima,rho):
-    #maxim=[23,23]
-    return(3/(np.pi*rho**4)*(rho**2/((position[:,0]-maxima[0])**2 + (position[:,1]-maxima[1])**2+rho**2))**4)
+def inst(position,maxima_x,maxima_y,rho,norm):
+    return(norm/(np.pi*np.pi*rho**4)*(rho**2/((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2+rho**2))**4)
 
-def fit_inst():
+def q0(rho):
+    #maxim=[23,23]
+    return(6/(np.pi*np.pi*rho**4))
+
+def fit_inst(density_2d,maxima,neigh,sizes):
     x=[]
     y=[]
     data=[]
-    neigh=2
-    maxima=frac[0]
     for i in range(-neigh,neigh+1):
         for j in range(-neigh,neigh+1):
-            x=int(maxima[0])+i
-            y=int(maxima[1])+j
+            x=(int(maxima[0])+i)%sizes[0]
+            y=(int(maxima[1])+j)%sizes[1]
             data.append([x,y,density_2d[x,y]])
     data=np.array(data)
     
-    popt, pcov = curve_fit(lambda position,rho:inst(position,maxima,rho), data[:,:2], data[:,2])
-    
-    return(popt)
+    popt, pcov = curve_fit(inst, data[:,:2], data[:,2], 
+                       p0=np.array((maxima[0],maxima[1],2,3)))
+    q=q0(popt[2])
+    return(popt[0],popt[1],popt[2],popt[3],q)
+
