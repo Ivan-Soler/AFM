@@ -1,0 +1,35 @@
+[GridLayout]
+OmpThreads=8
+GlobalX=8
+GlobalY=8
+GlobalZ=8
+GlobalT=8
+GridX=1
+GridY=1
+GridZ=1
+GridT=1
+
+[SweepRunner]
+StartConfig = 2
+EndConfig = 2
+StepSize = 1
+checkStatus = 0
+
+[DefaultTheory]
+Beta = 1.75
+Kappa = 0.200
+BoundaryConditions=PeriodicT
+
+
+[configurations]
+Format=Tony
+GenericGaugeFileName=D4N2L8x8x8x8NOTWIST
+GenericFileDirectory=../
+
+[WilsonFlow]
+flow_type=Wilson
+#flow_type=Symanzik
+flow_step=0.2
+flow_time=0.8
+flow_integration_intervals=100
+ProfileBinary=1
