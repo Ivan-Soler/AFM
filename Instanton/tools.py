@@ -155,11 +155,10 @@ def find_max_2d(density,sizes,eps_frac,eps_inst,size_local,neigh):
                 x_max,y_max,rho,norm,q=fit_inst(density,[i,j],neigh,sizes)  
             else:
                 continue
-            print(norm)
+            print(norm,rho)
             delta_inst=np.sqrt(np.sqrt(6/(np.pi*np.pi*q)))/rho
             print(delta_inst)
             delta_frac=np.sqrt(np.sqrt(3/(np.pi*np.pi*q)))/rho
-            print(delta_frac)
             if abs(delta_inst)>1-eps_inst and abs(delta_inst)<1+eps_inst:
                 total.append([i,j,q])
                 if q>0:
