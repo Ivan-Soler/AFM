@@ -31,7 +31,7 @@ for i in range(start,end,step):
     
     density_2d,sizes_big,index_smal=tools.projection_2d(density,sizes)
     
-    inst, a_inst, frac, a_frac, t_frac, t_inst, total=tools.find_max_2d(density_2d,sizes_big,size_frac,size_inst,size_local)
+    inst, a_inst, frac, a_frac, t_frac, t_inst, total=tools.find_max_2d(density_2d,sizes_big,size_frac,size_inst,size_local,)
     
     Q_top=density_2d.sum()
     Q_instantons=len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
