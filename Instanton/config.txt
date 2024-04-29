@@ -10,13 +10,12 @@ End_config=1456
 #End_config=13744
 Read_step=32
 
-#Minimal local topological charge of the object to be considered an instanton
-Size_frac=0.001
-#Size_frac=0.18
+# Parameters identification
+rho=3.745091
+norm=0.032233
+eps_rho=0.4
+eps_norm=0.4
 
-#Minimal local topological charge of the object to be considered a |Q|=1 instanton
-Size_inst=1
-#Size_inst=0.4
 
 #Size of the square around instanton
 Size_local=3

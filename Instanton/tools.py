@@ -21,12 +21,16 @@ def parse_in_file(file_name):
             param[3]=int(line.split("=")[1])
         if 'Read_step' in line:
             param[4]=int(line.split("=")[1])
-        if 'Size_frac' in line:
+        if 'rho' in line:
             param[5]=float(line.split("=")[1])
-        if 'Size_inst' in line:
+        if 'norm' in line:
             param[6]=float(line.split("=")[1])
+        if 'eps_rho' in line:
+            param[7]=float(line.split("=")[1])
+        if 'eps_norm' in line:
+            param[8]=float(line.split("=")[1])
         if 'Size_local' in line:
-            param[7]=int(line.split("=")[1])
+            param[9]=int(line.split("=")[1])
     f.close()
     return(param)
 
@@ -131,7 +135,7 @@ def local_q(density,sizes,i,j,R):
     return(q)
 
 
-def find_max_2d(density,sizes,eps_frac,eps_inst,size_local,neigh):
+def find_max_2d(density,sizes,rho,norm,eps_rho,eps_norm,size_local,neigh):
     #Search for the maxima and minima of the density and categorize them in fractional or |Q|=1 instantons
     inst=[]
     frac=[]
@@ -146,24 +150,16 @@ def find_max_2d(density,sizes,eps_frac,eps_inst,size_local,neigh):
             if ((abs(density[i,j]) < abs(density[i,(j+1)%sizes[1]])) or (abs(density[i,j]) < abs(density[i,(j-1)%sizes[1]]))):
                 continue
             #So far fit only works for positive densities
-            if density[i,j]<-0.02:
+            if density[i,j]<0:
                 #print(density[i,j])
                 #continue
                 p_fit,q,p_fit2,pfit_3=fit_inst(-density,[i,j],neigh,sizes)  
-            elif density[i,j]>0.02:
+            elif density[i,j]>0:
                 #print(density[i,j],i,j)
                 p_fit,q,p_fit2,pfit_3=fit_inst(density,[i,j],neigh,sizes)  
             else:
                 continue
-            delta_inst=np.sqrt(np.sqrt(6/(np.pi*np.pi*q)))/p_fit[2]
-            delta_frac=np.sqrt(np.sqrt(3/(np.pi*np.pi*q)))/p_fit[2]
-            #if abs(delta_inst)>1-eps_inst and abs(delta_inst)<1+eps_inst:
-                total.append([i,j,q])
-                if q>0:
-                    inst.append([i,j,q])
-                else:
-                    a_inst.append([i,j,q])
-            if abs(delta_frac)>1-eps_frac and abs(delta_frac)<1+eps_frac:
+            if popt[2]/rho>1-eps_rho and popt[2]/rho<1+eps_rho and popt[3]/norm>1-eps_norm and popt[3]/norm<1+eps_norm :
                 total.append([i,j,q])
                 if q>0:
                     frac.append([i,j,q])

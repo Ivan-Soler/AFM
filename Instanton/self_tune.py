@@ -16,9 +16,11 @@ config_template=param[1]
 start=param[2]
 end=param[3]
 step=param[4]
-size_frac=param[5]
-size_inst=param[6]
-size_local=param[7]
+rho=param[5]
+norm=param[6]
+eps_rho=param[7]
+eps_norm=param[8]
+size_local=param[9]
 
 f = open("tuning.txt", "w")
 f.write("size frac \t size inst \t delta Q \n")
