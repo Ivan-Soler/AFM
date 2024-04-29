@@ -149,16 +149,14 @@ def find_max_2d(density,sizes,eps_frac,eps_inst,size_local,neigh):
             if density[i,j]<-0.02:
                 #print(density[i,j])
                 #continue
-                x_max,y_max,rho,norm,q=fit_inst(-density,[i,j],neigh,sizes)  
+                p_fit,q,p_fit2,pfit_3=fit_inst(-density,[i,j],neigh,sizes)  
             elif density[i,j]>0.02:
                 #print(density[i,j],i,j)
-                x_max,y_max,rho,norm,q=fit_inst(density,[i,j],neigh,sizes)  
+                p_fit,q,p_fit2,pfit_3=fit_inst(density,[i,j],neigh,sizes)  
             else:
                 continue
-            print(norm,rho)
-            delta_inst=np.sqrt(np.sqrt(6/(np.pi*np.pi*q)))/rho
-            print(delta_inst)
-            delta_frac=np.sqrt(np.sqrt(3/(np.pi*np.pi*q)))/rho
+            delta_inst=np.sqrt(np.sqrt(6/(np.pi*np.pi*q)))/p_fit[2]
+            delta_frac=np.sqrt(np.sqrt(3/(np.pi*np.pi*q)))/p_fit[2]
             if abs(delta_inst)>1-eps_inst and abs(delta_inst)<1+eps_inst:
                 total.append([i,j,q])
                 if q>0:
@@ -206,7 +204,15 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
     return()
 
 def inst(position,maxima_x,maxima_y,rho,norm):
-    return(norm/(np.pi*np.pi*rho**4)*(rho**2/((position[:,0]-maxima_x)**2 +
+    return(norm*(rho**2/((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2+rho**2))**4)
+
+def inst_norm(position,maxima_x,maxima_y,rho):
+    return(6/(np.pi*np.pi*rho**4)*(rho**2/((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2+rho**2))**4)
+
+def inst_height(position,maxima_x,maxima_y,rho):
+    return((rho**2/((position[:,0]-maxima_x)**2 +
                     (position[:,1]-maxima_y)**2+rho**2))**4)
 
 def q0(rho):
@@ -219,13 +225,22 @@ def fit_inst(density_2d,maxima,neigh,sizes):
     data=[]
     for i in range(-neigh,neigh+1):
         for j in range(-neigh,neigh+1):
+            #if i!=0 and j!=0:
             x=(int(maxima[0])+i)%sizes[0]
             y=(int(maxima[1])+j)%sizes[1]
             data.append([x,y,density_2d[x,y]])
     data=np.array(data)
     
     popt, pcov = curve_fit(inst, data[:,:2], data[:,2], 
-                       p0=np.array((maxima[0],maxima[1],2,3)))
+                       p0=np.array((maxima[0],maxima[1],3,3)))
     q=q0(popt[2])
-    return(popt[0],popt[1],popt[2],popt[3],q)
+    
+    popt2, pcov2 = curve_fit(inst_norm, data[:,:2], data[:,2], 
+                       p0=np.array((maxima[0],maxima[1],2)))
+    
+    popt3, pcov3 = curve_fit(lambda position, rho:inst_height(position,maxima[0],maxima[1],rho), data[:,:2], data[:,2])
+        
+    q=q0(popt[2])
+    
+    return(popt,q,popt2,popt3)
 
