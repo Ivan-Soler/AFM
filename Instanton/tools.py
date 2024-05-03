@@ -150,16 +150,15 @@ def find_max_2d(density,sizes,rho,norm,eps_rho,eps_norm,size_local,neigh):
             if ((abs(density[i,j]) < abs(density[i,(j+1)%sizes[1]])) or (abs(density[i,j]) < abs(density[i,(j-1)%sizes[1]]))):
                 continue
             #So far fit only works for positive densities
-            if density[i,j]<0:
-                #print(density[i,j])
-                #continue
+            if density[i,j]<-0.01:
                 p_fit,q,p_fit2,pfit_3=fit_inst(-density,[i,j],neigh,sizes)  
-            elif density[i,j]>0:
-                #print(density[i,j],i,j)
+            elif density[i,j]>0.01:
                 p_fit,q,p_fit2,pfit_3=fit_inst(density,[i,j],neigh,sizes)  
             else:
                 continue
-            if popt[2]/rho>1-eps_rho and popt[2]/rho<1+eps_rho and popt[3]/norm>1-eps_norm and popt[3]/norm<1+eps_norm :
+            print(p_fit[2],p_fit[3])
+            if p_fit[2]/rho>1-eps_rho and p_fit[2]/rho<1+eps_rho and p_fit[3]/norm>1-eps_norm and p_fit[3]/norm<1+eps_norm :
+                
                 total.append([i,j,q])
                 if q>0:
                     frac.append([i,j,q])
@@ -200,7 +199,15 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
     return()
 
 def inst(position,maxima_x,maxima_y,rho,norm):
-    return(norm*(rho**2/((position[:,0]-maxima_x)**2 +
+    return(norm/(5*2*2*np.pi*np.pi/(16*rho**3))*(rho/((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2+rho**2))**4)
+
+#def inst(position,maxima_x,maxima_y,rho,norm):
+#    return( rho*((position[:,0]-maxima_x)**2 + (position[:,1]-maxima_y)**2)
+#           + norm)
+
+def inst_frac_norm(position,maxima_x,maxima_y,rho):
+    return(1/(5*2*2*np.pi*np.pi/(16*rho**3))*(rho/((position[:,0]-maxima_x)**2 +
                     (position[:,1]-maxima_y)**2+rho**2))**4)
 
 def inst_norm(position,maxima_x,maxima_y,rho):
@@ -228,10 +235,10 @@ def fit_inst(density_2d,maxima,neigh,sizes):
     data=np.array(data)
     
     popt, pcov = curve_fit(inst, data[:,:2], data[:,2], 
-                       p0=np.array((maxima[0],maxima[1],3,3)))
+                       p0=np.array((maxima[0],maxima[1],3,60)))
     q=q0(popt[2])
     
-    popt2, pcov2 = curve_fit(inst_norm, data[:,:2], data[:,2], 
+    popt2, pcov2 = curve_fit(inst_frac_norm, data[:,:2], data[:,2], 
                        p0=np.array((maxima[0],maxima[1],2)))
     
     popt3, pcov3 = curve_fit(lambda position, rho:inst_height(position,maxima[0],maxima[1],rho), data[:,:2], data[:,2])
