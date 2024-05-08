@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tools
 import sys
+import tarfile
 
 
-#------------Program to find instantons on a T²xR² lattice-----------------------------#
+#----------Program to fit instantons on a T²xR² lattice under flow------------------------#
 # Command to run: python3 ./main.py config.txt 
 # There is a config.txt template example on the folder
 
@@ -22,15 +23,14 @@ eps_norm=param[8]
 neigh=param[9]
 action=param[10]
 eps_action=param[11]
+conf_number=param[12]
 
-print(action)
-f = open(directory+"data_inst.txt", "w")
-#f.write("Config \t Frac \t Anti_frac \t Inst \t Anti_Inst \t Q_top \t Q_inst \t Tot_fract \n \n")
-f.write("Config \t Frac \t Anti_frac \t Tot_fract \n \n")
-delta_n=0
-for i in range(start,end,step):
-    file_top=directory+config_template+str(i)+"to.dat"
-    print(file_top)      
+new_t_frac=[]
+target=[]
+cap=1
+for t in range(start,end,step):
+    old_t_frac=new_t_frac.copy()
+    file_top=directory+config_template+str(t)+"c"+str(conf_number)+"to.dat"
     top_density,sizes=tools.read_top(file_top)
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
     
@@ -44,24 +44,18 @@ for i in range(start,end,step):
         eps_action=eps_norm
         norm_action=norm
 
-    #print(rho)
+    #We perform the fit
     inst, a_inst, frac, a_frac, t_frac, t_inst, total=    tools.find_inst_2d(density_2d_top,density_2d_act,sizes_big,
                        rho,norm,eps_rho,eps_norm,norm_action,eps_action,neigh)
-    
-    Q_top=density_2d_top.sum()
-    Q_instantons=len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
-    
-    if (len(frac)+len(a_frac)) % 2:
-        delta_n+=1
-        
-    
-    f.write(str(i)+"\t \t" + str(len(frac)) + "\t" +str(len(a_frac))+ "\t"+ str(len(frac)+len(a_frac))+"\n")
-    
-    tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
 
-f.write("Configuration with fractional topological charge: " + str(delta_n))
+    new_t_frac=tools.compare_fit(old_t_frac, t_frac, cap)
+    
+    #we track the first element just to check
+    target.append(new_t_frac[5])
+    #tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
+
+f = open("tracking.txt", "w")
+for element in target:
+    f.write(str(element))
+    f.write("\n")
 f.close()
-print(str(delta_n))
-
-
-

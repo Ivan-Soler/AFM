@@ -20,31 +20,51 @@ rho=param[5]
 norm=param[6]
 eps_rho=param[7]
 eps_norm=param[8]
-size_local=param[9]
+neigh=param[9]
+action=param[10]
+eps_action=param[11]
 
-f = open("tuning.txt", "w")
-f.write("size frac \t size inst \t delta Q \n")
 
-for s in range(int(100*size_frac),int(100*size_frac)+10,1):
-    for ss in range(int(100*size_inst),int(100*size_inst)+10,1):
+f = open(directory+"tuning.txt", "w")
+f.write("eps rho \t eps norm \t delta n \t delta q \t n \n")
+
+for s in range(int(100*eps_rho),int(100*eps_rho)+11,5):
+    for ss in range(int(100*eps_norm),int(100*eps_norm)+11,5):
+        print(s/100,ss/100)
+        n=0
         delta_q=0
+        delta_n=0
         for i in range(start,end,step):
-            file=directory+config_template+str(i)+"to.dat"
-            #print(file)
+            file_top=directory+config_template+str(i)+"to.dat"
+            #print(file_top)      
+            top_density,sizes=tools.read_top(file_top)
+            density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
 
-            density,sizes=tools.read_top(file)
+            if action:
+                file_act=directory+config_template+str(i)+"en.dat"
+                act_density=tools.read_top(file_act)
+                density_2d_act,sizes_big,index_smal=tools.projection_2d(act_density,sizes)
+                norm_action=norm*8*np.pi*np.pi
+            else:
+                density_2d_act=np.array(density_2d_top)
+                eps_action=ss/100
+                norm_action=norm
 
-            density_2d,sizes_big,index_smal=tools.projection_2d(density,sizes)
+            #print(rho)
+            inst, a_inst, frac, a_frac, t_frac, t_inst, total=    tools.find_inst_2d(density_2d_top,density_2d_act,sizes_big,
+                               rho,norm,s/100,ss/100,norm_action,eps_action,neigh)
 
-            inst, a_inst, frac, a_frac, t_frac, t_inst, total=tools.find_max_2d(density_2d,sizes_big,s/100,ss/100,size_local)
-
-            Q_top=density_2d.sum()
+            Q_top=density_2d_top.sum()
             Q_instantons=len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
-            
+            n+=len(frac)+len(a_frac)
+            if (len(frac)+len(a_frac)) % 2:
+                delta_n+=1
             delta_q+=abs(round(Q_top)-Q_instantons)
+            
 
-        f.write(str(s)+"\t "+ str(ss) + "\t" +str(delta_q)+"\n")
-        print(s,ss)
+        f.write(str(s/100)+"\t "+ str(ss/100) + "\t" +
+                str(delta_n) + "\t" + str(delta_q)+ "\t" + str(n) +"\n")
+        
 
 f.close()
 

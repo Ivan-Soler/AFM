@@ -1,21 +1,33 @@
 [General]
 
-#Directory=./runns6nt45b2.7nr45/t3.8/
-#Directory=./runns6nt45b2.7nr45/t3.9/
-Directory=../dataprofiles5/
+Directory=../runns6nt32b2.6nr32/t3.9/
+#Directory=../runns6nt45b2.7nr45/t3.1/
+#Directory=../dataprofiles5/
+#Directory=../dataprofiles50/
 
-File_name=profile4dt5c
+File_name=profile4dt
 Start_config=432
-End_config=1456
-#End_config=13744
+End_config=6481
+#End_config=13745
 Read_step=32
 
-# Parameters identification
-rho=3.745091
-norm=0.032233
-eps_rho=0.4
-eps_norm=0.4
+# Parameters identification for nt=6
+Rho=3.745091
+Norm=0.744
+Eps_rho=0.8
+Eps_norm=0.4
+Compare_action=0
+Eps_action=0.2
 
+# Parameters identification for nt=4
+#Rho=2.506
+#Norm=0.9657
+#Eps_rho=4
+#Eps_norm=0.6
+#Compare_action=0
+#Eps_action=0.70
 
 #Size of the square around instanton
-Size_local=3
+Neigh=1
+
+Conf_number=576
