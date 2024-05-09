@@ -282,46 +282,55 @@ def compare_fit(list_old,list_new,cap):
     for i in range(0,len(list_new)):
         param_new=list_new[i]
         find=False
+        r_min=cap
         for j in range(0,len(list_old)):
             param_old=list_old[j]
-            r=(param_old[2][0]-param_new[2][0])**2+(param_old[2][1]-param_new[2][1])**2
+            r=np.sqrt((param_old[2][0]-param_new[2][0])**2+(param_old[2][1]-param_new[2][1])**2)
             if r<cap:
                 find=True
-                if j not in founds:
-                    temp_list[j]=param_new
-                    founds.append(j)
-                    continue
+                if r<r_min:
+                    r_min=r
+                    ind_temp=[i,j]
                     
-                if j in founds:
-                    created.append([i,j])
-                continue
-                
-        if not find:
-            temp_list.append(param_new)
+            if ind_temp not in founds: #it is not repeated
+                temp_list[ind_temp[1]]=[param_old[0], param_old[1],param_new[2]]
+                founds.append(ind_temp)
+                find=True
+
+            elif ind_temp in founds: # we found two instantons close
+                created.append(ind_temp)
+                find=True
             
-                
-    #Now we update the ones that were destroyed during the whole flow
-    if len(founds)<len(list_old):
-        temp=np.arange(0,len(list_old))
-        for element in temp:
-            if element not in founds:
-                params=[list_old[element][0],list_old[element][1],[list_old[element][2][0],list_old[element][2][1],0,0]]
-                temp_list[element]=params
-    
-    #Finally now the ones that were created and have a similar distance to other objects
-    for element in created:
-        created_param=list_new[element[0]]
-        new_param=list_new[element[1]]
-        old_param=list_old[element[1]]
-        
-        dist_created=(old_param[2][0]-created_param[2][0])**2+(old_param[2][1]-created_param[2][1])**2
-        dist_new=(old_param[2][0]-new_param[2][0])**2+(old_param[2][1]-new_param[2][1])**2
-        
-        if dist_created<dist_new:
-            temp_list[element[1]]=created_param
-            temp_list.append(new_param)
         else:
-            temp_list.append(created_param)
+            temp_list.append(param_new) #it was a new one
+    
+    #We take care of the ones that were created and have a similar distance to other objects
+    print(created)
+    print(founds)
+    for element_c in created:
+        for element_f in founds:
+            if element_c[1]==element_f[1]:                  
+                created_param=list_new[element_c[0]]
+                new_param=temp_list[element_f[0]]
+                old_param=temp_list[element_f[1]]
+                
+                dist_created=(old_param[2][0]-created_param[2][0])**2+(old_param[2][1]-created_param[2][1])**2
+                dist_new=(old_param[2][0]-new_param[2][0])**2+(old_param[2][1]-new_param[2][1])**2
+                
+                if dist_created<dist_new: #If the supposed created is actually the old one
+                    print("something")
+                    temp_list[element[1]]=[old_param[0], old_param[1],created_param[2]]
+                    temp_list.append(new_param)
+                else:
+                    temp_list.append(created_param)
+
+                    
+    #Now we update the ones that were destroyed during the whole flow
+    founds=np.array(founds)
+    for j in range(0,len(list_old)):
+        if j not in founds[:,1]:
+            params_destr=[list_old[j][0],list_old[j][1],[list_old[j][2][0],list_old[j][2][1],0,0]]
+            temp_list[j]=params_destr
     
     return(temp_list)
     
