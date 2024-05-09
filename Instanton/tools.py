@@ -273,64 +273,39 @@ def fit_inst(density_2d,maxima,neigh,sizes):
     popt, pcov = curve_fit(inst, data[:,:2], data[:,2], 
                        p0=np.array((maxima[0],maxima[1],3.7,0.7)))
     
-    return(popt)
+    return(list(popt))
 
 def compare_fit(list_old,list_new,cap):
     temp_list=list_old.copy()
     founds=[]
     created=[]
-    for i in range(0,len(list_new)):
-        param_new=list_new[i]
+    for i in range(0,len(list_old)):
+        param_old=list_old[i]
         find=False
         r_min=cap
-        for j in range(0,len(list_old)):
-            param_old=list_old[j]
-            r=np.sqrt((param_old[2][0]-param_new[2][0])**2+(param_old[2][1]-param_new[2][1])**2)
+        for j in range(0,len(list_new)):
+            param_temp=list_new[j]
+            r=np.sqrt((param_old[2][0]-param_temp[2][0])**2+(param_old[2][1]-param_temp[2][1])**2)
             if r<cap:
                 find=True
                 if r<r_min:
                     r_min=r
-                    ind_temp=[i,j]
-                    
-            if ind_temp not in founds: #it is not repeated
-                temp_list[ind_temp[1]]=[param_old[0], param_old[1],param_new[2]]
-                founds.append(ind_temp)
-                find=True
-
-            elif ind_temp in founds: # we found two instantons close
-                created.append(ind_temp)
-                find=True
-            
-        else:
-            temp_list.append(param_new) #it was a new one
+                    ind_temp=j
+                    param_new=param_temp 
+        temp_list[i]=[param_old[0], param_old[1],param_new[2]]
+        founds.append(ind_temp)
+        if not find: #it was destroyed
+            params_destr=[list_old[i][0],list_old[i][1],[list_old[i][2][0],list_old[i][2][1],0,0]]
+            #print(params_destr)
+            temp_list[i]=params_destr
     
-    #We take care of the ones that were created and have a similar distance to other objects
-    print(created)
-    print(founds)
-    for element_c in created:
-        for element_f in founds:
-            if element_c[1]==element_f[1]:                  
-                created_param=list_new[element_c[0]]
-                new_param=temp_list[element_f[0]]
-                old_param=temp_list[element_f[1]]
-                
-                dist_created=(old_param[2][0]-created_param[2][0])**2+(old_param[2][1]-created_param[2][1])**2
-                dist_new=(old_param[2][0]-new_param[2][0])**2+(old_param[2][1]-new_param[2][1])**2
-                
-                if dist_created<dist_new: #If the supposed created is actually the old one
-                    print("something")
-                    temp_list[element[1]]=[old_param[0], old_param[1],created_param[2]]
-                    temp_list.append(new_param)
-                else:
-                    temp_list.append(created_param)
-
-                    
-    #Now we update the ones that were destroyed during the whole flow
-    founds=np.array(founds)
-    for j in range(0,len(list_old)):
-        if j not in founds[:,1]:
-            params_destr=[list_old[j][0],list_old[j][1],[list_old[j][2][0],list_old[j][2][1],0,0]]
-            temp_list[j]=params_destr
+    #We take care of the ones that were created
+    inst=[]
+    for element in temp_list:
+        inst.append([element[0],element[1]])
+    for element in list_new:
+        if [element[0],element[1]] not in inst:
+            temp_list.append(element)
     
     return(temp_list)
     

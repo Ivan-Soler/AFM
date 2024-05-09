@@ -25,11 +25,11 @@ action=param[10]
 eps_action=param[11]
 conf_number=param[12]
 
-new_frac=[]
+new_t_frac=[]
 target=[]
-cap=5
+cap=10
 for t in range(start,end,step):
-    old_frac=new_frac.copy()
+    old_t_frac=new_t_frac.copy()
     file_top=directory+config_template+str(t)+"c"+str(conf_number)+"to.dat"
     top_density,sizes=tools.read_top(file_top)
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
@@ -48,11 +48,12 @@ for t in range(start,end,step):
     inst, a_inst, frac, a_frac, t_frac, t_inst, total=    tools.find_inst_2d(density_2d_top,density_2d_act,sizes_big,
                        rho,norm,eps_rho,eps_norm,norm_action,eps_action,neigh)
 
-    new_frac=tools.compare_fit(old_frac, frac, cap)
+    #print(t_frac)
+    new_t_frac=tools.compare_fit(old_t_frac, t_frac, cap)
     
     #we track the element we want to check
-    for element in new_frac:
-        if element[0]==47 and element[1]==98:
+    for element in new_t_frac:
+        if element[0]==46 and element[1]==93:
             target.append(element)
     #tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
 
@@ -63,7 +64,8 @@ for element in target:
 f.close()
 
 f = open(directory+"fractionals.txt", "w")
-for element in new_frac:
+for element in new_t_frac:
     f.write(str(element))
     f.write("\n")
 f.close()
+
