@@ -232,6 +232,8 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
     X = np.arange(0,sizes[0])
     Y = np.arange(0,sizes[1])
     X, Y = np.meshgrid(X, Y)
+    
+    ax1.set_zlim([-0.08,0.08])
 
     surf = ax1.plot_surface(X, Y,density_2d, rstride=1, cstride=1,
                     cmap="viridis", edgecolor='none')
@@ -247,7 +249,7 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
         x.append(element[0])
         y.append(element[1])
     ax2.scatter(y,x,color="red")
-
+    
     plt.savefig(file.replace(".dat",".png"))
     
     plt.close(fig)
@@ -257,6 +259,10 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
 def inst(position,maxima_x,maxima_y,rho,norm):
     return(norm/(5*2*np.pi*np.pi/(16*rho**3))*(rho/((position[:,0]-maxima_x)**2 +
                     (position[:,1]-maxima_y)**2+rho**2))**4)
+
+def inst_plot(position,maxima_x,maxima_y,rho,norm):
+    return(norm/(5*2*np.pi*np.pi/(16*rho**3))*(rho/((position[0]-maxima_x)**2 +
+                    (position[1]-maxima_y)**2+rho**2))**4)
 
 def fit_inst(density_2d,maxima,neigh,sizes):
     x=[]
@@ -309,4 +315,19 @@ def compare_fit(list_old,list_new,cap):
     
     return(temp_list)
     
-        
+def plot_inst(sizes,popt,directory,file,col,sign,ax="None"):
+    if ax=="None":
+        f, ax = plt.subplots()
+    data_plot=np.zeros((sizes[0],sizes[1]))
+    for i in range(0,sizes[0]):
+        for j in range(0,sizes[1]):
+            data_plot[i,j]=inst_plot([i,j],popt[0],popt[1],popt[2],popt[3])
+            
+    if sign=="+":
+        data_plot_1d=data_plot.sum(axis=1)
+    if sign=="-":
+        data_plot_1d=-data_plot.sum(axis=1)
+    x=np.arange(0,sizes[0])
+    ax.set_ylim([-0.15,0.15])
+    ax.plot(x,data_plot_1d, color=col)
+    return(ax)

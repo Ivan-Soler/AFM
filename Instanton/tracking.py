@@ -52,12 +52,27 @@ for t in range(start,end,step):
     new_t_frac=tools.compare_fit(old_t_frac, t_frac, cap)
     
     #we track the element we want to check
+    tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
     for element in new_t_frac:
+        file="_fit_t"+str(t)
         if element[0]==46 and element[1]==93:
             target.append(element)
-    #tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
+            if element[2][2]!=0:
+                ax=tools.plot_inst(sizes_big,element[2],"./",file,"blue","+")
+                ax.plot()
+        if element[0]==42 and element[1]==91:
+            target.append(element)
+            if element[2][2]!=0:
+                ax2=tools.plot_inst(sizes_big,element[2],"./",file,"green","-",ax)
+    plt.ylabel("q(x)")
+    plt.xlabel("x")
+    plt.title("Fitted fractionals t="+str(t))
+    plt.savefig("./"+file+".png",dpi=150)
+    plt.close()
 
-f = open(directory+"tracking.txt", "w")
+ 
+    
+f = open("./"+"tracking.txt", "w")
 for element in target:
     f.write(str(element))
     f.write("\n")
@@ -68,4 +83,5 @@ for element in new_t_frac:
     f.write(str(element))
     f.write("\n")
 f.close()
+
 
