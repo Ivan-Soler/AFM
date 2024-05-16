@@ -6,7 +6,7 @@
 #Directory=../dataprofiles50/
 Directory=../runns4nt104b2.6nr104/
 
-File_name=profile4dt50c
+File_name=profile4dt
 Start_config=432
 End_config=1777
 #End_config=13745
@@ -22,11 +22,11 @@ Read_step=64
 
 # Parameters identification for nt=4
 Rho=2.506
-Norm=0.9657
-Eps_rho=0.6
-Eps_norm=0.6
+Norm=1
+Eps_rho=100
+Eps_norm=100
 Compare_action=1
-Eps_action=0.6
+Eps_action=100
 
 #Size of the square around instanton
 Neigh=1

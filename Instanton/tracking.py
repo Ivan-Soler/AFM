@@ -28,6 +28,10 @@ conf_number=param[12]
 new_t_frac=[]
 target=[]
 cap=10
+start=50
+end=51
+setp=3
+
 for t in range(start,end,step):
     old_t_frac=new_t_frac.copy()
     file_top=directory+config_template+str(t)+"c"+str(conf_number)+"to.dat"
@@ -35,15 +39,14 @@ for t in range(start,end,step):
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
     
     if action:
-        file_act=directory+config_template+str(i)+"en.dat"
-        act_density=tools.read_top(file_act)
+        file_act=directory+config_template+str(t)+"c"+str(conf_number)+"en.dat"
+        act_density,sizes=tools.read_top(file_act)
         density_2d_act,sizes_big,index_smal=tools.projection_2d(act_density,sizes)
         norm_action=norm*8*np.pi*np.pi
     else:
         density_2d_act=np.array(density_2d_top)
         eps_action=eps_norm
         norm_action=norm
-
     #We perform the fit
     inst, a_inst, frac, a_frac, t_frac, t_inst, total=    tools.find_inst_2d(density_2d_top,density_2d_act,sizes_big,
                        rho,norm,eps_rho,eps_norm,norm_action,eps_action,neigh)
@@ -52,23 +55,29 @@ for t in range(start,end,step):
     new_t_frac=tools.compare_fit(old_t_frac, t_frac, cap)
     
     #we track the element we want to check
-    tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
+    #t_frac=tools.find_max_2d(-density_2d_act,sizes_big)
+    #print(t_inst)
+    tools.plot_dens_2d(file_top,-density_2d_top,sizes_big, t_frac,t_inst)
+    tools.plot_dens_2d(file_act,-density_2d_act,sizes_big, t_frac,t_inst)
     for element in new_t_frac:
         file="_fit_t"+str(t)
-        if element[0]==46 and element[1]==93:
+        if element[0]==28 and element[1]==85:
             target.append(element)
             if element[2][2]!=0:
-                ax=tools.plot_inst(sizes_big,element[2],"./",file,"blue","+")
+                ax=tools.plot_inst(sizes_big,element[2],directory,file,"blue","+")
                 ax.plot()
         if element[0]==42 and element[1]==91:
             target.append(element)
             if element[2][2]!=0:
-                ax2=tools.plot_inst(sizes_big,element[2],"./",file,"green","-",ax)
+                ax2=tools.plot_inst(sizes_big,element[2],directory,file,"green","-",ax)
     plt.ylabel("q(x)")
     plt.xlabel("x")
     plt.title("Fitted fractionals t="+str(t))
-    plt.savefig("./"+file+".png",dpi=150)
+    plt.savefig("./fit.png",dpi=150)
     plt.close()
+    
+    #plt.plot(-density_2d_top[82,:])
+    #plt.show()
 
  
     

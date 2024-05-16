@@ -22,21 +22,27 @@ eps_norm=param[8]
 neigh=param[9]
 action=param[10]
 eps_action=param[11]
+#eps_action=eps_norm
 
 print(action)
-f = open(directory+"data_inst.txt", "w")
-#f.write("Config \t Frac \t Anti_frac \t Inst \t Anti_Inst \t Q_top \t Q_inst \t Tot_fract \n \n")
-f.write("Config \t Frac \t Anti_frac \t Tot_fract \n \n")
+f = open(directory+"data_inst_"+directory.replace("../runns","").replace("/","").replace("nr104","")+"t"+
+         config_template.replace("profile4dt","").replace("c","")+".txt", "w")
+f.write("Config \t Frac \t Anti_frac \t Inst \t Anti_Inst \t delta_q \t Tot_fract \n \n")
+#f.write("Config \t Frac \t Anti_frac \t Tot_fract \n \n")
 delta_n=0
+mean_frac=0
+diff_frac=0
+count=0
 for i in range(start,end,step):
-    file_top=directory+config_template+str(i)+"to.dat"
-    print(file_top)      
+    count+=1
+    file_top=directory+config_template+str(i)+"to.dat"    
     top_density,sizes=tools.read_top(file_top)
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
     
     if action:
         file_act=directory+config_template+str(i)+"en.dat"
-        act_density=tools.read_top(file_act)
+        act_density,sizes=tools.read_top(file_act)
+        #act_density=-act_density
         density_2d_act,sizes_big,index_smal=tools.projection_2d(act_density,sizes)
         norm_action=norm*8*np.pi*np.pi
     else:
@@ -49,18 +55,27 @@ for i in range(start,end,step):
                        rho,norm,eps_rho,eps_norm,norm_action,eps_action,neigh)
     
     Q_top=density_2d_top.sum()
+    mean_frac+=len(t_frac)
+    diff_frac+= len(frac)-len(a_frac)
     Q_instantons=len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
     
     if (len(frac)+len(a_frac)) % 2:
         delta_n+=1
         
+    #maxima=tools.find_max_2d(density_2d_top,sizes_big)
+    f.write(str(i)+"\t \t" + str(len(frac)) + "\t" +str(len(a_frac))+ "\t"+ 
+            str(len(inst)) + "\t" +str(len(a_inst))+ "\t" +
+            str(Q_top-Q_instantons) + "\t"+str(len(frac)+len(a_frac))+"\n")
     
-    f.write(str(i)+"\t \t" + str(len(frac)) + "\t" +str(len(a_frac))+ "\t"+ str(len(frac)+len(a_frac))+"\n")
-    
-    tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac)
+    tools.plot_dens_2d(file_top,density_2d_top,sizes_big, t_frac, t_inst)
+    tools.plot_dens_2d(file_act,-density_2d_act,sizes_big, t_frac, t_inst)
 
-f.write("Configuration with fractional topological charge: " + str(delta_n))
+f.write("Configuration with fractional topological charge: " + str(delta_n) + "\n")
+f.write("Mean frac_inst + frac_anti_inst = " + str(mean_frac/count)+ "\n")
+f.write("Mean frac_inst - frac_anti_inst = " + str(diff_frac/count)+ "\n")
 f.close()
+print(count)
+print(t_frac)
 print(str(delta_n))
 
 

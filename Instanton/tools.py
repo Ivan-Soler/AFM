@@ -67,11 +67,11 @@ def read_top(file):
                         density[i,j,k,l]=num[0]
                         norm+=num[0]
     if (count==elements):
-        return (density,np.array(sizes))
+        return (np.array(density),np.array(sizes))
 
     if (count!=elements):
         print("Four dimensional array wrongly readed")
-        return (density,np.array(sizes))
+        return (np.array(density),np.array(sizes))
     
 def read_top_tony(file):
     sizes=[[]]*4
@@ -125,6 +125,8 @@ def projection_2d(density,sizes):
         index_small[1]=np.where(sizes==small_sizes[1])[0]
 
     #The density is integrated over the small directions
+    #print("\n")
+    #print(density[0])
     density_2d=density.sum(axis=(index_small[0],index_small[1]))
     
     #Only the big directions are returned
@@ -145,39 +147,54 @@ def local_q(density,sizes,i,j,R):
 def condition(density,i,j,sizes,rho,norm,eps_rho,eps_norm,neigh):
     #So far fit only works for positive densities
     fractional=False
+    total=False
     
     if density[i,j]<-0.01:
         try:
             p_fit=fit_inst(-density,[i,j],neigh,sizes)
         except:
-            return(fractional,[0,0,0,0])
+            return(fractional,total,[0,0,0,0])
     elif density[i,j]>0.01:
         try:
             p_fit=fit_inst(density,[i,j],neigh,sizes)  
         except:
-            return(fractional,[0,0,0,0])
+            return(fractional,total,[0,0,0,0])
         #print(p_fit[2],rho,eps_rho,p_fit[2]/rho)
         #print(p_fit[3],norm,eps_norm,p_fit[3]/norm)
     else:
-        return(fractional,[0,0,0,0])
+        return(fractional,total,[0,0,0,0])
     
-    if p_fit[2]/rho>1-eps_rho and p_fit[2]/rho<1+eps_rho and p_fit[3]/norm>1-eps_norm and p_fit[3]/norm<1+eps_norm :
+    #if p_fit[2]/rho>1-eps_rho and p_fit[2]/rho<1+eps_rho and p_fit[3]/norm>1-eps_norm and p_fit[3]/norm>1+eps_norm:
+        #print(p_fit[2]/rho, 1+eps_rho,p_fit[3]/norm,1+2*eps_norm)
         #print('True')
-        fractional=True
+        #print(p_fit[3],norm)
+        #total=True
+    
+    if p_fit[2]/rho>1-eps_rho and p_fit[2]/rho<1+eps_rho and p_fit[3]/norm>1-eps_norm:
+        #print('True')
+        #print(p_fit[2]/rho, 1+eps_rho, p_fit[3]/norm,1+eps_norm)
+        if p_fit[3]/norm<1-eps_norm+0.001 or p_fit[3]/norm>1+eps_norm+0.001:
+            total = True
+        elif p_fit[3]/norm>1-eps_norm and p_fit[3]/norm<1+eps_norm:
+            fractional=True
+        
     #print(fractional)
-    return(fractional, p_fit)
+    return(fractional, total, p_fit)
 
 def remove_duplicate(maxima):
     
     temp=[]
-    for i in range(0,len(maxima)):
-        duplicate=False
-        for j in range(0,i):
-            distance=np.sqrt((maxima[i][2][0]-maxima[j][2][0])**2 + (maxima[i][2][1]-maxima[j][2][1])**2)
-            if distance < 1:
-                duplicate=True
-        if not duplicate:
-            temp.append(maxima[i])
+    if maxima:
+        for i in range(0,len(maxima)):
+            duplicate=False
+            for j in range(0,i):
+                distance=np.sqrt((maxima[i][2][0]-maxima[j][2][0])**2 + (maxima[i][2][1]-maxima[j][2][1])**2)
+                if distance < 1:
+                    duplicate=True
+            if not duplicate:
+                temp.append(maxima[i])
+            #else:
+                #temp.append(maxima[i])
     return(temp)
 
 def find_inst_2d(top,act,sizes,rho,norm,eps_rho,eps_norm,norm_action,eps_action,neigh):
@@ -193,16 +210,23 @@ def find_inst_2d(top,act,sizes,rho,norm,eps_rho,eps_norm,norm_action,eps_action,
         i=element[0]
         j=element[1]
         
-        condition_q, pfit = condition(top,i,j,sizes,rho,norm,eps_rho,eps_norm,neigh)
-        condition_ac, pfit = condition(act,i,j,sizes,rho,norm_action,eps_rho,eps_action,neigh)
-        if condition_q and condition_ac:
+        frac_ac, total_ac, pfit = condition(act,i,j,sizes,rho,norm_action,eps_rho,eps_action,neigh)
+        frac_q, total_q, pfit = condition(top,i,j,sizes,rho,norm,eps_rho,eps_norm,neigh)
+        
+        if frac_q and frac_ac:
             if top[i,j]>0:
                 frac.append([i,j,pfit])
             else:
                 a_frac.append([i,j,pfit])
-    
+        if total_q and total_ac:
+            if top[i,j]>0:
+                inst.append([i,j,pfit])
+            else:
+                a_inst.append([i,j,pfit])
     frac=remove_duplicate(frac)
     a_frac=remove_duplicate(a_frac)
+    inst=remove_duplicate(inst)
+    a_inst=remove_duplicate(a_inst)    
     
     t_frac= a_frac + frac
     t_inst= inst + a_inst 
@@ -225,7 +249,7 @@ def find_max_2d(density,sizes):
     return(maxima)
 
 
-def plot_dens_2d(file,density_2d,sizes,maxima):
+def plot_dens_2d(file,density_2d,sizes,frac,inst):
 
     fig = plt.figure(tight_layout=True,figsize=(10,10))
     ax1 = fig.add_subplot(2, 1, 1, projection="3d") 
@@ -233,11 +257,11 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
     Y = np.arange(0,sizes[1])
     X, Y = np.meshgrid(X, Y)
     
-    ax1.set_zlim([-0.08,0.08])
+    #ax1.set_zlim([-0.08,0.08])
 
     surf = ax1.plot_surface(X, Y,density_2d, rstride=1, cstride=1,
                     cmap="viridis", edgecolor='none')
-    ax1.set_title('Topological charge');
+    ax1.set_title(file);
     
     ax2 = fig.add_subplot(2, 1, 2) 
     ax2.set_aspect("equal")
@@ -245,10 +269,17 @@ def plot_dens_2d(file,density_2d,sizes,maxima):
     
     x=[]
     y=[]
-    for element in maxima:
+    for element in frac:
         x.append(element[0])
         y.append(element[1])
     ax2.scatter(y,x,color="red")
+    
+    x=[]
+    y=[]
+    for element in inst:
+        x.append(element[0])
+        y.append(element[1])
+    ax2.scatter(y,x,color="black")
     
     plt.savefig(file.replace(".dat",".png"))
     
