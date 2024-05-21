@@ -174,16 +174,16 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
     else:
         return(fractional,total,[0,0,0,0])
     
-    if np.abs(density[i,j])>norm_inst:
+    #if np.abs(density[i,j])>norm_inst:
         #print(p_fit[2]/rho, 1+eps_rho,p_fit[3]/norm,1+2*eps_norm)
         #print('True')
         #print(p_fit[3],norm)
-        total=True
+    #    total=True
     
     #if np.abs(density[i,j])>norm_inst:
         #total = True
-    else:
-        fractional=True
+    #else:
+    fractional=True
         
     #print(fractional)
     return(fractional, total, p_fit)
