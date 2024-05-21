@@ -1,0 +1,35 @@
+import os
+import matplotlib.pyplot as plt
+import sys
+
+nt=sys.argv[1]
+lis_dir=os.listdir("./")
+folders=[]
+for direct in lis_dir:
+    if "runns" in direct:
+        folders.append(direct)
+
+	
+
+for folder in folders:
+    x=os.listdir(folder)
+    for file_name in x:
+        #print(file_name)
+        if "identification" in file_name and str(nt)+"nt" in file_name:
+            print(file_name)
+            f=open(folder+"/"+file_name,"r")
+            conf=[]
+            q_hist=[]
+            mean=0
+            count=0
+            for line in f:
+                splited=line.split()
+                conf.append(int(splited[0]))
+                q_hist.append(int(splited[1]) + int(splited[2]))
+                mean+=int(splited[1]) + int(splited[2])
+                count+=1
+            f.close()
+            plt.plot(conf,q_hist,label=file_name.replace("identification","").replace(".txt",""))
+plt.legend(ncol=2, loc="upper right")
+plt.savefig("q_frac_histo.pdf")
+plt.close()

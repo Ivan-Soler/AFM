@@ -1,0 +1,17 @@
+[General]
+
+Directory=../runns4nt104b2.6nr104/profiles4nt104nr2.6b.tgz
+
+Read_step=64
+Ls=4
+Lr=104
+Beta=$beta$beta2.6
+Tau=50
+
+# Parameters identification for nt=4
+Norm=0.02
+Inst_norm=0.075
+
+#Size of the square around instanton
+Neigh=1
+

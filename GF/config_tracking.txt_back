@@ -1,0 +1,31 @@
+[General]
+
+#Directory=../runns5nt104b2.6nr104/c576/
+#Directory=../Smooth/45x6_georg/4304_overimproved/
+Directory=../Smooth/45x6_georg/4304_Symanzik/
+
+File_name=profile4dt
+Start_config=0
+End_config=20
+Read_step=1
+
+# Parameters identification for nt=5
+Rho=3.745091
+Norm=0.744
+Eps_rho=0.8
+Eps_norm=0.8
+Compare_action=0
+Eps_action=0.2
+
+# Parameters identification for nt=4
+#Rho=2.506
+#Norm=0.9657
+#Eps_rho=4
+#Eps_norm=0.6
+#Compare_action=0
+#Eps_action=0.70
+
+#Size of the square around instanton
+Neigh=1
+
+Conf_number=0
