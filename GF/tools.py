@@ -230,10 +230,10 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
             else:
                 a_inst.append([i,j,pfit])
                 
-    frac=remove_duplicate(frac)
-    a_frac=remove_duplicate(a_frac)
-    inst=remove_duplicate(inst)
-    a_inst=remove_duplicate(a_inst)    
+    #frac=remove_duplicate(frac)
+    #a_frac=remove_duplicate(a_frac)
+    #inst=remove_duplicate(inst)
+    #a_inst=remove_duplicate(a_inst)    
     
     t_frac= a_frac + frac
     t_inst= inst + a_inst 
@@ -369,3 +369,47 @@ def plot_inst(sizes,popt,directory,file,col,sign,ax="None"):
     ax.set_ylim([-0.15,0.15])
     ax.plot(x,data_plot_1d, color=col)
     return(ax)
+    
+def plot_with_seaborn(data,filename,title_name):
+    import seaborn as sns
+
+    kdeplot = sns.jointplot(
+        data=data, x="rho", y="height",
+        kind="kde", fill=True,
+        space=0,
+        levels=100 ,
+        cbar=True,
+        common_norm=True    
+        #xlim=(0,4),
+        #ylim=(1,2)
+    )
+    quantiles_1d = [0.16, 0.84]
+    #quantiles_1d = [0.05, 0.95]
+    sigmas_2d = (1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.0))
+    lkwg = dict(linestyle="-", linewidth=2, color="k")
+    # overplot 1, 2, 3 sigma contours
+    sns.kdeplot(data=data, x="rho", y="height", levels=sigmas_2d, ax=kdeplot.ax_joint, **lkwg)
+
+    # overplot 90% CI quantiles on marginals
+    for q in quantiles_1d:
+        kdeplot.ax_marg_x.vlines(data["rho"].quantile(q), *kdeplot.ax_marg_x.get_ylim(), **lkwg)
+        kdeplot.ax_marg_y.hlines(data["height"].quantile(q), *kdeplot.ax_marg_y.get_xlim(), **lkwg)
+
+    # reposition colorbar to right of plot
+    # https://stackoverflow.com/a/60962023/10177759
+    plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
+    pos_joint_ax = kdeplot.ax_joint.get_position()
+    pos_marg_x_ax = kdeplot.ax_marg_x.get_position()
+    kdeplot.ax_joint.set_position([pos_joint_ax.x0, pos_joint_ax.y0, pos_marg_x_ax.width, pos_joint_ax.height])
+    cbar_ax = kdeplot.fig.axes[-1]
+    cbar_ax.set_position([.83, pos_joint_ax.y0, .07, pos_joint_ax.height])
+
+    # # set ticks and labels for colorbar at sigmas_2d
+    _, cbar_max = cbar_ax.get_ylim()
+    cbar_sigma2d = [s * cbar_max for s in sigmas_2d]
+    cbar_ax.set_yticks(cbar_sigma2d)
+    cbar_ax.set_yticklabels([r"$3\sigma$", r"$2\sigma$", r"$1\sigma$"])
+    kdeplot.fig.suptitle(title_name)
+    plt.savefig(filename)
+    plt.close()
+
