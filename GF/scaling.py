@@ -36,15 +36,13 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
 nt_list=["4","5","6","7","8","9","10","11","12","13","14"]
 nr_list=["32","45","104"]
 
-scaling_n3=pickle.load(open('scaling_25_80.pkl', "rb" ))
-scaling_n8=pickle.load(open('scaling_75_80.pkl', "rb" ))
+scaling_n3=pickle.load(open('scaling_20.pkl', "rb" ))
+scaling_n8=pickle.load(open('scaling_30.pkl', "rb" ))
 print(scaling_n3)
 
 table_ensembles=copy.deepcopy(scaling_n8)
-
+#print(table_ensembles)
 for key in scaling_n8:  
-    
-    
     media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
     table_ensembles[key]["means"]=np.array((media))
     #print("media")

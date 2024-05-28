@@ -20,7 +20,7 @@ nr=re.search(r"nr(\d+)",directory).group().replace("nr","")
 print(nr)
 nt=re.search(r"runns(.+?(?=nt))",directory).group().replace("nt","").replace("runns","")
 print(nt)
-f = open("identification"+str(nt)+"nt"+str(nr)+"nr"+str(tau)+"t"+str(beta)+"b.txt", "w")
+f = open(directory+"identification"+str(nt)+"nt"+str(nr)+"nr"+str(tau)+"t"+str(beta)+"b.txt", "w")
 delta_n=0
 mean_frac=0
 diff_frac=0
@@ -44,7 +44,7 @@ for filename in os.listdir(directory):
         Q_instantons= len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
 
         f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
-                str(len(inst)) + " " +str(len(a_inst))+ " " +
+                str(len(inst)) + " " +str(len(a_inst))+ " " + str(Q_top))
         
         for element in t_frac:
             f.write( " "+ str(element[0])+ " "+str(element[1]))
