@@ -38,27 +38,18 @@ nr_list=["32","45","104"]
 
 scaling_n3=pickle.load(open('scaling_25_80.pkl', "rb" ))
 scaling_n8=pickle.load(open('scaling_75_80.pkl', "rb" ))
+print(scaling_n3)
 
 table_ensembles=copy.deepcopy(scaling_n8)
 
 for key in scaling_n8:  
     
-    print("n3")
-    print(scaling_n3[key]["means"])
-    
-    print("n8")
-    print(scaling_n8[key]["means"] )
     
     media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
     table_ensembles[key]["means"]=np.array((media))
     #print("media")
     #print(media)
-    
-    print("n3")
-    print(scaling_n3[key]["means"])
-    
-    print("n8")
-    print(scaling_n8[key]["means"] )
+
     
     higher=np.maximum(scaling_n3[key]["means"],scaling_n8[key]["means"])
     #print("higher")
@@ -71,8 +62,6 @@ for key in scaling_n8:
     errors=np.sort(errors,axis=0)
     errors=np.transpose(errors)
     errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
-    print("errors")
-    print(errors)
     errors=np.transpose(errors)
     #print(errors)
     table_ensembles[key]["errors"]=np.array((errors))

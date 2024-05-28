@@ -116,6 +116,7 @@ def read_top_tony(file):
         return (density,np.array(sizes))
     
 def projection_2d(density,sizes):
+    
     #First checks which are the sizes of the smaller directions
     small_sizes=[100,100]
     for i in range(0,len(sizes)):
