@@ -223,14 +223,14 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
         #print(pfit)
         if frac_q:
             if top[i,j]>0:
-                frac.append([i,j,pfit])
+                frac.append([i,j,pfit.append(top[i,j])])
             else:
-                a_frac.append([i,j,pfit])
+                a_frac.append([i,j,pfit.append(top[i,j])])
         if total_q:
             if top[i,j]>0:
-                inst.append([i,j,pfit])
+                inst.append([i,j,pfit.append(top[i,j])])
             else:
-                a_inst.append([i,j,pfit])
+                a_inst.append([i,j,pfit.append(top[i,j])])
                 
     frac=remove_duplicate(frac)
     a_frac=remove_duplicate(a_frac)

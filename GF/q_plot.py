@@ -17,7 +17,7 @@ def extract_feature(line, param):
     return(feature)
 
 def plot_histo(data,bins,xlabel,figure_name,xrange=()):
-    plt.hist(frac,bins=100, density=True)
+    plt.hist(data,bins=100, density=True)
     title="# points:" +str(len(data))
     plt.ylabel("frequency")
     plt.xlabel(xlabel)
@@ -29,8 +29,6 @@ def plot_histo(data,bins,xlabel,figure_name,xrange=()):
 
     return 
         
-        
-#nt=sys.argv[1]
 t=sys.argv[1]
 hist=int(sys.argv[2])
 norm_cut=int(sys.argv[3])
@@ -41,7 +39,6 @@ for direct in lis_dir:
     if "runns" in direct:
         folders.append(direct)
         
-	
 a={
 	"2.4":0.12130,
 	"2.5":0.08194,
@@ -51,93 +48,11 @@ a={
 	"2.9":0.02456
 }
 
-lt_frac={
-   "4":0.02,
-   "5":0.02,
-   "6":0.02,
-   "7":0.01,
-   "8":0.01,
-   "9":0.005,
-   "10":0.005,
-   "11":0.004,
-   "12":0.004,
-   "13":0.004,
-   "14":0.004,
-   "15":0.00,
-   "16":0.00,
-   "17":0.00,
-   "18":0.00,
-   "19":0.00,
-   "20":0.00
-}
-
-
-lt_inst={
-   "4":0.1,
-   "5":0.08,
-   "6":0.05,
-   "7":0.05,
-   "8":0.05,
-   "9":0.05,
-   "10":0.05,
-   "11":0.5,
-   "12":0.5,
-   "13":0.5,
-   "14":0.5,
-   "15":1,
-   "16":1,
-   "17":1,
-   "18":1,
-   "19":1,
-   "20":1,
-}
-
-
-norm_min={
-   "4":0.5,
-   "5":0.5,
-   "6":0.5,
-   "7":0.5,
-   "8":0.5,
-   "9":0.5,
-   "10":0.5,
-   "11":0.5,
-   "12":0.5,
-   "13":0.5,
-   "14":0.5,
-   "15":5,
-   "16":5,
-   "17":5,
-   "18":5,
-   "19":5,
-   "20":5
-}
-
-norm_max={
-   "4":2.25,
-   "5":2.25,
-   "6":2.25,
-   "7":2.25,
-   "8":2.25,
-   "9":2.25,
-   "10":2.25,
-   "11":25,
-   "12":25,
-   "13":25,
-   "14":25,
-   "15":25,
-   "16":25,
-   "17":25,
-   "18":25,
-   "19":25,
-   "20":25,
-}
-
-
 #nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nt_list=["4","5","6","7","8","9","10","11","12","13","14"]
 nr_list=["32","45","104"]
 table_ensembles={}
+
 for nt in nt_list:
     for nr in nr_list:
         mean={}
@@ -151,9 +66,9 @@ for nt in nt_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
             for file_name in x:
-                if "identification" + str(nt)+"nt" in file_name and str(t) +"t" in file_name and str(nr)+ "nr"  in file_name:
+                if "identification" + str(nt)+"nt" in file_name and str(nr)+ "nr"  in file_name and float(beta)<2.75:
                     table_ensembles[file_name]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':0, 'means':[0,0,0,0], 'erros':[0,0,0,0], 'histo_dens':[]}
-                    #print(file_name)
+                    print(file_name)
                     
                     f=open(folder+"/"+file_name,"r")
                     norm=[]
@@ -170,7 +85,7 @@ for nt in nt_list:
                         afrac=0
                         
                         for i in range(0,len(height_temp)):
-                            if rho_temp[i]>0.25 and norm_temp[i]>norm_cut/10:
+                            if rho_temp[i]>0.25 and norm_temp[i]>0.75 and norm_temp[i]<norm_cut/10:
                                 norm.append(norm_temp[i])
                                 rho.append(rho_temp[i])
                                 height.append(height_temp[i])

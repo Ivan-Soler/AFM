@@ -36,7 +36,7 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
 nt_list=["4","5","6","7","8","9","10","11","12","13","14"]
 nr_list=["32","45","104"]
 
-scaling_n3=pickle.load(open('scaling_20.pkl', "rb" ))
+scaling_n3=pickle.load(open('scaling_30.pkl', "rb" ))
 scaling_n8=pickle.load(open('scaling_30.pkl', "rb" ))
 print(scaling_n3)
 
@@ -44,24 +44,16 @@ table_ensembles=copy.deepcopy(scaling_n8)
 #print(table_ensembles)
 for key in scaling_n8:  
     media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
-    table_ensembles[key]["means"]=np.array((media))
-    #print("media")
-    #print(media)
-
-    
+    table_ensembles[key]["means"]=np.array((media)) 
     higher=np.maximum(scaling_n3[key]["means"],scaling_n8[key]["means"])
-    #print("higher")
-    #print(higher)
     lower=np.minimum(scaling_n3[key]["means"],scaling_n8[key]["means"])
-    #print("lower")
-    #print(lower)
     
     errors=np.stack((lower,higher))
     errors=np.sort(errors,axis=0)
     errors=np.transpose(errors)
     errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
     errors=np.transpose(errors)
-    #print(errors)
+
     table_ensembles[key]["errors"]=np.array((errors))
     
 physical=[]
