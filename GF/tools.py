@@ -158,21 +158,21 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
 
     fractional=False
     total=False
-    if density[i,j]<-norm_frac:
+    if density[i,j]<0:
         try:
             p_fit=fit_inst(-density,[i,j],neigh,sizes)
         except:
-            return(fractional,total,[0,0,0,0])
-    elif density[i,j]>norm_frac:
+            return(fractional,total,[0,0,0,0,0])
+    elif density[i,j]>0:
         try:
             p_fit=fit_inst(density,[i,j],neigh,sizes)  
 
         except:
-            return(fractional,total,[0,0,0,0])
+            return(fractional,total,[0,0,0,0,0])
         #print(p_fit[2],rho,eps_rho,p_fit[2]/rho)
         #print(p_fit[3],norm,eps_norm,p_fit[3]/norm)
     else:
-        return(fractional,total,[0,0,0,0])
+        return(fractional,total,[0,0,0,0,0])
     
     #if np.abs(density[i,j])>norm_inst:
         #print(p_fit[2]/rho, 1+eps_rho,p_fit[3]/norm,1+2*eps_norm)
@@ -185,7 +185,8 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
     #else:
     fractional=True
         
-    #print(fractional)
+   # print(density[i,j])
+    p_fit.append(density[i,j])
     return(fractional, total, p_fit)
 
 def remove_duplicate(maxima):
@@ -196,7 +197,7 @@ def remove_duplicate(maxima):
             duplicate=False
             for j in range(0,i):
                 distance=np.sqrt((maxima[i][2][0]-maxima[j][2][0])**2 + (maxima[i][2][1]-maxima[j][2][1])**2)
-                if distance < 1:
+                if distance < 0:
                     duplicate=True
             if not duplicate:
                 temp.append(maxima[i])
@@ -218,7 +219,7 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
         j=element[1]
         
         frac_q, total_q, pfit = condition(top,i,j,sizes,norm_frac,norm_inst,neigh)
-        
+        #print(pfit)
         if frac_q:
             if top[i,j]>0:
                 frac.append([i,j,pfit])
@@ -230,15 +231,22 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
             else:
                 a_inst.append([i,j,pfit])
                 
-    #frac=remove_duplicate(frac)
-    #a_frac=remove_duplicate(a_frac)
-    #inst=remove_duplicate(inst)
-    #a_inst=remove_duplicate(a_inst)    
+    frac=remove_duplicate(frac)
+    a_frac=remove_duplicate(a_frac)
+    inst=remove_duplicate(inst)
+    a_inst=remove_duplicate(a_inst)    
     
     t_frac= a_frac + frac
     t_inst= inst + a_inst 
     total=t_frac+t_inst
-                 
+
+    #print(a_frac)
+    #for element in t_frac:
+        #print(element[2][4])
+        #if element[2][4]>0:
+            #print("positive")
+        #if element[2][4]>0:
+            #print("negative")
     return(inst, a_inst, frac, a_frac, t_frac, t_inst, total)
                  
                  
@@ -369,47 +377,3 @@ def plot_inst(sizes,popt,directory,file,col,sign,ax="None"):
     ax.set_ylim([-0.15,0.15])
     ax.plot(x,data_plot_1d, color=col)
     return(ax)
-    
-def plot_with_seaborn(data,filename,title_name):
-    import seaborn as sns
-
-    kdeplot = sns.jointplot(
-        data=data, x="rho", y="height",
-        kind="kde", fill=True,
-        space=0,
-        levels=100 ,
-        cbar=True,
-        common_norm=True    
-        #xlim=(0,4),
-        #ylim=(1,2)
-    )
-    quantiles_1d = [0.16, 0.84]
-    #quantiles_1d = [0.05, 0.95]
-    sigmas_2d = (1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.0))
-    lkwg = dict(linestyle="-", linewidth=2, color="k")
-    # overplot 1, 2, 3 sigma contours
-    sns.kdeplot(data=data, x="rho", y="height", levels=sigmas_2d, ax=kdeplot.ax_joint, **lkwg)
-
-    # overplot 90% CI quantiles on marginals
-    for q in quantiles_1d:
-        kdeplot.ax_marg_x.vlines(data["rho"].quantile(q), *kdeplot.ax_marg_x.get_ylim(), **lkwg)
-        kdeplot.ax_marg_y.hlines(data["height"].quantile(q), *kdeplot.ax_marg_y.get_xlim(), **lkwg)
-
-    # reposition colorbar to right of plot
-    # https://stackoverflow.com/a/60962023/10177759
-    plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
-    pos_joint_ax = kdeplot.ax_joint.get_position()
-    pos_marg_x_ax = kdeplot.ax_marg_x.get_position()
-    kdeplot.ax_joint.set_position([pos_joint_ax.x0, pos_joint_ax.y0, pos_marg_x_ax.width, pos_joint_ax.height])
-    cbar_ax = kdeplot.fig.axes[-1]
-    cbar_ax.set_position([.83, pos_joint_ax.y0, .07, pos_joint_ax.height])
-
-    # # set ticks and labels for colorbar at sigmas_2d
-    _, cbar_max = cbar_ax.get_ylim()
-    cbar_sigma2d = [s * cbar_max for s in sigmas_2d]
-    cbar_ax.set_yticks(cbar_sigma2d)
-    cbar_ax.set_yticklabels([r"$3\sigma$", r"$2\sigma$", r"$1\sigma$"])
-    kdeplot.fig.suptitle(title_name)
-    plt.savefig(filename)
-    plt.close()
-
