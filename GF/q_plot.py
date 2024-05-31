@@ -6,6 +6,7 @@ import numpy as np
 import tools
 import pandas as pd
 import pickle
+import jackknife
 
 def extract_feature(line, param):
     splitted=line.split(" ")
@@ -29,9 +30,10 @@ def plot_histo(data,bins,xlabel,figure_name,xrange=()):
 
     return 
         
-t=sys.argv[1]
-hist=int(sys.argv[2])
-norm_cut=int(sys.argv[3])
+rho_min=float(sys.argv[1])
+rho_max=float(sys.argv[2])
+norm_min=float(sys.argv[3])
+norm_max=float(sys.argv[4])
 
 lis_dir=os.listdir("./")
 folders=[]
@@ -48,9 +50,10 @@ a={
 	"2.9":0.02456
 }
 
-#nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
+#nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]
 nt_list=["4","5","6","7","8","9","10","11","12","13","14"]
-nr_list=["32","45","104"]
+#nt_list=["15","16","17","18","19"]
+nr_list=["32", "45", "104"]
 table_ensembles={}
 
 for nt in nt_list:
@@ -68,8 +71,8 @@ for nt in nt_list:
             for file_name in x:
                 if "identification" + str(nt)+"nt" in file_name and str(nr)+ "nr"  in file_name and float(beta)<2.75:
                     table_ensembles[file_name]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':0, 'means':[0,0,0,0], 'erros':[0,0,0,0], 'histo_dens':[]}
-                    print(file_name)
-                    
+          
+                    f_dens=open("counting/count_b"+str(beta)+"nt"+str(nt)+".txt", "w")
                     f=open(folder+"/"+file_name,"r")
                     norm=[]
                     rho=[]
@@ -77,6 +80,7 @@ for nt in nt_list:
 
                     for line in f:  
                         splited=line.split()
+                        conf_number=int(splited[0])
                         q_top=float(splited[5])
                         norm_temp=extract_feature(line, 6)
                         rho_temp=extract_feature(line, 5)
@@ -85,7 +89,7 @@ for nt in nt_list:
                         afrac=0
                         
                         for i in range(0,len(height_temp)):
-                            if rho_temp[i]>0.25 and norm_temp[i]>0.75 and norm_temp[i]<norm_cut/10:
+                            if rho_temp[i]>rho_min and rho_temp[i]<rho_max and norm_temp[i]<norm_max and norm_temp[i]>norm_min:
                                 norm.append(norm_temp[i])
                                 rho.append(rho_temp[i])
                                 height.append(height_temp[i])
@@ -97,36 +101,45 @@ for nt in nt_list:
                             table_ensembles[file_name]['odds']+=1  
                         table_ensembles[file_name]['configurations']+=1
                         table_ensembles[file_name]['top-frac']+=abs(q_top-(frac/2-afrac/2))
-                        table_ensembles[file_name]['histo_dens'].append(frac+afrac)
+                        table_ensembles[file_name]['histo_dens'].append([conf_number,frac+afrac])
                     
                     norm=np.array((norm))
                     rho=np.array((rho))
                     height=np.array((height))
                     table_ensembles[file_name]['histo_dens']=np.array((table_ensembles[file_name]['histo_dens']))
                     
-                    table_ensembles[file_name]['means']=np.array((np.mean(table_ensembles[file_name]['histo_dens']),np.mean(norm),np.mean(rho),np.mean(height)))
-                    table_ensembles[file_name]['errors']=np.array((np.sqrt(np.std(table_ensembles[file_name]['histo_dens'])),np.sqrt(np.std(norm)),np.sqrt(np.std(rho)),np.sqrt(np.std(height))))
+                    #densities
+                    dens, error=jackknife.jackknife_for_primary(np.array((table_ensembles[file_name]['histo_dens'][:,1])), int(1))
+                    f_dens.write(str(beta)+" "+str(nt)+" " + str(ls) + "\n")
+                    f_dens.write(str(dens)+" " +str(error) +"\n")
+                    for element in table_ensembles[file_name]['histo_dens']:
+                        f_dens.write(str(element[0])+" "+str(element[1])+"\n")
+                    f_dens.close()
+                    #dens=np.mean(np.array((table_ensembles[file_name]['histo_dens'])))
+                    #error=np.sqrt(1/table_ensembles[file_name]['configurations']*np.std(np.array((table_ensembles[file_name]['histo_dens']))))
+                    table_ensembles[file_name]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
+                    table_ensembles[file_name]['errors']=np.array((error,np.sqrt(np.std(norm)/table_ensembles[file_name]['configurations']),np.sqrt(np.std(rho)/table_ensembles[file_name]['configurations']),np.sqrt(np.std(height)/table_ensembles[file_name]['configurations'])))
 
-                    if hist==0:
-                        bins=100
-                        figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"t"+str(t)+"nr"+str(nr)+".png"
-                        xlabel="density"
-                        plot_histo(table_ensembles[file_name]['histo_dens'],bins,xlabel,figure)
-                        
-                        figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"t"+str(t)+"nr"+str(nr)+".png"
-                        xlabel="norm"
-                        plot_histo(norm,bins,xlabel,figure)
-                        
-                        figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"t"+str(t)+"nr"+str(nr)+".png"
-                        xlabel="height"
-                        plot_histo(height,bins,xlabel,figure)
-                        
-                        figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"t"+str(t)+"nr"+str(nr)+".png"
-                        xlabel="rho"
-                        plot_histo(rho,bins,xlabel,figure)
-                    f.close()
+                    bins=100
+                    figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="density"
+                    plot_histo(table_ensembles[file_name]['histo_dens'],bins,xlabel,figure)
 
-with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
+                    figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="norm"
+                    xrange=()
+                    plot_histo(norm,bins,xlabel,figure,xrange)
+
+                    figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="height"
+                    plot_histo(height,bins,xlabel,figure)
+
+                    figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="rho"
+                    plot_histo(rho,bins,xlabel,figure,xrange)
+
+#with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
+with open('scaling.pkl','wb') as fp:
     pickle.dump(table_ensembles,fp)
     
     

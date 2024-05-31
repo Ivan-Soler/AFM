@@ -24,7 +24,7 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
                     plot=True
             if plot:
                 plt.errorbar(x,data_plot, yerr=np.transpose(data_error), label=str(nt)+", "+str(nr), marker="o") 
-    plt.legend(loc="lower right",ncol=2) 
+    plt.legend(loc="upper left",ncol=2) 
     #plt.ylim(0.6,1.6)
     plt.xlabel("l_s(fm)")    
     plt.ylabel(ylabel)
@@ -33,28 +33,31 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
 
     return 
 
-nt_list=["4","5","6","7","8","9","10","11","12","13","14"]
-nr_list=["32","45","104"]
-
-scaling_n3=pickle.load(open('scaling_30.pkl', "rb" ))
-scaling_n8=pickle.load(open('scaling_30.pkl', "rb" ))
-print(scaling_n3)
+nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]
+nr_list=["32", "45", "104"]
+nr_list=["32","45", "104"]
+#scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
+#scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
+scaling_n3=pickle.load(open('scaling.pkl', "rb" ))
+scaling_n8=pickle.load(open('scaling.pkl', "rb" ))
+#print(n)
 
 table_ensembles=copy.deepcopy(scaling_n8)
 #print(table_ensembles)
-for key in scaling_n8:  
-    media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
-    table_ensembles[key]["means"]=np.array((media)) 
-    higher=np.maximum(scaling_n3[key]["means"],scaling_n8[key]["means"])
-    lower=np.minimum(scaling_n3[key]["means"],scaling_n8[key]["means"])
-    
-    errors=np.stack((lower,higher))
-    errors=np.sort(errors,axis=0)
-    errors=np.transpose(errors)
-    errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
-    errors=np.transpose(errors)
+if False:
+    for key in scaling_n8:  
+        media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
+        table_ensembles[key]["means"]=np.array((media)) 
+        higher=np.maximum(scaling_n3[key]["means"],scaling_n8[key]["means"])
+        lower=np.minimum(scaling_n3[key]["means"],scaling_n8[key]["means"])
 
-    table_ensembles[key]["errors"]=np.array((errors))
+        errors=np.stack((lower,higher))
+        errors=np.sort(errors,axis=0)
+        errors=np.transpose(errors)
+        errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
+        errors=np.transpose(errors)
+
+        table_ensembles[key]["errors"]=np.array((errors))
     
 physical=[]
 physical_errors=[]
@@ -77,22 +80,19 @@ for key in table_ensembles:
 physical = sorted(physical, key=lambda a_entry: a_entry[0]) 
 physical_errors = sorted(physical_errors, key=lambda a_entry: a_entry[0]) 
 
-ylabel="size_frac**2(1/fm^2)"
+ylabel="density(1/fm^2)"
 plotname="scaling_dens.pdf"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)    #Last is the feature to print (hight, rho, size, density...)       
 
-with open("density.txt","w") as f:
-    f.write("ls \t dens \t error_low \t error_high \n")
-    for i in range(0,len(physical)):
-        f.write(str(physical[i][0]) + " "+ str(physical[i][3]) + " " +str(physical_errors[i][3][0]) + " " + str(physical_errors[i][3][1])+"\n")
+#with open("density.txt","w") as f:
+#    f.write("ls \t dens \t error_low \t error_high \n")
+#    for i in range(0,len(physical)):
+#        f.write(str(physical[i][0]) + " "+ str(physical[i][3]) + " " +str(physical_errors[i][3][0]) + " " + str(physical_errors[i][3][1])+"\n")
 
-ylabel="size_frac**2(1/fm^2)"
-plotname="scaling_height_fit.pdf"
+ylabel="height(1/fm^2)"
+plotname="scaling_height_fit.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 4)   
 
-ylabel="size_frac**2(1/fm^2)"
-plotname="scaling_rho.pdf"
+ylabel="width(1/fm^2)"
+plotname="scaling_rho.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
-
-ylabel="size_frac**2(1/fm^2)"
-plotname="scaling_height.pdf"
