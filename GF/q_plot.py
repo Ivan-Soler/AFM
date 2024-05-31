@@ -12,9 +12,9 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 7:
-            feature.append(float(splitted[i]))
-     
+        if not (i-param-5) % 7 and i>5:
+            if splitted[i] != ' ' and splitted[i] != '\n':
+                feature.append(float(splitted[i]))
     return(feature)
 
 def plot_histo(data,bins,xlabel,figure_name,xrange=()):
@@ -72,21 +72,30 @@ for nt in nt_list:
                 if "identification" + str(nt)+"nt" in file_name and str(nr)+ "nr"  in file_name and float(beta)<2.75:
                     table_ensembles[file_name]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':0, 'means':[0,0,0,0], 'erros':[0,0,0,0], 'histo_dens':[]}
           
-                    f_dens=open("counting/count_b"+str(beta)+"nt"+str(nt)+".txt", "w")
+                    f_dens=open("counting/count_b"+str(beta)+"nt"+str(nt)+"nr"+str(nr)+".txt", "w")
                     f=open(folder+"/"+file_name,"r")
                     norm=[]
                     rho=[]
                     height=[]
-
+                    print(file_name)
                     for line in f:  
                         splited=line.split()
+                        
+                        x=extract_feature(line, 1)
+                        y=extract_feature(line, 2)
+                        
                         conf_number=int(splited[0])
                         q_top=float(splited[5])
+                        
+                        
                         norm_temp=extract_feature(line, 6)
                         rho_temp=extract_feature(line, 5)
                         height_temp=extract_feature(line,7)
+                        
                         frac=0
                         afrac=0
+                        posf=[]
+                        posaf=[]
                         
                         for i in range(0,len(height_temp)):
                             if rho_temp[i]>rho_min and rho_temp[i]<rho_max and norm_temp[i]<norm_max and norm_temp[i]>norm_min:
@@ -95,10 +104,17 @@ for nt in nt_list:
                                 height.append(height_temp[i])
                                 if height_temp[i]>0:
                                     frac+=1
+                                    posf.append([x[i],y[i]])
                                 elif height_temp[i]<0:
-                                    afrac+=1                          
+                                    afrac+=1   
+                                    posaf.append([x[i],y[i]])
                         if (frac+afrac)%2:
                             table_ensembles[file_name]['odds']+=1  
+                        posf=np.array((posf))
+                        posaf=np.array((posaf))
+                        
+                        np.savetxt("./counting/position_fractionals"+str(beta)+"nt"+str(nt)+"nr"+str(nr)+".txt",posf)
+                        np.savetxt("./counting/position_anti_fractionals"+str(beta)+"nt"+str(nt)+"nr"+str(nr)+".txt",posaf)
                         table_ensembles[file_name]['configurations']+=1
                         table_ensembles[file_name]['top-frac']+=abs(q_top-(frac/2-afrac/2))
                         table_ensembles[file_name]['histo_dens'].append([conf_number,frac+afrac])
@@ -110,11 +126,12 @@ for nt in nt_list:
                     
                     #densities
                     dens, error=jackknife.jackknife_for_primary(np.array((table_ensembles[file_name]['histo_dens'][:,1])), int(1))
-                    f_dens.write(str(beta)+" "+str(nt)+" " + str(ls) + "\n")
+                    f_dens.write(str(beta)+" "+str(nt)+" " + str(ls) + " "+str(table_ensembles[file_name]['odds']/table_ensembles[file_name]['configurations']*100)+"\n")
                     f_dens.write(str(dens)+" " +str(error) +"\n")
                     for element in table_ensembles[file_name]['histo_dens']:
                         f_dens.write(str(element[0])+" "+str(element[1])+"\n")
                     f_dens.close()
+                    
                     #dens=np.mean(np.array((table_ensembles[file_name]['histo_dens'])))
                     #error=np.sqrt(1/table_ensembles[file_name]['configurations']*np.std(np.array((table_ensembles[file_name]['histo_dens']))))
                     table_ensembles[file_name]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
