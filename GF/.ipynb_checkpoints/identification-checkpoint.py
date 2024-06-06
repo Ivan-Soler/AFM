@@ -77,11 +77,11 @@ progress=open("../progress.txt","a")
 for index,row in d.iterrows():
     fname=row['ArchiveName']
     filen=row['FileName']
-    print(fname+"/"+filen)
+    #print(fname+"/"+filen)
     if "to.dat" in filen and "dt"+str(tau) in filen:
         #print(filen)
         try:
-            tar= tarfile.open(directory+fname)
+            tar = tarfile.open(directory+fname)
         except PermissionError:
             error.write("permission error for " + directory+fname+"\n")
             continue

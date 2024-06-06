@@ -167,12 +167,13 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
     elif density[i,j]>0:
         try:
             p_fit=fit_inst(density,[i,j],neigh,sizes)  
+
         except:
             return(fractional,total,[0,0,0,0,0])
         #print(p_fit[2],rho,eps_rho,p_fit[2]/rho)
         #print(p_fit[3],norm,eps_norm,p_fit[3]/norm)
-    #else:
-    #    return(fractional,total,[0,0,0,0,0])
+    else:
+        return(fractional,total,[0,0,0,0,0])
     
     #if np.abs(density[i,j])>norm_inst:
         #print(p_fit[2]/rho, 1+eps_rho,p_fit[3]/norm,1+2*eps_norm)
@@ -184,7 +185,7 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
         #total = True
     #else:
     fractional=True
-    #print(p_fit)
+        
    # print(density[i,j])
     p_fit.append(density[i,j])
     return(fractional, total, p_fit)
@@ -222,17 +223,15 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
         #print(pfit)
         if frac_q:
             if top[i,j]>0:
-                #print(pfit.append(top[i,j]))
-                frac.append([i,j,pfit])
+                frac.append([i,j,pfit.append(top[i,j])])
             else:
-                #print(pfit)
-                a_frac.append([i,j,pfit])
+                a_frac.append([i,j,pfit.append(top[i,j])])
         if total_q:
             if top[i,j]>0:
-                inst.append([i,j,pfit])
+                inst.append([i,j,pfit.append(top[i,j])])
             else:
-                a_inst.append([i,j,pfit])
-    #print(frac)            
+                a_inst.append([i,j,pfit.append(top[i,j])])
+                
     frac=remove_duplicate(frac)
     a_frac=remove_duplicate(a_frac)
     inst=remove_duplicate(inst)
