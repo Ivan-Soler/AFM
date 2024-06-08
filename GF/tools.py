@@ -155,7 +155,7 @@ def local_q(density,sizes,i,j,R):
     return(q)
 
 
-def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
+def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
 
     fractional=False
     total=False
@@ -163,30 +163,21 @@ def condition(density,i,j,sizes,norm_frac,norm_inst,neigh):
         try:
             p_fit=fit_inst(-density,[i,j],neigh,sizes)
         except:
-            return(fractional,total,[0,0,0,0,0])
+            return(fractional,total,[0,0,0,0,0,0])
     elif density[i,j]>0:
         try:
             p_fit=fit_inst(density,[i,j],neigh,sizes)  
         except:
-            return(fractional,total,[0,0,0,0,0])
-        #print(p_fit[2],rho,eps_rho,p_fit[2]/rho)
-        #print(p_fit[3],norm,eps_norm,p_fit[3]/norm)
-    #else:
-    #    return(fractional,total,[0,0,0,0,0])
+            return(fractional,total,[0,0,0,0,0,0])
+
+    Q=local_q(density,sizes,i,j,1)
+    S=local_q(density_en,sizes,i,j,1)
     
-    #if np.abs(density[i,j])>norm_inst:
-        #print(p_fit[2]/rho, 1+eps_rho,p_fit[3]/norm,1+2*eps_norm)
-        #print('True')
-        #print(p_fit[3],norm)
-    #    total=True
-    
-    #if np.abs(density[i,j])>norm_inst:
-        #total = True
-    #else:
+    selfdual=8*np.pi*Q/(1.0*S)
+  
     fractional=True
-    #print(p_fit)
-   # print(density[i,j])
     p_fit.append(density[i,j])
+    p_fit.append(selfdual)
     return(fractional, total, p_fit)
 
 def remove_duplicate(maxima):
@@ -205,7 +196,7 @@ def remove_duplicate(maxima):
                 #temp.append(maxima[i])
     return(temp)
 
-def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
+def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
     inst=[]
     frac=[]
     a_inst=[]
@@ -218,7 +209,7 @@ def find_inst_2d(top,sizes,norm_frac,norm_inst,neigh):
         i=element[0]
         j=element[1]
         
-        frac_q, total_q, pfit = condition(top,i,j,sizes,norm_frac,norm_inst,neigh)
+        frac_q, total_q, pfit = condition(top,en,i,j,sizes,norm_frac,norm_inst,neigh)
         #print(pfit)
         if frac_q:
             if top[i,j]>0:

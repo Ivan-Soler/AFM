@@ -69,12 +69,14 @@ for key in table_ensembles:
         physical.append([ls,nt,nr,table_ensembles[key]["means"][0]/table_ensembles[key]["vol"], #density
                   abs(table_ensembles[key]["means"][1])/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["means"][2]*table_ensembles[key]["a"], #rho
-                  abs(table_ensembles[key]["means"][3])/(table_ensembles[key]["a"]**2)])#height
+                  abs(table_ensembles[key]["means"][3])/(table_ensembles[key]["a"]**2), #height
+                       table_ensembles[key]["means"][1]])#norm
 
         physical_errors.append([ls,nt,nr,table_ensembles[key]["errors"][0]/table_ensembles[key]["vol"], 
                   table_ensembles[key]["errors"][1]/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["errors"][2]*table_ensembles[key]["a"]/int(table_ensembles[key]["nr"]), #rho
-                  table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2)])#height
+                  table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2), #height
+                              table_ensembles[key]["errors"][1]])#norm
 
 #Sorting according to ls
 physical = sorted(physical, key=lambda a_entry: a_entry[0]) 
@@ -96,3 +98,7 @@ plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 4)
 ylabel="width(1/fm^2)"
 plotname="scaling_rho.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
+
+ylabel="norm"
+plotname="scaling_norm.png"
+plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 7)   

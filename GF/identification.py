@@ -62,15 +62,8 @@ lt_frac={
    "9":0.005,
    "10":0.005
 }
-
-
-#norm_inst=lt_height[str(lt)]
-#norm_frac=lt_frac[str(lt)]
-
 norm_frac=0
 
-#print(norm_inst)
-#print(norm_frac)
 
 error=open("../error.txt","a")
 progress=open("../progress.txt","a")
@@ -79,7 +72,6 @@ for index,row in d.iterrows():
     filen=row['FileName']
     print(fname+"/"+filen)
     if "to.dat" in filen and "dt"+str(tau) in filen:
-        #print(filen)
         try:
             tar= tarfile.open(directory+fname)
         except PermissionError:
@@ -88,25 +80,20 @@ for index,row in d.iterrows():
     count+=1
     conf=filen.replace("profile4dt"+str(tau)+"c", "")
     conf=conf.replace("to.dat", "")
+
+    en_file=filen.replace("to","en")
     tar.extract(filen)
+    tar.extract(en_file)
+    
 
     top_density,sizes=tools.read_top(filen)
-    #print(filen)
+    en_density,sizes=tools.read_top(en_file)
+
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
+    density_2d_en,sizes_big,index_smal=tools.projection_2d(en_density,sizes)
 
-    inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,sizes_big,
+    inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,en_density,sizes_big,
                                                               norm_frac,norm_inst,neigh)
-
-    Q_top=density_2d_top.sum()
-    mean_frac+= len(t_frac)
-    diff_frac+= len(frac)-len(a_frac)
-    Q_instantons= len(inst)-len(a_inst)+1/2*len(frac)-1/2*len(a_frac)
-
-    if (len(frac)+len(a_frac)) % 2:
-        delta_n+=1
-    #maxima=tools.find_max_2d(density_2d_top,sizes_big)
-    #tools.plot_dens_2d(filen,density_2d_top,sizes_big, t_frac, t_inst)
-    #print(filen)
 
     f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
     str(len(inst)) + " " +str(len(a_inst))+ " " +
@@ -115,21 +102,12 @@ for index,row in d.iterrows():
         f.write( " "+ str(element[0])+ " "+str(element[1]))
         for fit in element[2]:
             f.write( " " +str(fit))
-    #if element[2][4]>0:
-    #print("positive")
-    #if element[2][4]<0:
-    #   print(element[2])
+
     f.write(" \n")
     os.remove(filen)
-    if not count%20:
-        tools.plot_dens_2d(filen,density_2d_top,sizes_big, [], [])
+    os.remove(en_file)
 
-#print(len(t_frac),len(t_inst))
 
-print("Configurations with fractional topological charge: " + str(delta_n) + "\n")
-print("Mean frac_inst + frac_anti_inst = " + str(mean_frac/count)+ "\n")
-print("Mean frac_inst - frac_anti_inst = " + str(diff_frac/count)+ "\n")
-print("Number of configurations = " + str(count) + "\n")
 progress.write(directory+fname+"\n")
 progress.close()
 error.close()
