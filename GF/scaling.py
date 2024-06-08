@@ -38,27 +38,29 @@ nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_n3=pickle.load(open('scaling.pkl', "rb" ))
-scaling_n8=pickle.load(open('scaling.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s2.0.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s2.5.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s3.0.pkl', "rb" ))
+
 #print(n)
 
-table_ensembles=copy.deepcopy(scaling_n8)
+table_ensembles=copy.deepcopy(scaling_med)
 #print(table_ensembles)
-if False:
-    for key in scaling_n8:  
-        media=np.array(( scaling_n3[key]["means"] + scaling_n8[key]["means"] ))/2  
-        table_ensembles[key]["means"]=np.array((media)) 
-        higher=np.maximum(scaling_n3[key]["means"],scaling_n8[key]["means"])
-        lower=np.minimum(scaling_n3[key]["means"],scaling_n8[key]["means"])
 
-        errors=np.stack((lower,higher))
-        errors=np.sort(errors,axis=0)
-        errors=np.transpose(errors)
-        errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
-        errors=np.transpose(errors)
+for key in scaling_min:  
+    media=np.array((scaling_med[key]["means"]))
+    table_ensembles[key]["means"]=np.array((media)) 
+    higher=np.maximum(scaling_min[key]["means"],scaling_max[key]["means"])
+    lower=np.minimum(scaling_min[key]["means"],scaling_max[key]["means"])
 
-        table_ensembles[key]["errors"]=np.array((errors))
-    
+    errors=np.stack((lower,higher))
+    errors=np.sort(errors,axis=0)
+    errors=np.transpose(errors)
+    errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
+    errors=np.transpose(errors)
+
+    table_ensembles[key]["errors"]=np.array((errors))
+
 physical=[]
 physical_errors=[]
 for key in table_ensembles:

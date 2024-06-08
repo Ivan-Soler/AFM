@@ -126,7 +126,7 @@ for nt in nt_list:
                                         elif height_temp[i]<0:
                                             ainst+=1   
                                             #posai.append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_ref*norm_scale*norm_scale:
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_ref*2*norm_scale:
                                         if height_temp[i]>0:
                                             dinst+=1
                                             #posi.append([x[i],y[i]])

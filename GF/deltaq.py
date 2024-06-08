@@ -62,7 +62,7 @@ for key in deltaq_dic:
       #plt.plot(n_list,deltaq_dici[key],label=" Q=1 inst")
       #plt.plot(n_list,deltaq_dicd[key],label=" Q=2 inst")
       #plt.legend(loc="upper right")
-      plt.ylim(0,5)
+      #plt.ylim(0,5)
       plt.savefig("./deltaq/"+str(key)+".png")
       plt.close()
   
