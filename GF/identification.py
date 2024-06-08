@@ -69,38 +69,38 @@ for index,row in d.iterrows():
     filen=row['FileName']
     print(fname+"/"+filen)
     if "to.dat" in filen and "dt"+str(tau) in filen:
-        try:
-            tar= tarfile.open(directory+fname)
-        except Exception as e:
-            error.write("permission error for " + directory+fname+"\n")
-            continue
-    count+=1
-    conf=filen.replace("profile4dt"+str(tau)+"c", "")
-    conf=conf.replace("to.dat", "")
-
-    en_file=filen.replace("to","en")
-    tar.extract(filen)
-    tar.extract(en_file)
-    
-
-    top_density,sizes=tools.read_top(filen)
-    en_density,sizes=tools.read_top(en_file)
-
-    density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
-    density_2d_en,sizes_big,index_smal=tools.projection_2d(en_density,sizes)
-
-    inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,density_2d_en,sizes_big,
-                                                              norm_frac,norm_inst,neigh)
-
-    Q_top=density_2d_top.sum()
-    f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
-    str(len(inst)) + " " +str(len(a_inst))+ " " +
-    str(Q_top))
-    for element in t_frac:
-        f.write( " "+ str(element[0])+ " "+str(element[1]))
-        for fit in element[2]:
-            f.write( " " +str(fit))
-
-    f.write(" \n")
-    os.remove(filen)
-    os.remove(en_file)
+      try:
+          tar= tarfile.open(directory+fname)
+      except Exception as e:
+          error.write("permission error for " + directory+fname+"\n")
+          continue
+      count+=1
+      conf=filen.replace("profile4dt"+str(tau)+"c", "")
+      conf=conf.replace("to.dat", "")
+  
+      en_file=filen.replace("to","en")
+      tar.extract(filen)
+      tar.extract(en_file)
+      
+  
+      top_density,sizes=tools.read_top(filen)
+      en_density,sizes=tools.read_top(en_file)
+  
+      density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
+      density_2d_en,sizes_big,index_smal=tools.projection_2d(en_density,sizes)
+  
+      inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,density_2d_en,sizes_big,
+                                                                norm_frac,norm_inst,neigh)
+  
+      Q_top=density_2d_top.sum()
+      f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
+      str(len(inst)) + " " +str(len(a_inst))+ " " +
+      str(Q_top))
+      for element in t_frac:
+          f.write( " "+ str(element[0])+ " "+str(element[1]))
+          for fit in element[2]:
+              f.write( " " +str(fit))
+  
+      f.write(" \n")
+      os.remove(filen)
+      os.remove(en_file)
