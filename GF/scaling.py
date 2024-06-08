@@ -59,8 +59,8 @@ for key in scaling_min:
     errors=np.array((np.abs(media-errors[:,0]),np.abs(errors[:,1]-media)))
     errors=np.transpose(errors)
 
-    table_ensembles[key]["errors"]=np.array((errors))
-
+    table_ensembles[key]["errors"]=np.dstack((table_ensembles[key]["errors"],table_ensembles[key]["errors"]))[0]+np.array((errors))
+print( table_ensembles[key]["errors"])
 physical=[]
 physical_errors=[]
 for key in table_ensembles:
@@ -86,12 +86,7 @@ physical_errors = sorted(physical_errors, key=lambda a_entry: a_entry[0])
 
 ylabel="density(1/fm^2)"
 plotname="scaling_dens.pdf"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)    #Last is the feature to print (hight, rho, size, density...)       
-
-#with open("density.txt","w") as f:
-#    f.write("ls \t dens \t error_low \t error_high \n")
-#    for i in range(0,len(physical)):
-#        f.write(str(physical[i][0]) + " "+ str(physical[i][3]) + " " +str(physical_errors[i][3][0]) + " " + str(physical_errors[i][3][1])+"\n")
+plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)  
 
 ylabel="height(1/fm^2)"
 plotname="scaling_height_fit.png"

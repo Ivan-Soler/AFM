@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 7 and i>5:
+        if not (i-param-5) % 8 and i>5:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(feature)
@@ -102,6 +102,8 @@ for nt in nt_list:
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
+                                duality_temp=extract_feature(line,8)
+                                
                                 
                                 frac=0
                                 afrac=0
@@ -112,7 +114,7 @@ for nt in nt_list:
 
                                 for i in range(0,len(height_temp)):
                                     if rho_temp[i]>rho_min and norm_temp[i] > norm_ref/norm_scale and norm_temp[i]<norm_ref*norm_scale:
-                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i]])
+                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
@@ -166,6 +168,7 @@ for nt in nt_list:
                 norm=np.array((histo[:,0]))
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
+                duality=np.array((histo[:,3]))
                 table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
                 table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
     
@@ -178,7 +181,7 @@ for nt in nt_list:
                     figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="norm"
                     xrange=()
-                    plot_histo(norm,bins,xlabel,figure,xrange)
+                    plot_histo(norm,bins,xlabel,figure)
     
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="height"
@@ -186,7 +189,11 @@ for nt in nt_list:
     
                     figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="rho"
-                    plot_histo(rho,bins,xlabel,figure,xrange)
+                    plot_histo(rho,bins,xlabel,figure)
+
+                    figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="duality"
+                    plot_histo(np.pi*duality,bins,xlabel,figure)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
 with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:

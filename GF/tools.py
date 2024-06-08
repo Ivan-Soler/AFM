@@ -173,7 +173,7 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
     Q=local_q(density,sizes,i,j,1)
     S=local_q(density_en,sizes,i,j,1)
     
-    selfdual=8*np.pi*Q/(1.0*S)
+    selfdual=8*np.pi*np.pi*Q/(1.0*S)
   
     fractional=True
     p_fit.append(density[i,j])
