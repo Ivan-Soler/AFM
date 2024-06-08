@@ -64,9 +64,6 @@ lt_frac={
 }
 norm_frac=0
 
-
-error=open("../error.txt","a")
-progress=open("../progress.txt","a")
 for index,row in d.iterrows():
     fname=row['ArchiveName']
     filen=row['FileName']
@@ -74,7 +71,7 @@ for index,row in d.iterrows():
     if "to.dat" in filen and "dt"+str(tau) in filen:
         try:
             tar= tarfile.open(directory+fname)
-        except PermissionError:
+        except Exception as e:
             error.write("permission error for " + directory+fname+"\n")
             continue
     count+=1
@@ -92,9 +89,10 @@ for index,row in d.iterrows():
     density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
     density_2d_en,sizes_big,index_smal=tools.projection_2d(en_density,sizes)
 
-    inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,en_density,sizes_big,
+    inst, a_inst, frac, a_frac, t_frac, t_inst, total= tools.find_inst_2d(density_2d_top,density_2d_en,sizes_big,
                                                               norm_frac,norm_inst,neigh)
 
+    Q_top=density_2d_top.sum()
     f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
     str(len(inst)) + " " +str(len(a_inst))+ " " +
     str(Q_top))
@@ -106,8 +104,3 @@ for index,row in d.iterrows():
     f.write(" \n")
     os.remove(filen)
     os.remove(en_file)
-
-
-progress.write(directory+fname+"\n")
-progress.close()
-error.close()
