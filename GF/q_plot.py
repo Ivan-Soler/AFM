@@ -42,9 +42,13 @@ def check_folder(nt,nr,beta,folder):
         
 rho_min=float(sys.argv[1])
 rho_max=float(sys.argv[2])
-norm_min=float(sys.argv[3])
-norm_max=int(sys.argv[4])
-histograms=bool(int(sys.argv[5]))
+norm_scale=float(sys.argv[3])
+norm_scale/=100
+norm_ref=1.5
+print(norm_ref/norm_scale)
+#norm_min=float(sys.argv[3])
+#norm_max=int(sys.argv[4])
+histograms=bool(int(sys.argv[4]))
 lis_dir=os.listdir("./")
 folders=[]
 
@@ -52,7 +56,7 @@ for direct in lis_dir:
     if "runns" in direct:
         folders.append(direct)
 a={
-	"2.4":0.12130,
+	"2.4":0.11530,
 	"2.5":0.08194,
 	"2.6":0.05938,
 	"2.7":0.04337,
@@ -81,13 +85,11 @@ for nt in nt_list:
             #dens={}
             #error={}
             histo=[]
-            print(nr,nt,beta)
             for folder in folders:
                 if check_folder(nt,nr,beta,folder):
                     x=os.listdir(folder)
                     for file_name in x:
                         if "identification" in file_name:
-                            print(folder+file_name)
                             f=open(folder+"/"+file_name,"r")
                             for line in f:  
                                 splited=line.split()
@@ -105,9 +107,11 @@ for nt in nt_list:
                                 afrac=0
                                 inst=0
                                 ainst=0
+                                dinst=0
+                                dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and norm_temp[i] > norm_min and norm_temp[i]<norm_max/10:
+                                    if rho_temp[i]>rho_min and norm_temp[i] > norm_ref/norm_scale and norm_temp[i]<norm_ref*norm_scale:
                                         histo.append([norm_temp[i],rho_temp[i],height_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
@@ -115,27 +119,35 @@ for nt in nt_list:
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_min and norm_temp[i]>norm_max/10:
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_ref*norm_scale and norm_temp[i]<norm_ref*norm_scale*norm_scale:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])
                                         elif height_temp[i]<0:
                                             ainst+=1   
                                             #posai.append([x[i],y[i]])
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_ref*norm_scale*norm_scale:
+                                        if height_temp[i]>0:
+                                            dinst+=1
+                                            #posi.append([x[i],y[i]])
+                                        elif height_temp[i]<0:
+                                            dainst+=1   
+                                            #posai.append([x[i],y[i]])
                                             
                                 if (frac+afrac)%2:
                                     table_ensembles[key]['odds']+=1  
                                 table_ensembles[key]['configurations']+=1
-                                table_ensembles[key]['top-frac']+=abs(q_top-(inst+frac/2-ainst-afrac/2))    
+                                table_ensembles[key]['top-frac']+=abs(q_top-(2*dinst*inst+frac/2-2*dinst-ainst-afrac/2))    
                                 table_ensembles[key]['histo_dens'].append([conf_number,frac+afrac])
                             #End reading line of each identification file 
                             f.close()
                         #End if for identification file
                     #End loop files in folder
                 #End if check folder
-            #End loop folders in directory
-            print(table_ensembles[key]['configurations'])                    
-            if table_ensembles[key]['configurations'] > 2:
+            #End loop folders in directory  
+            if table_ensembles[key]['configurations']<3:
+              del table_ensembles[key]
+            else:
                 table_ensembles[key]['histo_dens']=np.array((table_ensembles[key]['histo_dens']))
                 table_ensembles[key]['odds']=table_ensembles[key]['odds']/table_ensembles[key]['configurations']*100
                 table_ensembles[key]['top-frac']=table_ensembles[key]['top-frac']/table_ensembles[key]['configurations']
@@ -155,7 +167,7 @@ for nt in nt_list:
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
                 table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
-                table_ensembles[key]['errors']=np.array((error,np.sqrt(np.std(norm)/table_ensembles[key]['configurations']),np.sqrt(np.std(rho)/table_ensembles[key]['configurations']),np.sqrt(np.std(height)/table_ensembles[key]['configurations'])))
+                table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
     
                 if histograms:
                     bins=100
@@ -177,7 +189,7 @@ for nt in nt_list:
                     plot_histo(rho,bins,xlabel,figure,xrange)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
-with open('scaling.pkl','wb') as fp:
+with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
     pickle.dump(table_ensembles,fp)
     
     
