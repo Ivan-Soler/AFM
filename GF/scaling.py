@@ -38,9 +38,9 @@ nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s2.0.pkl', "rb" ))
-scaling_med=pickle.load(open('scaling_s2.5.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s3.0.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.5.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s0.6.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s0.7.pkl', "rb" ))
 
 #print(n)
 

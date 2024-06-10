@@ -30,7 +30,7 @@ for file in  file_list:
             deltaq_dic[key]=[]
         if key not in odd_dic:
             odd_dic[key]=[]
-        deltaq_dic[key].append([float(scale),deltaq_dic_temp[key]['top-frac']])                  
+        deltaq_dic[key].append([float(scale),deltaq_dic_temp[key]['top-frac'][0],deltaq_dic_temp[key]['top-frac'][1]])                  
         odd_dic[key].append([float(scale),odd_dic_temp[key]["odds"]])
 
     if False:
@@ -58,10 +58,10 @@ for key in deltaq_dic:
 
 
 for key in deltaq_dic:
-      plt.plot(deltaq_dic[key][:,0],deltaq_dic[key][:,1],label="fractionals")
-      #plt.plot(n_list,deltaq_dici[key],label=" Q=1 inst")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,1],label="fractionals")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,2],label="instantons")
       #plt.plot(n_list,deltaq_dicd[key],label=" Q=2 inst")
-      #plt.legend(loc="upper right")
+      plt.legend(loc="upper right")
       #plt.ylim(0,5)
       plt.savefig("./deltaq/"+str(key)+".png")
       plt.close()

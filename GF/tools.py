@@ -188,7 +188,7 @@ def remove_duplicate(maxima):
             duplicate=False
             for j in range(0,i):
                 distance=np.sqrt((maxima[i][2][0]-maxima[j][2][0])**2 + (maxima[i][2][1]-maxima[j][2][1])**2)
-                if distance < 0:
+                if distance < 1:
                     duplicate=True
             if not duplicate:
                 temp.append(maxima[i])
