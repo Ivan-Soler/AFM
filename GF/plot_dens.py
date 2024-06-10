@@ -49,4 +49,4 @@ for index,row in d.iterrows():
             top_density,sizes=tools.read_top(filen)
             density_2d_top,sizes_big,index_smal=tools.projection_2d(top_density,sizes)
             tools.plot_dens_2d(filen,density_2d_top,sizes_big, frac, afrac)
-        os.remove(filen)
+            os.remove(filen)
