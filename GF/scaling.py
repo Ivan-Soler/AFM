@@ -33,14 +33,14 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
 
     return 
 
-nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]
+nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s0.5.pkl', "rb" ))
-scaling_med=pickle.load(open('scaling_s0.6.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s0.7.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.6.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s0.7.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s0.8.pkl', "rb" ))
 
 #print(n)
 
@@ -76,7 +76,7 @@ for key in table_ensembles:
 
         physical_errors.append([ls,nt,nr,table_ensembles[key]["errors"][0]/table_ensembles[key]["vol"], 
                   table_ensembles[key]["errors"][1]/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
-                  table_ensembles[key]["errors"][2]*table_ensembles[key]["a"]/int(table_ensembles[key]["nr"]), #rho
+                  table_ensembles[key]["errors"][2]*table_ensembles[key]["a"], #rho
                   table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2), #height
                               table_ensembles[key]["errors"][1]])#norm
 

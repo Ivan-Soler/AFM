@@ -17,14 +17,25 @@ def extract_feature(line, param):
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
 
-def plot_histo(data,bins,xlabel,figure_name,xrange=()):
-    plt.hist(data,bins=100, density=True)
-    title="# points:" +str(len(data))
+def plot_histo(data,bins,xlabel,figure_name,xrange=[]):
+    datafilt=data
+    if xrange!=[]:
+      datafilt=[]
+      plt.xlim(xrange[0],xrange[1])
+      for element in data:
+        if element>xrange[0] and element<xrange[1]:
+          datafilt.append(element)
+          
+
+    else:
+      datafit=data
+      plt.xlim(np.min(datafit),np.max(datafit))
+      
+    plt.hist(datafilt,bins=100, density=True)
+    title="# points:" +str(len(datafilt))
     plt.ylabel("frequency")
     plt.xlabel(xlabel)
     plt.title(title)
-    if xrange:
-        plt.xlim(xrange)
     plt.savefig(figure_name)
     plt.close()
 
@@ -42,11 +53,9 @@ def check_folder(nt,nr,beta,folder):
         
 rho_min=float(sys.argv[1])
 rho_max=float(sys.argv[2])
-norm_scale=float(sys.argv[3])
-print(norm_scale)
-#norm_min=float(sys.argv[3])
-#norm_max=int(sys.argv[4])
-histograms=bool(int(sys.argv[4]))
+norm_min=float(sys.argv[3])
+norm_max=float(sys.argv[4])
+histograms=bool(int(sys.argv[5]))
 lis_dir=os.listdir("./")
 folders=[]
 
@@ -103,7 +112,7 @@ for nt in nt_list:
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
-                                duality_temp=np.pi*extract_feature(line,8)
+                                duality_temp=extract_feature(line,8)
                                 
                                 
                                 frac=0
@@ -114,7 +123,7 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and norm_temp[i] > 1 and norm_temp[i]<2:
+                                    if rho_temp[i]>rho_min and norm_temp[i] > norm_min and norm_temp[i]<norm_max:
                                         histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
@@ -122,7 +131,7 @@ for nt in nt_list:
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>3:
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_max:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])
@@ -163,41 +172,44 @@ for nt in nt_list:
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
                 duality=np.array((histo[:,3]))
-                table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
+                table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(np.abs(height))))
                 table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
     
                 if histograms:
                     bins=100
                     figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="density"
-                    plot_histo(table_ensembles[key]['histo_dens'],bins,xlabel,figure)
-    
+                    xrange=[]
+                    plot_histo(table_ensembles[key]['histo_dens'],bins,xlabel,figure,xrange)
+
                     figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="norm"
-                    xrange=()
-                    plot_histo(norm,bins,xlabel,figure)
-    
+                    xrange=[]
+                    plot_histo(norm,bins,xlabel,figure,xrange)
+
+                    xrange=[0,0.05]
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="height"
-                    plot_histo(height,bins,xlabel,figure)
-    
+                    plot_histo(height,bins,xlabel,figure,xrange)
+
+                    xrange=[]
                     figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="rho"
-                    plot_histo(rho,bins,xlabel,figure)
-
+                    plot_histo(rho,bins,xlabel,figure,xrange)
                     figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="duality"
-                    plot_histo(duality,bins,xlabel,figure)
+                    xrange=[]
+                    plot_histo(duality,bins,xlabel,figure,xrange)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
-with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
-    pickle.dump(table_ensembles,fp)
+
 
 norm_dic={}
 for key in table_ensembles:
-  norm_dic[key]=table_ensembles[key]['means'][1]
-  
+  norm_dic[key]=table_ensembles[key]['means'][3]
+
+print(norm_dic)
 with open('norm','wb') as fp:
   pickle.dump(norm_dic,fp)
-    
+
     

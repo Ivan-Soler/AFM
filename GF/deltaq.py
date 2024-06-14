@@ -21,6 +21,7 @@ file_list=os.listdir("./")
 
 for file in  file_list:
   if ".pkl" in file:
+    print(file)
     scale=re.search(r'_s(.*?(?=.pkl))',file).group().replace('_s','')
     deltaq_dic_temp=pickle.load(open(file, "rb" ))
     odd_dic_temp=pickle.load(open(file, "rb" ))
@@ -30,7 +31,7 @@ for file in  file_list:
             deltaq_dic[key]=[]
         if key not in odd_dic:
             odd_dic[key]=[]
-        deltaq_dic[key].append([float(scale),deltaq_dic_temp[key]['top-frac'][0],deltaq_dic_temp[key]['top-frac'][1]])                  
+        deltaq_dic[key].append([float(scale),deltaq_dic_temp[key]['top-frac'][0],deltaq_dic_temp[key]['top-frac'][1],deltaq_dic_temp[key]['top-frac'][2]])                  
         odd_dic[key].append([float(scale),odd_dic_temp[key]["odds"]])
 
     if False:
@@ -59,14 +60,19 @@ for key in deltaq_dic:
 
 for key in deltaq_dic:
       plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,1],label="fractionals")
-      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,2],label="instantons")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,2],label="+ instantons")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,3],label="all fractionals")
       #plt.plot(n_list,deltaq_dicd[key],label=" Q=2 inst")
       plt.legend(loc="upper right")
       #plt.ylim(0,5)
+      plt.ylabel("Q_top - Q_inst")
+      plt.xlabel("delta norm")
       plt.savefig("./deltaq/"+str(key)+".png")
       plt.close()
   
       plt.plot(odd_dic[key][:,0],odd_dic[key][:,1],label="fractionals")
+      plt.xlabel("delta norm")
+      plt.ylabel("% of odd configurations")
       plt.savefig("./odd/"+str(key)+".png")
       plt.close()
 
