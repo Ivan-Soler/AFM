@@ -114,15 +114,15 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and norm_temp[i] > 1 and norm_temp[i]<2:
-                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
+                                    if True:# rho_temp[i]>rho_min and norm_temp[i] > 0.5 and norm_temp[i]<3:
+                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>3:
+                                    elif False: #rho_temp[i]>rho_min and norm_temp[i]>3:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])
@@ -176,10 +176,11 @@ for nt in nt_list:
                     xlabel="norm"
                     xrange=()
                     plot_histo(norm,bins,xlabel,figure)
-    
+
+                    xrange=(0,0.02)
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="height"
-                    plot_histo(height,bins,xlabel,figure)
+                    plot_histo(height,bins,xlabel,figure,xrange)
     
                     figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="rho"
@@ -190,12 +191,12 @@ for nt in nt_list:
                     plot_histo(duality,bins,xlabel,figure)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
-with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
-    pickle.dump(table_ensembles,fp)
+#with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
+#    pickle.dump(table_ensembles,fp)
 
 norm_dic={}
 for key in table_ensembles:
-  norm_dic[key]=table_ensembles[key]['means'][1]
+  norm_dic[key]=table_ensembles[key]['means'][3]
   print(key, norm_dic[key])
   
 with open('norm','wb') as fp:

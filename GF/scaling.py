@@ -29,9 +29,9 @@ def mean_distance(table_ensembles):
   for key in table_ensembles:
     distance=[]
     for conf in table_ensembles[key]['pos_frac']:
-      fractionals=np.vstack((table_ensembles[key]['pos_frac'][conf],table_ensembles[key]['pos_afrac'][conf]))
-      distance.append(nearest_distance(fractionals))
-      #distance.append(nearest_distance(table_ensembles[key]['pos_frac'][conf]))
+      #fractionals=np.vstack((table_ensembles[key]['pos_frac'][conf],table_ensembles[key]['pos_afrac'][conf]))
+      #distance.append(nearest_distance(fractionals))
+      distance.append(nearest_distance(table_ensembles[key]['pos_frac'][conf]))
       #distance.append(nearest_distance(table_ensembles[key]['pos_afrac'][conf]))
     distance=np.array((distance))
     mean_distance=np.mean(distance)
@@ -71,11 +71,9 @@ nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s0.55.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.3.pkl', "rb" ))
 scaling_med=pickle.load(open('scaling_s0.6.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s0.65.pkl', "rb" ))
-
-
+scaling_max=pickle.load(open('scaling_s1.0.pkl', "rb" ))
 
 scaling_min=mean_distance(scaling_min)
 scaling_med=mean_distance(scaling_med)
@@ -96,9 +94,7 @@ for key in scaling_min:
     errors=np.transpose(errors)
 
     table_ensembles[key]["errors"]=np.dstack((table_ensembles[key]["errors"],table_ensembles[key]["errors"]))[0]+np.array((errors))
-  
-print( table_ensembles[key]["errors"])
-print(scaling_med[key]['means'])
+    
 physical=[]
 physical_errors=[]
 
@@ -144,4 +140,6 @@ plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 7)
 ylabel="distance (fm)"
 plotname="scaling_distance.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 8)   
+
+
 

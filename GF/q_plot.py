@@ -113,15 +113,15 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+2*norm_scale) and abs(duality_temp[i])>0.25:
-                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
+                                    if rho_temp[i]>0.5 and abs(height_temp[i]) > norm_dic[key]*(1-norm_scale) and abs(height_temp[i])<norm_dic[key]*(1+norm_scale) and abs(duality_temp[i])>0.25:
+                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i]>3.5 and abs(duality_temp[i])>0.25:
+                                    elif rho_temp[i]>0.5 and norm_temp[i]>0.25 and abs(duality_temp[i])>0.25 and abs(height_temp[i])>2*norm_dic[key]:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])

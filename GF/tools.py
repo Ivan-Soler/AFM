@@ -177,7 +177,7 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
     fractional=True
     p_fit.append(density[i,j])
     p_fit.append(selfdual)
-    return(fractional, total, p_fit, p_cov)
+    return(fractional, total, p_fit, np.sqrt(np.diag(pcov)))
 
 def remove_duplicate(maxima):
     
@@ -303,7 +303,7 @@ def plot_dens_2d(file,density_2d,sizes,frac,inst):
 #                    (position[1]-maxima_y)**2+rho**2))**4)
 
 def inst(position,maxima_x,maxima_y,rho,norm):
-    return(norm-1/rho*np.sqrt((position[:,0]-maxima_x)**2 +
+    return(norm-1/rho**2*((position[:,0]-maxima_x)**2 +
                     (position[:,1]-maxima_y)**2))
 
 def inst_plot(position,maxima_x,maxima_y,rho,norm):
