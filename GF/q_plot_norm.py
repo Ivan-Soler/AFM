@@ -196,6 +196,7 @@ with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
 norm_dic={}
 for key in table_ensembles:
   norm_dic[key]=table_ensembles[key]['means'][1]
+  print(key, norm_dic[key])
   
 with open('norm','wb') as fp:
   pickle.dump(norm_dic,fp)

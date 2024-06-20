@@ -121,7 +121,7 @@ for nt in nt_list:
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>3.5:
+                                    elif rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i]>3.5 and abs(duality_temp[i])>0.25:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])
@@ -133,7 +133,7 @@ for nt in nt_list:
                                     table_ensembles[key]['odds']+=1  
                                 table_ensembles[key]['configurations']+=1
                                 table_ensembles[key]['top-frac']+=np.array((abs(q_top-(inst+frac/2-ainst-afrac/2)),abs(q_top-(frac/2-afrac/2))))
-                                table_ensembles[key]['histo_dens'].append([conf_number,frac+afrac])
+                                table_ensembles[key]['histo_dens'].append([conf_number,frac,afrac,inst,ainst])
                             #End reading line of each identification file 
                             f.close()
                         #End if for identification file
@@ -151,10 +151,9 @@ for nt in nt_list:
                 oddity.append(table_ensembles[key]['odds'])
                 dens, error=jackknife.jackknife_for_primary(np.array((table_ensembles[key]['histo_dens'][:,1])), int(1))
                 f_dens=open("./counting/count_"+key+".txt","w")
-                f_dens.write(str(beta)+" "+str(nt)+" " + str(ls) + " "+str(table_ensembles[key]['odds'])+"\n")
-                f_dens.write(str(dens)+" " +str(error) +"\n")
+                f_dens.write("beta="+str(beta)+", ns="+str(nt)+", ls=" + str(ls) + ", dens="+str(dens)+", jack_error="+str(error)+", odds="+str(table_ensembles[key]['odds'])+"\n")
                 for element in table_ensembles[key]['histo_dens']:
-                    f_dens.write(str(element[0])+" "+str(element[1])+"\n")
+                    f_dens.write(str(element[0])+" "+str(element[1])+" "+str(element[2])+" "+str(element[3])+" "+str(element[4])+"\n")
                 f_dens.close()
             
                 histo=np.array((histo))
@@ -191,6 +190,7 @@ for nt in nt_list:
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
 with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
     pickle.dump(table_ensembles,fp)
+
 
 norm_dic={}
 #for key in table_ensembles:
