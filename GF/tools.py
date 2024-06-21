@@ -154,31 +154,6 @@ def local_q(density,sizes,i,j,R):
             q+=density[(i+ii-int(R/2))%sizes[0],(j+jj-int(R/2))%sizes[1]]
     return(q)
 
-
-def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
-
-    fractional=False
-    total=False
-    if density[i,j]<0:
-        try:
-            p_fit, p_cov=fit_inst(-density,[i,j],neigh,sizes)
-        except:
-            return(fractional,total,[0,0,0,0,0,0], [0])
-    elif density[i,j]>0:
-        try:
-            p_fit, p_cov=fit_inst(density,[i,j],neigh,sizes)  
-        except:
-            return(fractional,total,[0,0,0,0,0,0], [0])
-
-    Q=local_q(density,sizes,i,j,1)
-    S=local_q(density_en,sizes,i,j,1)
-
-    selfdual=8*np.pi*np.pi*Q/(1.0*S)
-    fractional=True
-    p_fit.append(density[i,j])
-    p_fit.append(selfdual)
-    return(fractional, total, p_fit, np.sum(np.sqrt(np.diag(p_cov))))
-
 def remove_duplicate(maxima):
     
     temp=[]
@@ -209,7 +184,6 @@ def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
         j=element[1]
         
         frac_q, total_q, pfit, pcov = condition(top,en,i,j,sizes,norm_frac,norm_inst,neigh)
-        #print(pfit)
         if frac_q:
             if top[i,j]>0:
                 #print(pfit.append(top[i,j]))
@@ -240,8 +214,67 @@ def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
         #if element[2][4]>0:
             #print("negative")
     return(inst, a_inst, frac, a_frac, t_frac, t_inst, total)
-                 
-                 
+
+
+def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
+
+    fractional=False
+    total=False
+    if density[i,j]<0:
+        try:
+            p_fit, pcov=fit_inst(-density,[i,j],neigh,sizes)
+        except:
+            return(fractional,total,[0,0,0,0,0,0], [0])
+    elif density[i,j]>0:
+        try:
+            p_fit, pcov=fit_inst(density,[i,j],neigh,sizes)  
+        except:
+            return(fractional,total,[0,0,0,0,0,0], [0])
+
+    print(fractional)
+    Q=local_q(density,sizes,i,j,1)
+    S=local_q(density_en,sizes,i,j,1)
+
+    selfdual=8*np.pi*np.pi*Q/(1.0*S)
+    fractional=True
+    p_fit.append(density[i,j])
+    p_fit.append(selfdual)
+    return(fractional, total, p_fit, pcov)
+
+
+def fit_inst(density_2d,maxima,neigh,sizes):
+    x=[]
+    y=[]
+    data=[]
+    for i in range(-neigh,neigh+1):
+        for j in range(-neigh,neigh+1):
+            #if i!=0 and j!=0:
+            x=(int(maxima[0])+i)%sizes[0]
+            y=(int(maxima[1])+j)%sizes[1]
+            data.append([x,y,np.log(density_2d[x,y])])
+    data=np.array(data)
+  
+    popt, pcov = curve_fit(inst, data[:,:2], data[:,2],
+      p0=[maxima[0],maxima[1],1,1])
+    
+    return(list(popt),np.sum(np.sqrt(np.diag(pcov))))
+
+#def inst(position,maxima_x,maxima_y,rho,norm):
+#    return(norm/(2*np.pi)*(rho**2/((position[:,0]-maxima_x)**2 +
+#                    (position[:,1]-maxima_y)**2+rho**2)**2))
+
+#def inst_plot(position,maxima_x,maxima_y,rho,norm):
+#    return(norm/(np.pi*rho**2)*(rho**2/((position[0]-maxima_x)**2 +
+#                    (position[1]-maxima_y)**2+rho**2))**4)
+
+def inst(position,maxima_x,maxima_y,rho,norm):
+    return(norm-1/rho**2*((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2))
+
+def inst_plot(position,maxima_x,maxima_y,rho,norm):
+    return(norm-np.sqrt((position[0]-maxima_x)**2 +
+                    (position[1]-maxima_y)**2)/rho**2)
+
 def find_max_2d(density,sizes):
     #Search for the maxima and minima of the density
     maxima=[]
@@ -294,38 +327,6 @@ def plot_dens_2d(file,density_2d,sizes,frac,inst):
 
     return()
 
-#def inst(position,maxima_x,maxima_y,rho,norm):
-#    return(norm/(2*np.pi)*(rho**2/((position[:,0]-maxima_x)**2 +
-#                    (position[:,1]-maxima_y)**2+rho**2)**2))
-
-#def inst_plot(position,maxima_x,maxima_y,rho,norm):
-#    return(norm/(np.pi*rho**2)*(rho**2/((position[0]-maxima_x)**2 +
-#                    (position[1]-maxima_y)**2+rho**2))**4)
-
-def inst(position,maxima_x,maxima_y,rho,norm):
-    return(norm-1/rho**2*((position[:,0]-maxima_x)**2 +
-                    (position[:,1]-maxima_y)**2))
-
-def inst_plot(position,maxima_x,maxima_y,rho,norm):
-    return(norm-np.sqrt((position[0]-maxima_x)**2 +
-                    (position[1]-maxima_y)**2)/rho**2)
-
-def fit_inst(density_2d,maxima,neigh,sizes):
-    x=[]
-    y=[]
-    data=[]
-    for i in range(-neigh,neigh+1):
-        for j in range(-neigh,neigh+1):
-            #if i!=0 and j!=0:
-            x=(int(maxima[0])+i)%sizes[0]
-            y=(int(maxima[1])+j)%sizes[1]
-            data.append([x,y,np.log(density_2d[x,y])])
-    data=np.array(data)
-    
-    popt, pcov = curve_fit(inst, data[:,:2], data[:,2],
-      p0=[maxima[0],maxima[1],1,1])
-    
-    return(list(popt),np.sum(np.sqrt(np.diag(pcov))))
 
 def compare_fit(list_old,list_new,cap):
     temp_list=list_old.copy()
