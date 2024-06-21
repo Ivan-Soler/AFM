@@ -40,9 +40,10 @@ count=0
 
 arclist=pd.read_pickle(directory+'dataprofile.pkl')
 flowtime=tau
+print(directory)
+print(flowtime)
 d=arclist[arclist['FlowTime'] == float(flowtime)]
-d.sort_values('ConfigNumber',inplace=True)
-
+d.sort_values('ConfigNumber')
 lt_height={
    "4":0.07,
    "5":0.05,

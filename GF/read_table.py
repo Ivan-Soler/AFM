@@ -1,7 +1,9 @@
 import pickle
+import pandas as pd
+import sys
+file=sys.argv[1]
 
-directory="/data/datatopoym/gbergner/pure_gauge_runs_with_twist/T2xR2_scan5/m-serv2/runns4nt104b2.6nr104/gf2/"
-with open(directory+"dataprofile.pkl", 'rb') as f:
-    data = pickle.load(f)
+with open(file, 'rb') as f:
+    data = pd.read_pickle(f)
 print(data)
     
