@@ -325,7 +325,7 @@ def fit_inst(density_2d,maxima,neigh,sizes):
     popt, pcov = curve_fit(inst, data[:,:2], data[:,2],
       p0=[maxima[0],maxima[1],1,1])
     
-    return(list(popt),list(pcov))
+    return(list(popt),np.sum(np.sqrt(np.diag(pcov))))
 
 def compare_fit(list_old,list_new,cap):
     temp_list=list_old.copy()

@@ -177,7 +177,7 @@ for nt in nt_list:
                     xrange=()
                     plot_histo(norm,bins,xlabel,figure)
 
-                    xrange=(0,0.02)
+                    #xrange=(0,0.02)
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="height"
                     plot_histo(height,bins,xlabel,figure,xrange)
@@ -189,6 +189,10 @@ for nt in nt_list:
                     figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="duality"
                     plot_histo(duality,bins,xlabel,figure)
+
+                    figure="./cov/cov_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="covariance"
+                    plot_histo(cov,bins,xlabel,figure)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
 #with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
