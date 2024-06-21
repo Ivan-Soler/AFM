@@ -177,7 +177,7 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
     fractional=True
     p_fit.append(density[i,j])
     p_fit.append(selfdual)
-    return(fractional, total, p_fit, np.sqrt(np.diag(pcov)))
+    return(fractional, total, p_fit, np.sum(np.sqrt(np.diag(p_cov))))
 
 def remove_duplicate(maxima):
     
