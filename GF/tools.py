@@ -231,7 +231,6 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
         except:
             return(fractional,total,[0,0,0,0,0,0], [0])
 
-    print(fractional)
     Q=local_q(density,sizes,i,j,1)
     S=local_q(density_en,sizes,i,j,1)
 
