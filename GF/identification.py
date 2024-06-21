@@ -96,7 +96,7 @@ for index,row in d.iterrows():
       S_en=density_2d_en.sum()
       f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
       str(len(inst)) + " " +str(len(a_inst))+ " " +
-      str(Q_top)) + " "+ str(S_en)
+      str(Q_top) + " "+ str(S_en))
       for element in t_frac:
           f.write( " "+ str(element[0])+ " "+str(element[1]))
           for fit in element[2]:
