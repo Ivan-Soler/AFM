@@ -93,9 +93,10 @@ for index,row in d.iterrows():
                                                                 norm_frac,norm_inst,neigh)
   
       Q_top=density_2d_top.sum()
+      S_en=density_2d_en.sum()
       f.write(str(conf)+" " + str(len(frac)) + " " +str(len(a_frac))+ " "+ 
       str(len(inst)) + " " +str(len(a_inst))+ " " +
-      str(Q_top))
+      str(Q_top)) + " "+ str(S_en)
       for element in t_frac:
           f.write( " "+ str(element[0])+ " "+str(element[1]))
           for fit in element[2]:
