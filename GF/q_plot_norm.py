@@ -74,6 +74,7 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
+t_list=["2","5", "10", "25", "50"]
 table_ensembles={}
 
 deltaq=[]
@@ -84,11 +85,12 @@ oddity=[]
 
 for nt in nt_list:
     for nr in nr_list:
+      for t in t_list:
         for beta in beta_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
-            key=nt+"nt"+nr+"nr"+beta+"b"
-            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
+            key=nt+"nt"+nr+"nr"+beta+"b"+t+"tau"
+            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls,"t":t, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
             #mean={}
             #height_mean={}
             #rho_mean={}
@@ -99,7 +101,7 @@ for nt in nt_list:
                 if check_folder(nt,nr,beta,folder):
                     x=os.listdir(folder)
                     for file_name in x:
-                        if "identification" in file_name:# and key in norm_dic:
+                        if "identification" in file_name and "nr"+t+"t" in file_name:# and key in norm_dic:
                             f=open(folder+"/"+file_name,"r")
                             for line in f:  
                                 splited=line.split()
@@ -177,26 +179,26 @@ for nt in nt_list:
     
                 if histograms:
                     bins=100
-                    figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="density"
                     xrange=[]
                     plot_histo(table_ensembles[key]['histo_dens'],bins,xlabel,figure,xrange)
 
-                    figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="norm"
                     xrange=[]
                     plot_histo(norm,bins,xlabel,figure,xrange)
 
                     xrange=[0,0.05]
-                    figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="height"
                     plot_histo(height,bins,xlabel,figure,xrange)
 
                     xrange=[]
-                    figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="rho"
                     plot_histo(rho,bins,xlabel,figure,xrange)
-                    figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="duality"
                     xrange=[]
                     plot_histo(duality,bins,xlabel,figure,xrange)
@@ -206,7 +208,7 @@ for nt in nt_list:
 
 norm_dic={}
 for key in table_ensembles:
-  norm_dic[key]=table_ensembles[key]['means'][3]
+  norm_dic[key]=table_ensembles[key]['means'][1]
 
 print(norm_dic)
 with open('norm','wb') as fp:

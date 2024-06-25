@@ -50,7 +50,7 @@ for file in  file_list:
                     deltaq_dicd[key]=[]
                 if deltaq_dic_temp[key]:
                     deltaq_dicd[key].append(deltaq_dic_temp[key][0])
-            
+print(deltaq_dic)           
 for key in deltaq_dic:
   deltaq_dic[key]=np.array((deltaq_dic[key]))
   deltaq_dic[key]=np.array((deltaq_dic[key][deltaq_dic[key][:,0].argsort()]))
@@ -59,8 +59,8 @@ for key in deltaq_dic:
 
 
 for key in deltaq_dic:
-      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,1],label="fractionals")
-      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,2],label="+ instantons")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,2],label="fractionals")
+      plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,1],label="+ instantons")
       plt.plot(deltaq_dic[key][:,0]/10,deltaq_dic[key][:,3],label="all fractionals")
       #plt.plot(n_list,deltaq_dicd[key],label=" Q=2 inst")
       plt.legend(loc="upper right")

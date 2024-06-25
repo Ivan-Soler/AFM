@@ -75,6 +75,7 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
+t_list=["2", "5", "10", "25", "50"]
 table_ensembles={}
 
 deltaq=[]
@@ -84,11 +85,12 @@ norm_dic=pickle.load(open('norm','rb'))
 
 for nt in nt_list:
     for nr in nr_list:
+      for t in t_list:
         for beta in beta_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
-            key=nt+"nt"+nr+"nr"+beta+"b"
-            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
+            key=nt+"nt"+nr+"nr"+beta+"b"+t+"tau"
+            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, "t":t, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
             #mean={}
             #height_mean={}
             #rho_mean={}
@@ -123,8 +125,8 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    #if rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+2*norm_scale) and abs(duality_temp[i])>0.25:
-                                    if rho_temp[i]>rho_min and rho_temp[i]<10 and abs(height_temp[i]) > norm_dic[key]*(1-norm_scale) and abs(height_temp[i])<norm_dic[key]*2 and norm_temp[i]>0.5:
+                                    if rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+norm_scale) and abs(duality_temp[i])>0.25:
+                                     #if rho_temp[i]>rho_min and rho_temp[i]<10 and abs(height_temp[i]) > norm_dic[key]*(1-norm_scale) and abs(height_temp[i])<2*norm_dic[key] and norm_temp[i]>0.5:
                                         histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
@@ -132,7 +134,8 @@ for nt in nt_list:
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>0.5 and rho_temp[i]<10 and height_temp[i]>norm_dic[key]*2:
+                                    #elif rho_temp[i]>rho_min and norm_temp[i]>0.5 and rho_temp[i]<10 and height_temp[i]>norm_dic[key]*2:
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_dic[key]*2:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])

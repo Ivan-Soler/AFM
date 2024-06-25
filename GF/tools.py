@@ -161,14 +161,14 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
     total=False
     if density[i,j]<0:
         try:
-            p_fit=fit_inst(-density,[i,j],neigh,sizes)
+            p_fit,pcov =fit_inst(-density,[i,j],neigh,sizes)
         except:
-            return(fractional,total,[0,0,0,0,0,0])
+            return(fractional,total,[0,0,0,0,0,0],[0])
     elif density[i,j]>0:
         try:
-            p_fit=fit_inst(density,[i,j],neigh,sizes)  
+            p_fit,pcov=fit_inst(density,[i,j],neigh,sizes)  
         except:
-            return(fractional,total,[0,0,0,0,0,0])
+            return(fractional,total,[0,0,0,0,0,0],[0])
 
     Q=local_q(density,sizes,i,j,1)
     S=local_q(density_en,sizes,i,j,1)
@@ -178,7 +178,7 @@ def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
     fractional=True
     p_fit.append(density[i,j])
     p_fit.append(selfdual)
-    return(fractional, total, p_fit)
+    return(fractional, total, p_fit,pcov)
 
 def remove_duplicate(maxima):
     
@@ -214,15 +214,15 @@ def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
         if frac_q:
             if top[i,j]>0:
                 #print(pfit.append(top[i,j]))
-                frac.append([i,j,pfit])
+                frac.append([i,j,pfit,pcov])
             else:
                 #print(pfit)
-                a_frac.append([i,j,pfit])
+                a_frac.append([i,j,pfit,pcov])
         if total_q:
             if top[i,j]>0:
-                inst.append([i,j,pfit])
+                inst.append([i,j,pfit,pcov])
             else:
-                a_inst.append([i,j,pfit])
+                a_inst.append([i,j,pfit,pcov])
     #print(frac)            
     frac=remove_duplicate(frac)
     a_frac=remove_duplicate(a_frac)
@@ -318,7 +318,7 @@ def fit_inst(density_2d,maxima,neigh,sizes):
     popt, pcov = curve_fit(inst, data[:,:2], data[:,2], 
                        p0=np.array((maxima[0],maxima[1],3.7,0.7)))
     
-    return(list(popt))
+    return(list(popt), np.sum(np.sqrt(np.diag(pcov))))
 
 def compare_fit(list_old,list_new,cap):
     temp_list=list_old.copy()
