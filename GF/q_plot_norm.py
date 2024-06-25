@@ -12,19 +12,21 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 8 and i>5:
+        if not (i-param-6) % 9 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
 
 def plot_histo(data,bins,xlabel,figure_name,xrange=()):
-    plt.hist(data,bins=100, density=True)
+    if xrange:
+      plt.hist(data,bins=100, range=xrange, density=True)
+    else:
+      plt.hist(data,bins=100, density=True)
     title="# points:" +str(len(data))
     plt.ylabel("frequency")
     plt.xlabel(xlabel)
     plt.title(title)
-    if xrange:
-        plt.xlim(xrange)
+
     plt.savefig(figure_name)
     plt.close()
 
@@ -103,7 +105,8 @@ for nt in nt_list:
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
-                                duality_temp=np.pi*extract_feature(line,8)
+                                duality_temp=extract_feature(line,8)
+                                cov_temp=extract_feature(line,9)
                                 
                                 
                                 frac=0
@@ -114,8 +117,8 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if True:# rho_temp[i]>rho_min and norm_temp[i] > 0.5 and norm_temp[i]<3:
-                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
+                                    if rho_temp[i]>rho_min and rho_temp[i]<rho_max:
+                                        histo.append([np.exp(norm_temp[i]),rho_temp[i],abs(height_temp[i]),duality_temp[i],cov_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
@@ -163,6 +166,8 @@ for nt in nt_list:
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
                 duality=np.array((histo[:,3]))
+                cov=np.array((histo[:,4]))
+                cov=np.nan_to_num(cov, copy=False, nan=0, posinf=0, neginf=0)
                 table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
                 table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
     
@@ -174,13 +179,12 @@ for nt in nt_list:
     
                     figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="norm"
-                    xrange=()
                     plot_histo(norm,bins,xlabel,figure)
 
                     #xrange=(0,0.02)
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="height"
-                    plot_histo(height,bins,xlabel,figure,xrange)
+                    plot_histo(height,bins,xlabel,figure)
     
                     figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="rho"
@@ -190,9 +194,10 @@ for nt in nt_list:
                     xlabel="duality"
                     plot_histo(duality,bins,xlabel,figure)
 
+                    xrange=(0,3)
                     figure="./cov/cov_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="covariance"
-                    plot_histo(cov,bins,xlabel,figure)
+                    plot_histo(cov,bins,xlabel,figure,xrange)
         
 #with open('scaling_'+str(norm_cut)+'.pkl','wb') as fp:
 #with open('scaling_s'+str(norm_scale)+'.pkl','wb') as fp:
@@ -200,7 +205,7 @@ for nt in nt_list:
 
 norm_dic={}
 for key in table_ensembles:
-  norm_dic[key]=table_ensembles[key]['means'][3]
+  norm_dic[key]=table_ensembles[key]['means'][1]
   print(key, norm_dic[key])
   
 with open('norm','wb') as fp:

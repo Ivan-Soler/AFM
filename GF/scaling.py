@@ -28,17 +28,19 @@ def mean_distance(table_ensembles):
   
   for key in table_ensembles:
     distance=[]
-    for conf in table_ensembles[key]['pos_frac']:
-      fractionals=np.vstack((table_ensembles[key]['pos_frac'][conf],table_ensembles[key]['pos_afrac'][conf]))
-      distance.append(nearest_distance(fractionals))
-      #distance.append(nearest_distance(table_ensembles[key]['pos_frac'][conf]))
-      #distance.append(nearest_distance(table_ensembles[key]['pos_afrac'][conf]))
+    for conf in table_ensembles[key]['pos_afrac']:
+      if table_ensembles[key]['pos_afrac'][conf] and table_ensembles[key]['pos_frac'][conf]:
+        fractionals=np.vstack((table_ensembles[key]['pos_frac'][conf],table_ensembles[key]['pos_afrac'][conf]))
+        distance.append(nearest_distance(fractionals))
+        
+        #distance.append(nearest_distance(table_ensembles[key]['pos_frac'][conf]))
+        #distance.append(nearest_distance(table_ensembles[key]['pos_afrac'][conf]))
     distance=np.array((distance))
     mean_distance=np.mean(distance)
     err_distance=np.std(distance)/np.sqrt(len(distance))
     table_ensembles[key]["means"]=np.hstack((table_ensembles[key]["means"],mean_distance))
     table_ensembles[key]["errors"]=np.hstack((table_ensembles[key]["errors"],0))
-    print(key, mean_distance)
+    #print(key, mean_distance)
     
   return table_ensembles
         
@@ -72,13 +74,18 @@ nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s0.3.pkl', "rb" ))
-scaling_med=pickle.load(open('scaling_s0.6.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s1.0.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.6.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s0.7.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s0.8.pkl', "rb" ))
 
-#scaling_min=mean_distance(scaling_min)
+for key in scaling_med:
+  print(key, len(scaling_med[key]["pos_afrac"]))
+  print(key, len(scaling_min[key]["pos_afrac"]))
+  print(key, len(scaling_max[key]["pos_afrac"]))
+  
+scaling_min=mean_distance(scaling_min)
 scaling_med=mean_distance(scaling_med)
-#scaling_max=mean_distance(scaling_max)
+scaling_max=mean_distance(scaling_max)
 
 table_ensembles=copy.deepcopy(scaling_med)
 
@@ -108,14 +115,14 @@ for key in table_ensembles:
                   abs(table_ensembles[key]["means"][1])/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["means"][2]*table_ensembles[key]["a"], #rho
                   abs(table_ensembles[key]["means"][3])/(table_ensembles[key]["a"]**2), #height
-                       table_ensembles[key]["means"][1],#norm
+                       table_ensembles[key]["means"][1]/(table_ensembles[key]["a"]**2),#norm
                         table_ensembles[key]["means"][4]*table_ensembles[key]["a"]]) #distance
 
         physical_errors.append([ls,nt,nr,table_ensembles[key]["errors"][0]/table_ensembles[key]["vol"], 
                   table_ensembles[key]["errors"][1]/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["errors"][2]*table_ensembles[key]["a"], #rho
                   table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2), #height
-                              table_ensembles[key]["errors"][1],#norm
+                              table_ensembles[key]["errors"][1]/(table_ensembles[key]["a"]**2),#norm
                                table_ensembles[key]["errors"][4]*table_ensembles[key]["a"]]) #distance
 
 #Sorting according to ls
@@ -128,7 +135,7 @@ plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)
 
 ylabel="height(fm^2)"
 plotname="scaling_height_fit.png"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 4)   
+plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 6)   
 
 ylabel="width(fm^2)"
 plotname="scaling_rho.png"

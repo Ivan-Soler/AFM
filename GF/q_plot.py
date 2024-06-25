@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 8 and i>5:
+        if not (i-param-6) % 9 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -54,7 +54,7 @@ for direct in lis_dir:
     if "runns" in direct:
         folders.append(direct)
 a={
-	"2.4":0.11630,
+	"2.4":0.11530,
 	"2.5":0.08194,
 	"2.6":0.05938,
 	"2.7":0.04337,
@@ -102,7 +102,7 @@ for nt in nt_list:
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
-                                duality_temp=np.pi*extract_feature(line,8)
+                                duality_temp=extract_feature(line,8)
                                 
                                 
                                 frac=0
@@ -113,21 +113,22 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>0.5 and abs(height_temp[i]) > norm_dic[key]*(1-norm_scale) and abs(height_temp[i])<norm_dic[key]*(1+norm_scale) and abs(duality_temp[i])>0.25:
-                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
+                                    if rho_temp[i]>rho_min and rho_temp[i]<rho_max:
+                                      if np.exp(norm_temp[i]) > norm_dic[key]*(1-norm_scale) and np.exp(norm_temp[i])<norm_dic[key]*(1+norm_scale):
+                                        histo.append([np.exp(norm_temp[i]),rho_temp[i],abs(height_temp[i]),duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                    elif rho_temp[i]>0.5 and norm_temp[i]>0.25 and abs(duality_temp[i])>0.25 and abs(height_temp[i])>2*norm_dic[key]:
-                                        if height_temp[i]>0:
-                                            inst+=1
-                                            #posi.append([x[i],y[i]])
-                                        elif height_temp[i]<0:
-                                            ainst+=1   
-                                            #posai.append([x[i],y[i]])
+                                      elif np.exp(norm_temp[i])>2*norm_dic[key]:
+                                          if height_temp[i]>0:
+                                              inst+=1
+                                              #posi.append([x[i],y[i]])
+                                          elif height_temp[i]<0:
+                                              ainst+=1   
+                                              #posai.append([x[i],y[i]])
                                             
                                 if (frac+afrac)%2:
                                     table_ensembles[key]['odds']+=1  
