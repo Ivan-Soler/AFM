@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 8 and i>5:
+        if not (i-param-5) % 9 and i>5:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -75,7 +75,9 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
-t_list=["2", "5", "10", "25", "50"]
+beta_list=["2.6"]
+t_list=["10","15","25","50"]
+#t_list=["5", "10", "25"]
 table_ensembles={}
 
 deltaq=[]
@@ -101,7 +103,7 @@ for nt in nt_list:
                 if check_folder(nt,nr,beta,folder):
                     x=os.listdir(folder)
                     for file_name in x:
-                        if "identification" in file_name and key in norm_dic:
+                        if "identification" in file_name and key in norm_dic and "nr"+t+"t" in file_name:
                             f=open(folder+"/"+file_name,"r")
                             for line in f:  
                                 splited=line.split()
@@ -115,7 +117,7 @@ for nt in nt_list:
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
                                 duality_temp=extract_feature(line,8)
-                                
+                                cov_temp=extract_feature(line,9)
                                 
                                 frac=0
                                 afrac=0
@@ -125,9 +127,9 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+norm_scale) and abs(duality_temp[i])>0.25:
+                                    if rho_temp[i]>rho_min and rho_temp[i]<10 and norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+norm_scale) and abs(duality_temp[i])>0.25 and cov_temp[i]<100:
                                      #if rho_temp[i]>rho_min and rho_temp[i]<10 and abs(height_temp[i]) > norm_dic[key]*(1-norm_scale) and abs(height_temp[i])<2*norm_dic[key] and norm_temp[i]>0.5:
-                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
+                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i],cov_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
@@ -135,7 +137,7 @@ for nt in nt_list:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
                                     #elif rho_temp[i]>rho_min and norm_temp[i]>0.5 and rho_temp[i]<10 and height_temp[i]>norm_dic[key]*2:
-                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_dic[key]*2:
+                                    elif rho_temp[i]>rho_min and norm_temp[i]>norm_dic[key]*2 and cov_temp[i]<100:
                                         if height_temp[i]>0:
                                             inst+=1
                                             #posi.append([x[i],y[i]])

@@ -61,15 +61,17 @@ def plot_scaling_flow(nr_list, nt_list, t_list, beta_list,physical, physical_err
     return 
   
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
-nr_list=["32", "45", "104"]
-nr_list=["64","45", "104"]
-t_list=["2", "5", "10", "25", "50"]
-beta_list=["2.6","2.7"]
+nr_list=["45", "64", "104"]
+beta_list=["2.4","2.5","2.6","2.7"]
+beta_list=["2.6"]
+t_list=["10","15","25","50"]
+
+
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s0.5.pkl', "rb" ))
-scaling_med=pickle.load(open('scaling_s0.5.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s0.5.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.8.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s0.85.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s0.9.pkl', "rb" ))
 
 #print(n)
 
@@ -111,6 +113,8 @@ for key in table_ensembles:
                   table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2), #height
                               table_ensembles[key]["errors"][1]])#norm
 
+for element in physical:
+  print(element[3], element[5])
 #Sorting according to ls
 physical = sorted(physical, key=lambda a_entry: a_entry[0]) 
 physical_errors = sorted(physical_errors, key=lambda a_entry: a_entry[0]) 
@@ -133,7 +137,11 @@ plot_scaling_flow(nr_list, nt_list, t_list, beta_list,physical, physical_errors,
 
 ylabel="width(1/fm^2)"
 plotname="scaling_rho.png"
-plot_scaling(nr_list, nt_list, t_list, physical, physical_errors, ylabel, plotname, 7)   
+plot_scaling(nr_list, nt_list, t_list, physical, physical_errors, ylabel, plotname, 7) 
+
+ylabel="density(1/fm^2)"
+plotname="scaling_rho_flow.pdf"
+plot_scaling_flow(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 7)  
 
 ylabel="norm"
 plotname="scaling_norm.png"

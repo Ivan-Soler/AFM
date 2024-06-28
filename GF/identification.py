@@ -100,7 +100,7 @@ for index,row in d.iterrows():
           f.write( " "+ str(element[0])+ " "+str(element[1]))
           for fit in element[2]:
               f.write( " " +str(fit))
-          f.write("" +str(element[3]))
+          f.write(" " +str(element[3]))
   
       f.write(" \n")
       os.remove(filen)

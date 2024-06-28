@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-5) % 8 and i>5:
+        if not (i-param-5) % 9 and i>5:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -25,8 +25,6 @@ def plot_histo(data,bins,xlabel,figure_name,xrange=[]):
       for element in data:
         if element>xrange[0] and element<xrange[1]:
           datafilt.append(element)
-          
-
     else:
       datafit=data
       plt.xlim(np.min(datafit),np.max(datafit))
@@ -74,7 +72,9 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
-t_list=["2","5", "10", "25", "50"]
+beta_list=["2.6"]
+t_list=["10","15","25","50"]
+#t_list=["3.52", "7.34", "15", "27.37"]
 table_ensembles={}
 
 deltaq=[]
@@ -115,7 +115,7 @@ for nt in nt_list:
                                 rho_temp=extract_feature(line, 5)
                                 height_temp=extract_feature(line,7)
                                 duality_temp=extract_feature(line,8)
-                                
+                                cov_temp=extract_feature(line,9)
                                 
                                 frac=0
                                 afrac=0
@@ -125,8 +125,8 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and norm_temp[i] > norm_min and norm_temp[i]<norm_max:
-                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i]])
+                                    if rho_temp[i]>rho_min and norm_temp[i] > norm_min and norm_temp[i]<norm_max and cov_temp[i]<3:
+                                        histo.append([norm_temp[i],rho_temp[i],height_temp[i],duality_temp[i],cov_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
@@ -174,8 +174,9 @@ for nt in nt_list:
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
                 duality=np.array((histo[:,3]))
-                table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(np.abs(height))))
-                table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
+                cov=np.array((histo[:,4]))
+                table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(np.abs(height)),np.mean(np.abs(cov))))
+                table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations']),np.std(cov)/np.sqrt(table_ensembles[key]['configurations'])))
     
                 if histograms:
                     bins=100
@@ -189,7 +190,11 @@ for nt in nt_list:
                     xrange=[]
                     plot_histo(norm,bins,xlabel,figure,xrange)
 
-                    xrange=[0,0.05]
+                    figure="./cov/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
+                    xlabel="cov"
+                    plot_histo(cov,bins,xlabel,figure,xrange)
+
+                    #xrange=[0,0.05]
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"tau"+str(t)+".png"
                     xlabel="height"
                     plot_histo(height,bins,xlabel,figure,xrange)
