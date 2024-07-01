@@ -44,7 +44,9 @@ def mean_distance(table_ensembles):
     
   return table_ensembles
         
-
+def rho_smooth(rho,ls):
+  return(rho*ls)
+  
 def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, feature):
     for nr in nr_list:
         for nt in nt_list:
@@ -60,6 +62,10 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
                     plot=True
             if plot:
                 plt.errorbar(x,data_plot, yerr=np.transpose(data_error), label=str(nt)+", "+str(nr), marker="o") 
+
+    x = np.linspace(0, 1, 1000)
+    y = rho_smooth(0.459196,x)
+    plt.plot(x,y)
     plt.legend(loc="upper right",ncol=2) 
     #plt.ylim(0.6,1.6)
     plt.xlabel("l_s(fm)")    
@@ -137,7 +143,7 @@ ylabel="height(fm^2)"
 plotname="scaling_height_fit.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 6)   
 
-ylabel="width(fm^2)"
+ylabel="width(fm)"
 plotname="scaling_rho.png"
 plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
 

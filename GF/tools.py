@@ -183,20 +183,20 @@ def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
         i=element[0]
         j=element[1]
         
-        frac_q, total_q, pfit, pcov = condition(top,en,i,j,sizes,norm_frac,norm_inst,neigh)
+        frac_q, total_q, ppol, pgaus = condition(top,en,i,j,sizes,norm_frac,norm_inst,neigh)
         if frac_q:
             if top[i,j]>0:
                 #print(pfit.append(top[i,j]))
-                frac.append([i,j,pfit,pcov])
+                frac.append([i,j,ppol,pgaus])
             else:
                 #print(pfit)
-                a_frac.append([i,j,pfit,pcov])
+                a_frac.append([i,j,ppol,pgaus])
         if total_q:
             if top[i,j]>0:
-                inst.append([i,j,pfit,pcov])
+                inst.append([i,j,ppol,pgaus])
             else:
-                a_inst.append([i,j,pfit,pcov])
-    #print(frac)            
+                a_inst.append([i,j,ppol,pgaus])
+           
     frac=remove_duplicate(frac)
     a_frac=remove_duplicate(a_frac)
     inst=remove_duplicate(inst)
@@ -205,43 +205,36 @@ def find_inst_2d(top,en,sizes,norm_frac,norm_inst,neigh):
     t_frac= a_frac + frac
     t_inst= inst + a_inst 
     total=t_frac+t_inst
-
-    #print(a_frac)
-    #for element in t_frac:
-        #print(element[2][4])
-        #if element[2][4]>0:
-            #print("positive")
-        #if element[2][4]>0:
-            #print("negative")
     return(inst, a_inst, frac, a_frac, t_frac, t_inst, total)
 
 
 def condition(density,density_en,i,j,sizes,norm_frac,norm_inst,neigh):
 
+    fit_function="Polynomial"
     fractional=False
     total=False
     if density[i,j]<0:
-        try:
-            p_fit, pcov=fit_inst(-density,[i,j],neigh,sizes)
-        except:
-            return(fractional,total,[0,0,0,0,0,0], [0])
+      ppol, pgauss =fit_inst(-density,[i,j],neigh,sizes,fit_function)
+            #return(fractional,total,[0,0,0,0,0,0], [0,0,0,0,0,0])
     elif density[i,j]>0:
-        try:
-            p_fit, pcov=fit_inst(density,[i,j],neigh,sizes)  
-        except:
-            return(fractional,total,[0,0,0,0,0,0], [0])
+      ppol, pgauss=fit_inst(density,[i,j],neigh,sizes,fit_function)  
+            #return(fractional,total,[0,0,0,0,0,0], [0,0,0,0,0,0])
 
     Q=local_q(density,sizes,i,j,1)
     S=local_q(density_en,sizes,i,j,1)
 
     selfdual=8*np.pi*np.pi*Q/(1.0*S)
     fractional=True
-    p_fit.append(density[i,j])
-    p_fit.append(selfdual)
-    return(fractional, total, p_fit, pcov)
+    ppol.append(density[i,j])
+    ppol.append(selfdual)
+
+    pgauss.append(density[i,j])
+    pgauss.append(selfdual)
+    
+    return(fractional, total, ppol, pgauss)
 
 
-def fit_inst(density_2d,maxima,neigh,sizes):
+def fit_inst(density_2d,maxima,neigh,sizes,fit_function):
     x=[]
     y=[]
     data=[]
@@ -250,30 +243,49 @@ def fit_inst(density_2d,maxima,neigh,sizes):
             #if i!=0 and j!=0:
             x=(int(maxima[0])+i)%sizes[0]
             y=(int(maxima[1])+j)%sizes[1]
-            data.append([x,y,np.log(density_2d[x,y])])
+            data.append([x,y,density_2d[x,y]])
     data=np.array(data)
-  
-    popt, pcov = curve_fit(inst, data[:,:2], data[:,2],
+
+    try:
+      popt_pol, pcov_pol = curve_fit(inst_pol, data[:,:2], data[:,2],
       p0=[maxima[0],maxima[1],1,1])
+      popt_pol=list(popt_pol)
+      popt_pol.append(np.sum(np.sqrt(np.diag(pcov_pol))))
+    except RuntimeError:
+      popt_pol=[0,0,0,0,10000000]
+    #for i in range(0,len(data)):
+      #data[i][2]=np.log(data[i][2])
+    try:
+      popt_gaus, pcov_gaus = curve_fit(inst_gauss, data[:,:2], data[:,2],
+      p0=[maxima[0],maxima[1],1,1])
+      popt_gaus=list(popt_gaus)
+      popt_gaus.append(np.sum(np.sqrt(np.diag(pcov_gaus))))
+    except RuntimeError:
+      popt_gaus=[0,0,0,0,1000000000]
+    #p0=[maxima[0],maxima[1],1,1])
     
-    return(list(popt),np.sum(np.sqrt(np.diag(pcov))))
+  
+    return(popt_pol,popt_gaus)
 
-#def inst(position,maxima_x,maxima_y,rho,norm):
-#    return(norm/(2*np.pi)*(rho**2/((position[:,0]-maxima_x)**2 +
-#                    (position[:,1]-maxima_y)**2+rho**2)**2))
+def inst_pol(position,maxima_x,maxima_y,rho,norm):
+    return(norm/(2*np.pi)*(rho**2/((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2+rho**2)**2))
 
-#def inst_plot(position,maxima_x,maxima_y,rho,norm):
-#    return(norm/(np.pi*rho**2)*(rho**2/((position[0]-maxima_x)**2 +
-#                    (position[1]-maxima_y)**2+rho**2))**4)
-
-def inst(position,maxima_x,maxima_y,rho,norm):
+def inst_gauss_log(position,maxima_x,maxima_y,rho,norm):
     return(norm-1/rho**2*((position[:,0]-maxima_x)**2 +
                     (position[:,1]-maxima_y)**2))
+def inst_gauss(position,maxima_x,maxima_y,rho,norm):
+    return(norm*np.exp(-1/rho**2*((position[:,0]-maxima_x)**2 +
+                    (position[:,1]-maxima_y)**2)))
 
-def inst_plot(position,maxima_x,maxima_y,rho,norm):
-    return(norm-np.sqrt((position[0]-maxima_x)**2 +
-                    (position[1]-maxima_y)**2)/rho**2)
+def inst_plot_pol(position,maxima_x,maxima_y,rho,norm):
+    return(norm/(2*np.pi)*(rho**2/((position[0]-maxima_x)**2 +
+                    (position[1]-maxima_y)**2+rho**2)**2))
 
+def inst_plot_gauss(position,maxima_x,maxima_y,rho,norm):
+    return(norm*np.exp(-1/rho**2*((position[0]-maxima_x)**2 +
+                    (position[1]-maxima_y)**2)))
+  
 def find_max_2d(density,sizes):
     #Search for the maxima and minima of the density
     maxima=[]
@@ -377,3 +389,40 @@ def plot_inst(sizes,popt,directory,file,col,sign,ax="None"):
     ax.set_ylim([-0.15,0.15])
     ax.plot(x,data_plot_1d, color=col)
     return(ax)
+
+def plot_fit(density_2d_top,sizes,ppol,pgaus, directory, file, maxy):
+
+  plt.xlabel("x")
+  plt.ylabel("q(x)")
+
+  data_plot=np.zeros((sizes[0],sizes[1]))
+  for i in range(0,sizes[0]):
+    for j in range(0,sizes[1]):
+      data_plot[i,j]=inst_plot_pol([i,j],ppol[0],ppol[1],ppol[2],ppol[3])
+  data_plot_1d=data_plot[:,maxy]
+  plt.plot(data_plot_1d, color="green", 
+           label="Instanton")
+
+  data_plot=np.zeros((sizes[0],sizes[1]))
+  for i in range(0,sizes[0]):
+    for j in range(0,sizes[1]):
+      data_plot[i,j]=inst_plot_gauss([i,j],pgaus[0],pgaus[1],pgaus[2],pgaus[3])
+  data_plot_1d=data_plot[:,maxy]
+  plt.plot(data_plot_1d, color="blue", 
+           label="Gaussian")
+
+  density_1d=density_2d_top[:,maxy]
+  plt.plot(density_1d, color="purple", label="Data")
+  plt.legend(loc="upper right")
+  plt.savefig(directory+file, dpi=150)
+  plt.show()
+
+  return
+
+
+
+
+
+
+
+
