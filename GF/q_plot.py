@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-6) % 9 and i>6:
+        if not (i-param-6) % 16 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -78,7 +78,7 @@ for nt in nt_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
             key=nt+"nt"+nr+"nr"+beta+"b"
-            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
+            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
             #mean={}
             #height_mean={}
             #rho_mean={}
@@ -101,8 +101,9 @@ for nt in nt_list:
                                 q_top=float(splited[5])
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
-                                height_temp=extract_feature(line,7)
-                                duality_temp=extract_feature(line,8)
+                                height_temp=extract_feature(line,8)
+                                duality_temp=extract_feature(line,9)
+                                cov_temp=extract_feature(line,7)
                                 
                                 
                                 frac=0
@@ -114,15 +115,22 @@ for nt in nt_list:
 
                                 for i in range(0,len(height_temp)):
                                     if rho_temp[i]>rho_min and rho_temp[i]<rho_max:
-                                      if np.exp(norm_temp[i]) > norm_dic[key]*(1-norm_scale) and np.exp(norm_temp[i])<norm_dic[key]*(1+norm_scale):
-                                        histo.append([np.exp(norm_temp[i]),rho_temp[i],abs(height_temp[i]),duality_temp[i]])
+                                      if norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+norm_scale):
+                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
                                         elif height_temp[i]<0:
                                             afrac+=1   
                                             table_ensembles[key]['pos_afrac'][conf_number].append([x[i],y[i]])
-                                      elif np.exp(norm_temp[i])>2*norm_dic[key]:
+                                      elif norm_temp[i]>4*norm_dic[key]:
+                                          if height_temp[i]>0:
+                                              dinst+=1
+                                              #posi.append([x[i],y[i]])
+                                          elif height_temp[i]<0:
+                                              dainst+=1   
+                                              #posai.append([x[i],y[i]])
+                                      elif norm_temp[i]>2*norm_dic[key] and norm_temp[i]<4*norm_dic[key]:
                                           if height_temp[i]>0:
                                               inst+=1
                                               #posi.append([x[i],y[i]])
@@ -133,8 +141,8 @@ for nt in nt_list:
                                 if (frac+afrac)%2:
                                     table_ensembles[key]['odds']+=1  
                                 table_ensembles[key]['configurations']+=1
-                                table_ensembles[key]['top-frac']+=np.array((abs(q_top-(inst+frac/2-ainst-afrac/2)),abs(q_top-(frac/2-afrac/2))))
-                                table_ensembles[key]['histo_dens'].append([conf_number,frac,afrac,inst,ainst])
+                                table_ensembles[key]['top-frac']+=np.array((abs(q_top-(inst+frac/2-ainst-afrac/2)),abs(q_top-(frac/2-afrac/2)),abs(q_top-(2*dinst+inst+frac/2-2*dainst-ainst-afrac/2))))
+                                table_ensembles[key]['histo_dens'].append([conf_number,frac+afrac,frac,afrac,inst+ainst,inst,ainst])
                             #End reading line of each identification file 
                             f.close()
                         #End if for identification file

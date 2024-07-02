@@ -44,10 +44,11 @@ def mean_distance(table_ensembles):
     
   return table_ensembles
         
-def rho_smooth(rho,ls):
-  return(rho*ls)
+def rho_smooth(a,b,x):
+  return(a+b*x)
   
-def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, feature):
+def plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, feature):
+
     for nr in nr_list:
         for nt in nt_list:
             data_plot=[]
@@ -55,7 +56,7 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
             x=[]
             plot=False
             for i in range(0,len(physical)):
-                if physical[i][1]==nt and physical[i][2]==nr and physical[i][0]>0.2:
+                if physical[i][1]==nt and physical[i][2]==nr:
                     data_plot.append(physical[i][feature])
                     data_error.append(physical_errors[i][feature])
                     x.append(physical[i][0])
@@ -63,9 +64,7 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
             if plot:
                 plt.errorbar(x,data_plot, yerr=np.transpose(data_error), label=str(nt)+", "+str(nr), marker="o") 
 
-    x = np.linspace(0, 1, 1000)
-    y = rho_smooth(0.459196,x)
-    plt.plot(x,y)
+
     plt.legend(loc="upper right",ncol=2) 
     #plt.ylim(0.6,1.6)
     plt.xlabel("l_s(fm)")    
@@ -74,15 +73,45 @@ def plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 
     plt.close()
 
     return 
+  
+def plot_scaling_N(nr_list, nt_list, physical, physical_errors, ylabel, plotname, feature):
 
+    for nr in nr_list:
+        for nt in nt_list:
+            data_plot=[]
+            data_error=[]
+            x=[]
+            plot=False
+            for i in range(0,len(physical)):
+                if physical[i][1]==nt and physical[i][2]==nr:
+                    a=float(physical[i][0])/float(physical[i][1])
+                    data_plot.append(physical[i][feature]/a)
+                    data_error.append(physical_errors[i][feature]/a)
+                    x.append(int(physical[i][1]))
+                    plot=True
+            if plot:
+                plt.errorbar(x,data_plot, yerr=np.transpose(data_error), label=str(nt)+", "+str(nr), marker="o") 
+
+    x = np.linspace(0, 20, 1000)
+    y=rho_smooth(-0.243684,0.44703,x)
+    plt.plot(x,y, label="Smooth", color="black")
+    plt.legend(loc="upper right",ncol=2) 
+    #plt.ylim(0.6,1.6)  
+    plt.xlabel("N_s")  
+    plt.ylabel(ylabel)
+    plt.savefig(plotname)
+    plt.close()
+
+    return 
+  
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["32", "45", "104"]
 nr_list=["64","45", "104"]
 #scaling_n3=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
 #scaling_n8=pickle.load(open('scaling_'+str(n)+'.pkl', "rb" ))
-scaling_min=pickle.load(open('scaling_s0.6.pkl', "rb" ))
-scaling_med=pickle.load(open('scaling_s0.7.pkl', "rb" ))
-scaling_max=pickle.load(open('scaling_s0.8.pkl', "rb" ))
+scaling_min=pickle.load(open('scaling_s0.7.pkl', "rb" ))
+scaling_med=pickle.load(open('scaling_s0.8.pkl', "rb" ))
+scaling_max=pickle.load(open('scaling_s0.9.pkl', "rb" ))
 
 for key in scaling_med:
   print(key, len(scaling_med[key]["pos_afrac"]))
@@ -137,23 +166,27 @@ physical_errors = sorted(physical_errors, key=lambda a_entry: a_entry[0])
 
 ylabel="density(1/fm^2)"
 plotname="scaling_dens.pdf"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)  
+plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 3)  
 
 ylabel="height(fm^2)"
 plotname="scaling_height_fit.png"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 6)   
+plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 6)   
 
 ylabel="width(fm)"
 plotname="scaling_rho.png"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
+plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
 
-ylabel="norm"
+ylabel="width"
+plotname="scaling_rho_N.png"
+plot_scaling_N(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 5)   
+
+ylabel="norm(fm^2)"
 plotname="scaling_norm.png"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 7)   
+plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 7)   
 
 ylabel="distance (fm)"
 plotname="scaling_distance.png"
-plot_scaling(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 8)   
+plot_scaling_ls(nr_list, nt_list, physical, physical_errors, ylabel, plotname, 8)   
 
 
 

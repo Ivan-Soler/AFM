@@ -12,7 +12,7 @@ def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-6) % 9 and i>6:
+        if not (i-param-6) % 16 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -44,11 +44,9 @@ def check_folder(nt,nr,beta,folder):
         
 rho_min=float(sys.argv[1])
 rho_max=float(sys.argv[2])
-norm_scale=float(sys.argv[3])
-print(norm_scale)
-#norm_min=float(sys.argv[3])
-#norm_max=int(sys.argv[4])
-histograms=bool(int(sys.argv[4]))
+norm_min=float(sys.argv[3])
+norm_max=float(sys.argv[4])
+histograms=bool(int(sys.argv[5]))
 lis_dir=os.listdir("./")
 folders=[]
 
@@ -104,9 +102,9 @@ for nt in nt_list:
                                 q_top=float(splited[5])
                                 norm_temp=extract_feature(line, 6)
                                 rho_temp=extract_feature(line, 5)
-                                height_temp=extract_feature(line,7)
-                                duality_temp=extract_feature(line,8)
-                                cov_temp=extract_feature(line,9)
+                                height_temp=extract_feature(line,8)
+                                duality_temp=extract_feature(line,9)
+                                cov_temp=extract_feature(line,7)
                                 
                                 
                                 frac=0
@@ -117,8 +115,8 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and rho_temp[i]<rho_max:
-                                        histo.append([np.exp(norm_temp[i]),rho_temp[i],abs(height_temp[i]),duality_temp[i],cov_temp[i]])
+                                    if rho_temp[i]>rho_min and rho_temp[i]<rho_max and norm_temp[i]>norm_min and norm_temp[i]<norm_max and cov_temp[i]<1000:
+                                        histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i],cov_temp[i]])
                                         if height_temp[i]>0:
                                             frac+=1
                                             table_ensembles[key]['pos_frac'][conf_number].append([x[i],y[i]])
@@ -137,7 +135,7 @@ for nt in nt_list:
                                     table_ensembles[key]['odds']+=1  
                                 table_ensembles[key]['configurations']+=1
                                 table_ensembles[key]['top-frac']+=np.array((abs(q_top-(inst+frac/2-ainst-afrac/2)),abs(q_top-(frac/2-afrac/2))))
-                                table_ensembles[key]['histo_dens'].append([conf_number,frac+afrac])
+                                table_ensembles[key]['histo_dens'].append([conf_number,frac+afrac,inst+ainst])
                             #End reading line of each identification file 
                             f.close()
                         #End if for identification file
@@ -173,9 +171,14 @@ for nt in nt_list:
     
                 if histograms:
                     bins=100
-                    figure="./density_hist/hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xrange=(-100,100)
+                    figure="./fractionals/frac_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="density"
-                    plot_histo(table_ensembles[key]['histo_dens'],bins,xlabel,figure)
+                    plot_histo(table_ensembles[key]['histo_dens'][1],bins,xlabel,figure)
+
+                    figure="./instantons/inst_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    xlabel="density"
+                    plot_histo(table_ensembles[key]['histo_dens'][2],bins,xlabel,figure)
     
                     figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
                     xlabel="norm"
