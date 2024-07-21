@@ -11,8 +11,9 @@ import jackknife
 def extract_feature(line, param):
     splitted=line.split(" ")
     feature=[]
+    mode=0
     for i in range(0,len(splitted)):
-        if not (i-param-6) % 16 and i>6:
+        if not (i-(param+mode)-6) % 16 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -65,6 +66,8 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
+t_list=["10","15","25","35","50"]
+t_list=["3.52", "7.34", "15", "27.37", "47.84"]
 table_ensembles={}
 
 deltaq=[]
@@ -74,11 +77,12 @@ norm_dic=pickle.load(open('norm','rb'))
 
 for nt in nt_list:
     for nr in nr_list:
+      for t in t_list:
         for beta in beta_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
-            key=nt+"nt"+nr+"nr"+beta+"b"
-            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
+            key=nt+"nt"+nr+"nr"+beta+"b"+t+"tau"
+            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, "t":t,'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
             #mean={}
             #height_mean={}
             #rho_mean={}
@@ -89,11 +93,12 @@ for nt in nt_list:
                 if check_folder(nt,nr,beta,folder):
                     x=os.listdir(folder)
                     for file_name in x:
-                        if "identification" in file_name and key in norm_dic:
+                        if "identification" in file_name and key in norm_dic and "nr"+t+"t" in file_name:
                             f=open(folder+"/"+file_name,"r")
                             for line in f:  
                                 splited=line.split()
                                 conf_number=int(splited[0])
+                                #conf_number=int(re.search(r"dt(.*?(?=c))",splited[0]).group().replace("dt",""))
                                 table_ensembles[key]['pos_frac'][conf_number]=[]
                                 table_ensembles[key]['pos_afrac'][conf_number]=[]
                                 x=extract_feature(line, 1)
@@ -114,7 +119,7 @@ for nt in nt_list:
                                 dainst=0
 
                                 for i in range(0,len(height_temp)):
-                                    if rho_temp[i]>rho_min and rho_temp[i]<rho_max:
+                                    if rho_temp[i]>rho_min: #and rho_temp[i]<rho_max:
                                       if norm_temp[i] > norm_dic[key]*(1-norm_scale) and norm_temp[i]<norm_dic[key]*(1+norm_scale):
                                         histo.append([norm_temp[i],rho_temp[i],abs(height_temp[i]),duality_temp[i]])
                                         if height_temp[i]>0:
@@ -170,6 +175,10 @@ for nt in nt_list:
                 rho=np.array((histo[:,1]))
                 height=np.array((histo[:,2]))
                 duality=np.array((histo[:,3]))
+                table_ensembles[key]['norm']=np.array((norm))
+                table_ensembles[key]['rho']=np.array((norm))
+                table_ensembles[key]['height']=np.array((norm))
+                table_ensembles[key]['duality']=np.array((norm))
                 table_ensembles[key]['means']=np.array((dens,np.mean(norm),np.mean(rho),np.mean(height)))
                 table_ensembles[key]['errors']=np.array((error,np.std(norm)/np.sqrt(table_ensembles[key]['configurations']),np.std(rho)/np.sqrt(table_ensembles[key]['configurations']),np.std(height)/np.sqrt(table_ensembles[key]['configurations'])))
     

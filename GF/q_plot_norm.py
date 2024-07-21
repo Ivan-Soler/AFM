@@ -9,10 +9,11 @@ import pickle
 import jackknife
 
 def extract_feature(line, param):
+    mode=0
     splitted=line.split(" ")
     feature=[]
     for i in range(0,len(splitted)):
-        if not (i-param-6) % 16 and i>6:
+        if not (i-(param+mode)-6) % 16 and i>6:
             if splitted[i] != ' ' and splitted[i] != '\n':
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
@@ -41,7 +42,9 @@ def check_folder(nt,nr,beta,folder):
         return(True)
     else:
         return(False)
-        
+
+
+
 rho_min=float(sys.argv[1])
 rho_max=float(sys.argv[2])
 norm_min=float(sys.argv[3])
@@ -65,6 +68,8 @@ a={
 nt_list=["4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]
 nr_list=["45", "64", "104"]
 beta_list=["2.4","2.5","2.6","2.7"]
+t_list=["10","15","25","35","50"]
+t_list=["3.52", "7.34", "15", "27.37", "47.84"]
 table_ensembles={}
 
 deltaq=[]
@@ -75,11 +80,12 @@ oddity=[]
 
 for nt in nt_list:
     for nr in nr_list:
+      for t in t_list:
         for beta in beta_list:
             ls=a[beta]*int(nt)
             vol=a[beta]*a[beta]*int(nr)*int(nr)
-            key=nt+"nt"+nr+"nr"+beta+"b"
-            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, 'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
+            key=nt+"nt"+nr+"nr"+beta+"b"+t+"tau"
+            table_ensembles[key]={'beta':beta, 'a':a[beta],'ls':ls,'lt':ls, "t":t,'nr':nr, 'nt':nt, 'vol':vol, 'configurations':0, 'top Charge':0, 'fractionals':0, 'anti_fractionals':0, 'odds':0, 'top-frac':np.array((0,0),dtype=float), 'means':[0,0,0,0], 'erros':[0,0,0,0],'histo_dens':[],'pos_frac':{}, 'pos_afrac':{}}
             #mean={}
             #height_mean={}
             #rho_mean={}
@@ -90,11 +96,12 @@ for nt in nt_list:
                 if check_folder(nt,nr,beta,folder):
                     x=os.listdir(folder)
                     for file_name in x:
-                        if "identification" in file_name:# and key in norm_dic:
+                        if "identification" in file_name and "nr"+t+"t" in file_name:# and key in norm_dic:
                             f=open(folder+"/"+file_name,"r")
                             for line in f:  
                                 splited=line.split()
                                 conf_number=int(splited[0])
+                                #conf_number=int(re.search(r"dt(.*?(?=c))",splited[0]).group().replace("dt",""))
                                 table_ensembles[key]['pos_frac'][conf_number]=[]
                                 table_ensembles[key]['pos_afrac'][conf_number]=[]
                                 x=extract_feature(line, 1)
@@ -172,33 +179,33 @@ for nt in nt_list:
                 if histograms:
                     bins=100
                     xrange=(-100,100)
-                    figure="./fractionals/frac_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./fractionals/frac_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="density"
                     plot_histo(table_ensembles[key]['histo_dens'][1],bins,xlabel,figure)
 
-                    figure="./instantons/inst_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./instantons/inst_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="density"
                     plot_histo(table_ensembles[key]['histo_dens'][2],bins,xlabel,figure)
     
-                    figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="norm"
                     plot_histo(norm,bins,xlabel,figure)
 
                     #xrange=(0,0.02)
-                    figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="height"
                     plot_histo(height,bins,xlabel,figure)
     
-                    figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./rho_hist/rho_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="rho"
                     plot_histo(rho,bins,xlabel,figure)
 
-                    figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./duality/duality_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="duality"
                     plot_histo(duality,bins,xlabel,figure)
 
                     xrange=(0,3)
-                    figure="./cov/cov_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+".png"
+                    figure="./cov/cov_his_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="covariance"
                     plot_histo(cov,bins,xlabel,figure,xrange)
         

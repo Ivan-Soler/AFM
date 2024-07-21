@@ -126,23 +126,38 @@ def projection_2d(density,sizes):
             continue
         if sizes[i]<small_sizes[1]:
             small_sizes[1]=sizes[i]
-    
-    #Then the index of the smaller directions are computed
     index_small=[0,0]
     if small_sizes[0]==small_sizes[1]:
         index_small=np.where(sizes==small_sizes[0])[0]
     else:
         index_small[0]=np.where(sizes==small_sizes[0])[0]
         index_small[1]=np.where(sizes==small_sizes[1])[0]
-
-    #The density is integrated over the small directions
-    #print("\n")
-    #print(density[0])
     density_2d=density.sum(axis=(index_small[0],index_small[1]))
-    
-    #Only the big directions are returned
     sizes_big=np.delete(sizes,index_small)
     
+    return(density_2d,sizes_big,index_small)
+
+def projection_2d_T2(density,sizes,maxima):
+
+    #First checks which are the sizes of the smaller directions
+    small_sizes=[0,0]
+    for i in range(0,len(sizes)):
+        if sizes[i]>small_sizes[0]:
+            small_sizes[1]=small_sizes[0]
+            small_sizes[0]=sizes[i]
+            continue
+        if sizes[i]>small_sizes[1]:
+            small_sizes[1]=sizes[i]
+    index_small=[0,0]
+    if small_sizes[0]==small_sizes[1]:
+        index_small=np.where(sizes==small_sizes[0])[0]
+    else:
+        index_small[0]=np.where(sizes==small_sizes[0])[0]
+        index_small[1]=np.where(sizes==small_sizes[1])[0]
+    density_2d=density[:,:,maxima[0],maxima[1]]
+    #density_2d=density.sum(axis=(index_small[0],index_small[1]))
+    sizes_big=np.delete(sizes,index_small)
+
     return(density_2d,sizes_big,index_small)
 
 def local_q(density,sizes,i,j,R):
@@ -302,21 +317,32 @@ def find_max_2d(density,sizes):
 
 def plot_dens_2d(file,density_2d,sizes,frac,inst):
 
-    fig = plt.figure(tight_layout=True,figsize=(10,10))
-    ax1 = fig.add_subplot(2, 1, 1, projection="3d") 
+    fig = plt.figure(tight_layout=True,figsize=(6,3))
+    ax1 = fig.add_subplot(1, 2, 1, projection="3d")
     X = np.arange(0,sizes[0])
     Y = np.arange(0,sizes[1])
     X, Y = np.meshgrid(X, Y)
     
     #ax1.set_zlim([-0.08,0.08])
 
-    surf = ax1.plot_surface(X, Y,density_2d, rstride=1, cstride=1,
+    ax1.set_xlabel('\n $X^0$')
+    ax1.set_ylabel('\n$X^1$')
+    #ax1.set_zlabel('\n$q(x)$')
+    ax1.set_title('$q(x)\cdot10e^{-2}$')
+
+    #ax1.ticklabel_format(axis='z', style='sci', scilimits=(0,0))
+    ax1.get_zaxis().get_offset_text().set_position((100,100))
+    print([s.get_text() for s in ax1.get_xmajorticklabels()])
+    surf = ax1.plot_surface(X, Y, 100*density_2d, rstride=1, cstride=1,
                     cmap="viridis", edgecolor='none')
-    ax1.set_title(file);
+    #ax1.set_title(file);
     
-    ax2 = fig.add_subplot(2, 1, 2) 
+
+    ax2 = fig.add_subplot(1, 2, 2)
+    ax2.set_xlabel('$X^0$')
+    ax2.set_ylabel('$X^1$')
     ax2.set_aspect("equal")
-    ax2.contourf(X, Y, density_2d, cmap = "viridis")
+    ax2.contourf(X, Y, 100*density_2d, cmap = "viridis")
     
     x=[]
     y=[]
@@ -333,11 +359,39 @@ def plot_dens_2d(file,density_2d,sizes,frac,inst):
     ax2.scatter(y,x,color="black")
     
     plt.savefig(file.replace(".dat",".png"))
-    
+    plt.show()
     plt.close(fig)
 
     return()
 
+def plot_dens_cont(file,density_2d,sizes,frac,inst):
+
+    X = np.arange(0,sizes[0])
+    Y = np.arange(0,sizes[1])
+    X, Y = np.meshgrid(X, Y)
+
+    #plt.contourf(X, Y, density_2d, cmap = "viridis")
+
+    #plt.savefig(file.replace(".dat",".png"))
+
+
+    fig1, ax2 = plt.subplots(layout='constrained')
+    CS = ax2.contourf(X, Y, density_2d, 10)
+    #CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r')
+
+    ax2.set_title('64x64x10x10')
+    ax2.set_xlabel('$X^2$')
+    ax2.set_ylabel('$X^3$')
+
+    # Make a colorbar for the ContourSet returned by the contourf call.
+    cbar = fig1.colorbar(CS)
+    #cbar.ax.set_ylabel('verbosity coefficient')
+    # Add the contour line levels to the colorbar
+    #cbar.add_lines(CS2)
+
+    plt.savefig(file.replace(".dat",".png"))
+
+    return()
 
 def compare_fit(list_old,list_new,cap):
     temp_list=list_old.copy()
@@ -392,8 +446,8 @@ def plot_inst(sizes,popt,directory,file,col,sign,ax="None"):
 
 def plot_fit(density_2d_top,sizes,ppol,pgaus, directory, file, maxy):
 
-  plt.xlabel("x")
-  plt.ylabel("q(x)")
+  plt.xlabel("$x^0$")
+  plt.ylabel("$q(x)$")
 
   data_plot=np.zeros((sizes[0],sizes[1]))
   for i in range(0,sizes[0]):
@@ -408,14 +462,15 @@ def plot_fit(density_2d_top,sizes,ppol,pgaus, directory, file, maxy):
     for j in range(0,sizes[1]):
       data_plot[i,j]=inst_plot_gauss([i,j],pgaus[0],pgaus[1],pgaus[2],pgaus[3])
   data_plot_1d=data_plot[:,maxy]
-  plt.plot(data_plot_1d, color="blue", 
+  plt.plot(data_plot_1d, color="red",
            label="Gaussian")
 
   density_1d=density_2d_top[:,maxy]
-  plt.plot(density_1d, color="purple", label="Data")
-  plt.legend(loc="upper right")
-  plt.savefig(directory+file, dpi=150)
-  plt.show()
+  plt.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+  plt.plot(density_1d, color="blue", label="Data")
+  plt.legend(ncol=3,loc='upper right', bbox_to_anchor=(1.25, 1.35))
+  plt.savefig(directory+file, dpi=800, bbox_inches='tight')
+  #plt.show()
 
   return
 
