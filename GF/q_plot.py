@@ -18,15 +18,25 @@ def extract_feature(line, param):
                 feature.append(float(splitted[i]))
     return(np.array((feature)))
 
+
 def plot_histo(data,bins,xlabel,figure_name,xrange=()):
-    plt.hist(data,bins=100, density=True)
-    title="# points:" +str(len(data))
-    plt.ylabel("frequency")
-    plt.xlabel(xlabel)
-    plt.title(title)
+    plt.rcParams.update({'font.size': 18})
+  
     if xrange:
-        plt.xlim(xrange)
-    plt.savefig(figure_name)
+      plt.hist(data,bins=100, range=xrange, density=True)
+    else:
+      plt.hist(data,bins=100, density=True)
+    
+    xs = np.linspace(0.2,8,200)
+    #plt.vlines(x=[0.5,0.75], ymin=0, ymax=8, colors='black', ls='--', lw=2)
+
+    #title="# points:" +str(len(data))
+    #plt.axis._axinfo['label']['space_factor'] = 2.8
+    plt.ylabel("Frequency \n")
+    plt.xlabel(xlabel)
+    #plt.title(title)
+
+    plt.savefig(figure_name,dpi=800, bbox_inches='tight')
     plt.close()
 
     return 

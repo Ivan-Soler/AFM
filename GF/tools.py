@@ -318,29 +318,37 @@ def find_max_2d(density,sizes):
 def plot_dens_2d(file,density_2d,sizes,frac,inst):
 
     fig = plt.figure(tight_layout=True,figsize=(6,3))
-    ax1 = fig.add_subplot(1, 2, 1, projection="3d")
+    ax1 = fig.add_subplot(1, 1, 1, projection="3d")
     X = np.arange(0,sizes[0])
     Y = np.arange(0,sizes[1])
     X, Y = np.meshgrid(X, Y)
     
     #ax1.set_zlim([-0.08,0.08])
 
-    ax1.set_xlabel('\n $X^0$')
+    ax1.set_xlabel('\n$X^0$')
     ax1.set_ylabel('\n$X^1$')
-    #ax1.set_zlabel('\n$q(x)$')
-    ax1.set_title('$q(x)\cdot10e^{-2}$')
+    #ax1.set_zlabel('$q(x)\cdot10^{-2}$')
+    ax1.set_title('$q(x)\cdot10^{-2}$')
 
+    #ax1.view_init(20, 35)
+  
+    #ax1.xaxis._axinfo['label']['space_factor'] = 2.8
     #ax1.ticklabel_format(axis='z', style='sci', scilimits=(0,0))
-    ax1.get_zaxis().get_offset_text().set_position((100,100))
-    print([s.get_text() for s in ax1.get_xmajorticklabels()])
+    #ax1.get_zaxis().get_offset_text().set_position((0,0))
+    #print([s.get_text() for s in ax1.get_xmajorticklabels()])
     surf = ax1.plot_surface(X, Y, 100*density_2d, rstride=1, cstride=1,
                     cmap="viridis", edgecolor='none')
     #ax1.set_title(file);
+    plt.savefig(file.replace(".dat","3d.png"),dpi=800, bbox_inches='tight')
+    plt.show()
+    plt.close(fig)
     
-
-    ax2 = fig.add_subplot(1, 2, 2)
+    fig = plt.figure(tight_layout=True,figsize=(6,3))
+    ax2 = fig.add_subplot(1, 1, 1)
     ax2.set_xlabel('$X^0$')
     ax2.set_ylabel('$X^1$')
+    ax2.yaxis.set_label_position("right")
+    ax2.yaxis.tick_right()
     ax2.set_aspect("equal")
     ax2.contourf(X, Y, 100*density_2d, cmap = "viridis")
     
@@ -357,8 +365,10 @@ def plot_dens_2d(file,density_2d,sizes,frac,inst):
         x.append(element[0])
         y.append(element[1])
     ax2.scatter(y,x,color="black")
+
     
-    plt.savefig(file.replace(".dat",".png"))
+    
+    plt.savefig(file.replace(".dat","2d.png"),dpi=800, bbox_inches='tight')
     plt.show()
     plt.close(fig)
 

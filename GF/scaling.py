@@ -55,20 +55,27 @@ def plot_scaling_ls(nr_list, nt_list, t_list, beta_list, physical, physical_erro
             data_plot=[]
             data_error=[]
             x=[]
+            x_err=[]
             plot=False
             for i in range(0,len(physical)):
                 if physical[i][1]==nt and physical[i][2]==nr and float(physical[i][0])<0.8:# and physical[i][3]==t
-                    data_plot.append(physical[i][feature])
+                    data_plot.append(float(physical[i][feature]))
                     data_error.append(physical_errors[i][feature])
-                    x.append(physical[i][0])
+                    x.append(1/(float(physical[i][7])*float(physical[i][7])))
+                    x_err.append(2.0*physical_errors[i][7]/float(physical[i][7])**3)
+                    #x.append(1/float(physical[i][10]))
+                    #x_err.append(physical_errors[i][10]/float(physical[i][10]))
+                    
                     plot=True
             if plot:
-                plt.errorbar(x,data_plot, yerr=np.transpose(data_error),marker="o", label=str(nt)+", "+str(nr))
+                x_err=np.array((x_err))
+                print(x_err)
+                plt.errorbar(x,data_plot, xerr=np.transpose(x_err), yerr=np.transpose(data_error),marker="o", label=str(nt)+", "+str(nr))
 
 
-    plt.legend(loc="lower right",ncol=2)
+    plt.legend(loc="upper left",ncol=2)
     #plt.ylim(0.6,1.6)
-    plt.xlabel('$l_s$(fm)')
+    plt.xlabel('$1/\\rho$(fm)')
     plt.ylabel(ylabel)
     plt.savefig(plotname,dpi=800, bbox_inches='tight')
     plt.close()
@@ -154,18 +161,18 @@ def plot_scaling_N(nr_list, nt_list, t_list, beta_list, physical, physical_error
             for i in range(0,len(physical)):
                 if physical[i][1]==nt and physical[i][2]==nr and float(physical[i][0])<0.8:# and physical[i][3]==t
                     a=float(physical[i][0])/float(physical[i][1])
-                    data_plot.append(physical[i][feature]/a)
-                    data_error.append(physical_errors[i][feature]/a)
+                    data_plot.append(physical[i][feature]*a*a)
+                    data_error.append(physical_errors[i][feature]*a*a)
                     x.append(int(physical[i][1]))
                     plot=True
             if plot:
                 plt.errorbar(x,data_plot, yerr=np.transpose(data_error),marker="o", label=str(nt)+", "+str(nr))
 
-    x = np.linspace(2, 14, 1000)
-    y=rho_smooth(-0.243684,0.44703,x)
-    plt.plot(x,y, label="Smooth", color="black",linestyle='dashed')
+    #x = np.linspace(2, 14, 1000)
+    #y=rho_smooth(-0.243684,0.44703,x)
+    #plt.plot(x,y, label="Smooth", color="black",linestyle='dashed')
     plt.legend(loc="upper left",ncol=2)
-    plt.ylim(0.5,7)
+    #plt.ylim(0.5,7)
     plt.xlabel('$N_s$')
     plt.ylabel(ylabel)
     plt.savefig(plotname,dpi=800, bbox_inches='tight')
@@ -247,14 +254,14 @@ for key in table_ensembles:
         nt=table_ensembles[key]["nt"]
         t=table_ensembles[key]["t"]
         beta=table_ensembles[key]["beta"]
-        physical.append([ls,nt,nr,t,beta,table_ensembles[key]["means"][0]/table_ensembles[key]["vol"], #density
+        physical.append([ls,nt,nr,t,beta,table_ensembles[key]["a"],table_ensembles[key]["means"][0]/table_ensembles[key]["vol"], #density
                   abs(table_ensembles[key]["means"][1])/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["means"][2]*table_ensembles[key]["a"], #rho
                   abs(table_ensembles[key]["means"][3])/(table_ensembles[key]["a"]**2), #height
                        table_ensembles[key]["means"][1]/(table_ensembles[key]["a"]**2),#norm
                         table_ensembles[key]["means"][4]*table_ensembles[key]["a"]]) #distance
 
-        physical_errors.append([ls,nt,nr,t,beta,table_ensembles[key]["errors"][0]/table_ensembles[key]["vol"], 
+        physical_errors.append([ls,nt,nr,t,beta,table_ensembles[key]["a"],table_ensembles[key]["errors"][0]/table_ensembles[key]["vol"], 
                   table_ensembles[key]["errors"][1]/np.pi/(table_ensembles[key]["means"][2]*table_ensembles[key]["a"])**2, #height_fit=norm/(pi*rho**2)
                   table_ensembles[key]["errors"][2]*table_ensembles[key]["a"], #rho
                   table_ensembles[key]["errors"][3]/(table_ensembles[key]["a"]**2), #height
@@ -265,42 +272,47 @@ for key in table_ensembles:
 physical = sorted(physical, key=lambda a_entry: a_entry[0]) 
 physical_errors = sorted(physical_errors, key=lambda a_entry: a_entry[0]) 
 
-beta=""
+fv = open("data_fractionals.txt", "w")
+for i in range(0,len(physical)):
+  for j in range(0,len(physical[i])):
+    if j < 6:
+      fv.write("%.4f " % (float(physical[i][j]), ))
+    else:
+      fv.write("(%.4f, %.4f, %.4f) " % (float(physical[i][j]),float(physical_errors[i][j][0]), float(physical_errors[i][j][1])))
+  fv.write("\n")
 
 plt.rcParams.update({'font.size': 14})
 
 ylabel='$n_{fi}(1/fm^2)$'
 plotname="scaling_dens.pdf"
-plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 5)  
+plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 6)  
 
 ylabel='density$(1/fm^2)$'
 plotname="scaling_dens_Nb"+beta+".pdf"
-plot_scaling_N(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 5,beta)  
+plot_scaling_N(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 6, beta)  
 
 ylabel='height$(fm^2)$'
 plotname="scaling_height_fit.pdf"
-plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 8)   
+plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 9)   
 
-ylabel='$\\rho_{fi}(1/fm^2)$'
+ylabel='$\\rho_{fi}(fm)$'
 plotname="scaling_rho.pdf"
-plot_scaling_ls(nr_list, nt_list,t_list, beta_list, physical, physical_errors, ylabel, plotname, 7)  
+plot_scaling_ls(nr_list, nt_list,t_list, beta_list, physical, physical_errors, ylabel, plotname, 8)  
 
 ylabel='$\\rho_{fi}$'
 plotname="scaling_rho_Nb"+beta+".pdf"
-plot_scaling_N(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 7,beta)   
+plot_scaling_N(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 8,beta)   
 
 ylabel="width"
 plotname="scaling_rho_flow.pdf"
-plot_scaling_flow(nr_list, nt_list, t_list, beta_list, physical, physical_errors, ylabel, plotname, 7)  
+plot_scaling_flow(nr_list, nt_list, t_list, beta_list, physical, physical_errors, ylabel, plotname, 8)  
 
 ylabel="norm(fm^2)"
 plotname="scaling_norm.pdf"
-plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 9)   
+plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 10)   
 
 ylabel="distance(fm)"
 plotname="scaling_distance.pdf"
-plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 10)   
-
-
+plot_scaling_ls(nr_list, nt_list, t_list, beta_list,physical, physical_errors, ylabel, plotname, 11)   
 
 

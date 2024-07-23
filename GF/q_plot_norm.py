@@ -19,16 +19,23 @@ def extract_feature(line, param):
     return(np.array((feature)))
 
 def plot_histo(data,bins,xlabel,figure_name,xrange=()):
+    plt.rcParams.update({'font.size': 18})
+  
     if xrange:
       plt.hist(data,bins=100, range=xrange, density=True)
     else:
       plt.hist(data,bins=100, density=True)
-    title="# points:" +str(len(data))
-    plt.ylabel("frequency")
-    plt.xlabel(xlabel)
-    plt.title(title)
+    
+    xs = np.linspace(0.2,8,200)
+    #plt.vlines(x=[0.5,0.75], ymin=0, ymax=8, colors='black', ls='--', lw=2)
 
-    plt.savefig(figure_name)
+    #title="# points:" +str(len(data))
+    #plt.axis._axinfo['label']['space_factor'] = 2.8
+    plt.ylabel("Frequency \n")
+    plt.xlabel(xlabel)
+    #plt.title(title)
+
+    plt.savefig(figure_name,dpi=800, bbox_inches='tight')
     plt.close()
 
     return 
@@ -186,10 +193,11 @@ for nt in nt_list:
                     figure="./instantons/inst_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
                     xlabel="density"
                     plot_histo(table_ensembles[key]['histo_dens'][2],bins,xlabel,figure)
-    
+
+                    xrange=(0,2.0)
                     figure="./norm_hist/norm_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
-                    xlabel="norm"
-                    plot_histo(norm,bins,xlabel,figure)
+                    xlabel="$Q_{fit}$"
+                    plot_histo(norm,bins,xlabel,figure,xrange)
 
                     #xrange=(0,0.02)
                     figure="./height_hist/height_hist_nt"+str(nt)+"b"+str(beta)+"nr"+str(nr)+"t"+str(t)+".png"
