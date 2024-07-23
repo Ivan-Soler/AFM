@@ -26,7 +26,7 @@ d.sort_values('ConfigNumber',inplace=True)
 
 dcount="/data/datatopoym/iscalero/T2xR2/counting/"
 table_ensembles=pickle.load(open('../scaling.pkl', "rb" ))
-key=nt+"nt"+nr+"nr"+beta+"b"
+key=key=nt+"nt"+nr+"nr"+beta+"b"+tau+"tau"
 
 for index,row in d.iterrows():
     fname=row['ArchiveName']
